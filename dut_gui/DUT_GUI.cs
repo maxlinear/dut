@@ -543,14 +543,6 @@ namespace DUT_GUI
                     }
                 }
 
-                if (_beamforming)
-                {
-                    if (!DUT.ValidateBeamformingHeaderRegister(_phyType, _signalBW))
-                    {
-                        MessageDialog.ShowWarning("Beamforming header validation failed - make sure to write the correct beamforming header/values. See Exception for more details.");
-                        return;
-                    }
-                }
 
                 if (DUT.StartTxPackets(_repetitions, _length, _isDataLong, _beamforming))
                 {
@@ -1038,8 +1030,7 @@ namespace DUT_GUI
 
                         txtBox_nvMemCtrl_eepromFile.Text = (string)ip_rk.GetValue("EepromFile", "EEPROM.txt");
 
-                        txtBox_beamformingMatrixHeaderFile_standard.Text = (string)ip_rk.GetValue("BeamformingMatrixHeaderFile", "");
-                        txtBox_beamformingMatrixValuesFile_standard.Text = (string)ip_rk.GetValue("BeamformingMatrixValuesFile", "");
+                        txtBox_beamformingMatrixFile.Text = (string)ip_rk.GetValue("BeamformingMatrixFile", "BeamformingMatrix.txt");
 
                         combox_basicOp_phyType.SelectedIndexChanged += new EventHandler(combox_basicOp_phyType_SelectedIndexChanged);
 
@@ -1125,8 +1116,7 @@ namespace DUT_GUI
 
                         ip_rk.SetValue("EepromFile", txtBox_nvMemCtrl_eepromFile.Text);
 
-                        ip_rk.SetValue("BeamformingMatrixHeaderFile", txtBox_beamformingMatrixHeaderFile_standard.Text);
-                        ip_rk.SetValue("BeamformingMatrixValuesFile", txtBox_beamformingMatrixValuesFile_standard.Text);
+                        ip_rk.SetValue("BeamformingMatrixFile", txtBox_beamformingMatrixFile.Text);
 
                         ip_rk.Close();
                     }
@@ -1851,7 +1841,7 @@ namespace DUT_GUI
                             TreeNode startFreqNode = new TreeNode("Start " + startFreqName);
                             string stopFreqName = getChannelAndFreqForRSSI(calData.stopFreq);
                             TreeNode stopFreqNode = new TreeNode("Stop " + stopFreqName);
-                            TreeNode chipTempNode = new TreeNode("Chip Temperature=" + calData.chipTemperature.ToString() + " ï¿½C");
+                            TreeNode chipTempNode = new TreeNode("Chip Temperature=" + calData.chipTemperature.ToString() + " ºC");
                             baseNode.Nodes.Add(startFreqNode);
                             baseNode.Nodes.Add(stopFreqNode);
                             baseNode.Nodes.Add(chipTempNode);
@@ -1957,7 +1947,7 @@ namespace DUT_GUI
                             TreeNode startFreqNode = new TreeNode("Start " + startFreqName);
                             string stopFreqName = getChannelAndFreqForRSSI(calData.stopFreq);
                             TreeNode stopFreqNode = new TreeNode("Stop " + stopFreqName);
-                            TreeNode chipTempNode = new TreeNode("Chip Temperature=" + calData.chipTemperature.ToString() + " ï¿½C");
+                            TreeNode chipTempNode = new TreeNode("Chip Temperature=" + calData.chipTemperature.ToString() + " ºC");
                             baseNode.Nodes.Add(startFreqNode);
                             baseNode.Nodes.Add(stopFreqNode);
                             baseNode.Nodes.Add(chipTempNode);
@@ -2320,16 +2310,6 @@ namespace DUT_GUI
             groupBox_WlanCard.Enabled = status;
         }
 
-        private void ResizeBFTabControlToFitContent()
-        {
-            if (bf_tabControl.SelectedTab != null)
-            {
-                // Get the height of the selected tab's content
-                Control content = bf_tabControl.SelectedTab.Controls[0];
-                bf_tabControl.Height = content.Height + bf_tabControl.ItemSize.Height + 10; // Add padding
-            }
-        }
-
         private void tabControl_SelectedIndexChanged(object sender, EventArgs e)
         {
             if (DUT.IsInitialized)
@@ -2343,25 +2323,6 @@ namespace DUT_GUI
                     this.check_extendedOp_xtalEnable.Checked = true;
                     xtal_enable_CheckedChanged(null, null);
                     read_xtal_Click(null, null);
-
-                    // Update bf_tabControl based on operation type
-                    Bandwidth bandwidth = GUI_GetSelectedSpectrumBandwidth();
-                    if (bandwidth == Bandwidth.BANDWIDTH_ONE_HUNDRED_SIXTY)
-                    {
-                        // EHT 160 operation
-                        bf_tabControl.SelectedIndex = 2; // bf_tab_eht160
-                    }
-                    else if (bandwidth == Bandwidth.BANDWIDTH_THREE_HUNDRED_TWENTY)
-                    {
-                        // EHT 320 operation
-                        bf_tabControl.SelectedIndex = 3; // bf_tab_eht320
-                    }
-                    else
-                    {
-                        // Standard operation
-                        bf_tabControl.SelectedIndex = 1; // bf_tab_standard
-                    }
-                    ResizeBFTabControlToFitContent();
                 }
                 else if (tabControl.SelectedIndex == 2)
                 {
@@ -3158,6 +3119,7 @@ namespace DUT_GUI
                         check_basicOp_txBeamforming.Checked = false;
                         check_basicOp_txBeamforming.Enabled = false;
                         groupBox_WriteBeamformingMatrix.Enabled = false;
+
                         break;
                     }
                 case PhyMode.PHY_MODE_B: // 802.11b
@@ -3795,105 +3757,12 @@ namespace DUT_GUI
             }
         }
 
-        private void button_browseBeamformingMatrixHeaderFile_Click(object sender, EventArgs e)
+        private void button_browseBeamformingMatrixFile_Click(object sender, EventArgs e)
         {
-            openBeamformingMatrixHeaderFile_standard.FileName = txtBox_beamformingMatrixHeaderFile_standard.Text;
-            if (openBeamformingMatrixHeaderFile_standard.ShowDialog() == DialogResult.OK)
+            openBeamformingMatrixFile.FileName = txtBox_beamformingMatrixFile.Text;
+            if (openBeamformingMatrixFile.ShowDialog() == DialogResult.OK)
             {
-                txtBox_beamformingMatrixHeaderFile_standard.Text = openBeamformingMatrixHeaderFile_standard.FileName;
-            }
-        }
-
-        private void button_browseBeamformingMatrixValuesFile_Click(object sender, EventArgs e)
-        {
-            openBeamformingMatrixValuesFile_standard.FileName = txtBox_beamformingMatrixValuesFile_standard.Text;
-            if (openBeamformingMatrixValuesFile_standard.ShowDialog() == DialogResult.OK)
-            {
-                txtBox_beamformingMatrixValuesFile_standard.Text = openBeamformingMatrixValuesFile_standard.FileName;
-            }
-        }
-
-        // 160MHz tab browse button handlers
-        private void button_browseBeamformingMatrixHeaderFile_160mhz_Click(object sender, EventArgs e)
-        {
-            openBeamformingMatrixHeaderFile_160mhz.FileName = txtBox_beamformingMatrixHeaderFile_160mhz.Text;
-            if (openBeamformingMatrixHeaderFile_160mhz.ShowDialog() == DialogResult.OK)
-            {
-                txtBox_beamformingMatrixHeaderFile_160mhz.Text = openBeamformingMatrixHeaderFile_160mhz.FileName;
-            }
-        }
-
-        private void button_browseBeamformingMatrixValuesFile_160mhz_Click(object sender, EventArgs e)
-        {
-            openBeamformingMatrixValuesFile_160mhz.FileName = txtBox_beamformingMatrixValuesFile_160mhz.Text;
-            if (openBeamformingMatrixValuesFile_160mhz.ShowDialog() == DialogResult.OK)
-            {
-                txtBox_beamformingMatrixValuesFile_160mhz.Text = openBeamformingMatrixValuesFile_160mhz.FileName;
-            }
-        }
-
-        private void button_browseBeamformingMatrixValuesFile_ehtExtra_160mhz_Click(object sender, EventArgs e)
-        {
-            openBeamformingMatrixValuesFile_ehtExtra_160mhz.FileName = txtBox_beamformingMatrixValuesFile_ehtExtra_160mhz.Text;
-            if (openBeamformingMatrixValuesFile_ehtExtra_160mhz.ShowDialog() == DialogResult.OK)
-            {
-                txtBox_beamformingMatrixValuesFile_ehtExtra_160mhz.Text = openBeamformingMatrixValuesFile_ehtExtra_160mhz.FileName;
-            }
-        }
-
-        // 320MHz lower tab browse button handlers
-        private void button_browseBeamformingMatrixHeaderFile_lower_320mhz_Click(object sender, EventArgs e)
-        {
-            openBeamformingMatrixHeaderFile_lower_320mhz.FileName = txtBox_beamformingMatrixHeaderFile_lower_320mhz.Text;
-            if (openBeamformingMatrixHeaderFile_lower_320mhz.ShowDialog() == DialogResult.OK)
-            {
-                txtBox_beamformingMatrixHeaderFile_lower_320mhz.Text = openBeamformingMatrixHeaderFile_lower_320mhz.FileName;
-            }
-        }
-
-        private void button_browseBeamformingMatrixValuesFile_lower_320mhz_Click(object sender, EventArgs e)
-        {
-            openBeamformingMatrixValuesFile_lower_320mhz.FileName = txtBox_beamformingMatrixValuesFile_lower_320mhz.Text;
-            if (openBeamformingMatrixValuesFile_lower_320mhz.ShowDialog() == DialogResult.OK)
-            {
-                txtBox_beamformingMatrixValuesFile_lower_320mhz.Text = openBeamformingMatrixValuesFile_lower_320mhz.FileName;
-            }
-        }
-
-        private void button_browseBeamformingMatrixValuesFile_ehtExtra_lower_320mhz_Click(object sender, EventArgs e)
-        {
-            openBeamformingMatrixValuesFile_ehtExtra_lower_320mhz.FileName = txtBox_beamformingMatrixValuesFile_ehtExtra_lower_320mhz.Text;
-            if (openBeamformingMatrixValuesFile_ehtExtra_lower_320mhz.ShowDialog() == DialogResult.OK)
-            {
-                txtBox_beamformingMatrixValuesFile_ehtExtra_lower_320mhz.Text = openBeamformingMatrixValuesFile_ehtExtra_lower_320mhz.FileName;
-            }
-        }
-
-        // 320MHz upper tab browse button handlers
-        private void button_browseBeamformingMatrixHeaderFile_upper_320mhz_Click(object sender, EventArgs e)
-        {
-            openBeamformingMatrixHeaderFile_upper_320mhz.FileName = txtBox_beamformingMatrixHeaderFile_upper_320mhz.Text;
-            if (openBeamformingMatrixHeaderFile_upper_320mhz.ShowDialog() == DialogResult.OK)
-            {
-                txtBox_beamformingMatrixHeaderFile_upper_320mhz.Text = openBeamformingMatrixHeaderFile_upper_320mhz.FileName;
-            }
-        }
-
-        private void button_browseBeamformingMatrixValuesFile_upper_320mhz_Click(object sender, EventArgs e)
-        {
-            openBeamformingMatrixValuesFile_upper_320mhz.FileName = txtBox_beamformingMatrixValuesFile_upper_320mhz.Text;
-            if (openBeamformingMatrixValuesFile_upper_320mhz.ShowDialog() == DialogResult.OK)
-            {
-                txtBox_beamformingMatrixValuesFile_upper_320mhz.Text = openBeamformingMatrixValuesFile_upper_320mhz.FileName;
-            }
-        }
-
-        private void button_browseBeamformingMatrixValuesFile_ehtExtra_upper_320mhz_Click(object sender, EventArgs e)
-        {
-            openBeamformingMatrixValuesFile_ehtExtra_upper_320mhz.FileName = txtBox_beamformingMatrixValuesFile_ehtExtra_upper_320mhz.Text;
-            if (openBeamformingMatrixValuesFile_ehtExtra_upper_320mhz.ShowDialog() == DialogResult.OK)
-            {
-                txtBox_beamformingMatrixValuesFile_ehtExtra_upper_320mhz.Text = openBeamformingMatrixValuesFile_ehtExtra_upper_320mhz.FileName;
+                txtBox_beamformingMatrixFile.Text = openBeamformingMatrixFile.FileName;
             }
         }
 
@@ -3901,61 +3770,21 @@ namespace DUT_GUI
         {
             using (new WaitCursorBlock(this))
             {
-                // Use standard tab file paths
-                string primaryHeaderFile = txtBox_beamformingMatrixHeaderFile_standard.Text;
-                string primaryValuesFile = txtBox_beamformingMatrixValuesFile_standard.Text;
-                string primaryExtValuesEhtFile = null;
-
-                // No secondary files for standard bandwidth
-                string secondaryHeaderFile = null;
-                string secondaryValuesFile = null;
-                string secondaryExtValuesEhtFile = null;
-
-                // Load beamforming matrix using the new API
-                DUT.LoadBeamformingMatrixFromFileSet(
-                    primaryHeaderFile, primaryValuesFile, primaryExtValuesEhtFile,
-                    secondaryHeaderFile, secondaryValuesFile, secondaryExtValuesEhtFile);
-            }
-        }
-
-        private void button_writeBeamformingMatrixFile_160mhz_Click(object sender, EventArgs e)
-        {
-            using (new WaitCursorBlock(this))
-            {
-                // Use 160MHz specific file paths
-                string primaryHeaderFile = txtBox_beamformingMatrixHeaderFile_160mhz.Text;
-                string primaryValuesFile = txtBox_beamformingMatrixValuesFile_160mhz.Text;
-                string primaryExtValuesEhtFile = string.IsNullOrEmpty(txtBox_beamformingMatrixValuesFile_ehtExtra_160mhz.Text) ? null : txtBox_beamformingMatrixValuesFile_ehtExtra_160mhz.Text;
-
-                // No secondary files for 160MHz
-                string secondaryHeaderFile = null;
-                string secondaryValuesFile = null;
-                string secondaryExtValuesEhtFile = null;
-
-                // Load beamforming matrix using the new API
-                DUT.LoadBeamformingMatrixFromFileSet(
-                    primaryHeaderFile, primaryValuesFile, primaryExtValuesEhtFile,
-                    secondaryHeaderFile, secondaryValuesFile, secondaryExtValuesEhtFile);
-            }
-        }
-
-        private void button_writeBeamformingMatrixFile_320mhz_Click(object sender, EventArgs e)
-        {
-            using (new WaitCursorBlock(this))
-            {
-                // Use 320MHz specific file paths (primary = lower, secondary = upper)
-                string primaryHeaderFile = txtBox_beamformingMatrixHeaderFile_lower_320mhz.Text;
-                string primaryValuesFile = txtBox_beamformingMatrixValuesFile_lower_320mhz.Text;
-                string primaryExtValuesEhtFile = string.IsNullOrEmpty(txtBox_beamformingMatrixValuesFile_ehtExtra_lower_320mhz.Text) ? null : txtBox_beamformingMatrixValuesFile_ehtExtra_lower_320mhz.Text;
-
-                // Secondary files for 320MHz upper segment
-                string secondaryHeaderFile = string.IsNullOrEmpty(txtBox_beamformingMatrixHeaderFile_upper_320mhz.Text) ? null : txtBox_beamformingMatrixHeaderFile_upper_320mhz.Text;
-                string secondaryValuesFile = string.IsNullOrEmpty(txtBox_beamformingMatrixValuesFile_upper_320mhz.Text) ? null : txtBox_beamformingMatrixValuesFile_upper_320mhz.Text;
-                string secondaryExtValuesEhtFile = string.IsNullOrEmpty(txtBox_beamformingMatrixValuesFile_ehtExtra_upper_320mhz.Text) ? null : txtBox_beamformingMatrixValuesFile_ehtExtra_upper_320mhz.Text;
-
-                DUT.LoadBeamformingMatrixFromFileSet(
-                    primaryHeaderFile, primaryValuesFile, primaryExtValuesEhtFile,
-                    secondaryHeaderFile, secondaryValuesFile, secondaryExtValuesEhtFile);
+                BeamformingMatrixType type;
+                PhyMode selectedPhy = GUI_GetSelectedPhyMode();
+                if (selectedPhy == PhyMode.PHY_MODE_AC)
+                {
+                    type = BeamformingMatrixType.BEAMFORMING_MATRIX_TYPE_VHT;
+                }
+                else if (selectedPhy == PhyMode.PHY_MODE_AX)
+                {
+                    type = BeamformingMatrixType.BEAMFORMING_MATRIX_TYPE_HE;
+                }
+                else
+                {
+                    return;
+                }
+                DUT.LoadBeamformingMatrixFromFile(txtBox_beamformingMatrixFile.Text, type);
             }
         }
 
@@ -4111,17 +3940,5 @@ namespace DUT_GUI
                 DUT.SetRUParams((uint)userOne, (uint)userTwo);
             }
         }
-
-        private void label15_Click(object sender, EventArgs e)
-        {
-
-        }
-
-        private void tableLayoutPanel6_Paint(object sender, PaintEventArgs e)
-        {
-
-        }
-
-
     }
 }

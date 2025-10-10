@@ -109,7 +109,7 @@ DUT_C_API bool DUT_C_API_ENTRY DUT_getTssiCalibrationData(const DutHandle handle
 DUT_C_API bool DUT_C_API_ENTRY DUT_getXtalCalValue(const DutHandle handle, uint16_t* xtalValue);
 DUT_C_API bool DUT_C_API_ENTRY DUT_getXtalRegValue(const DutHandle handle, uint16_t* xtalValue);
 DUT_C_API bool DUT_C_API_ENTRY DUT_getZwdfsStatus(const DutHandle handle, dut::AntennaMask_t* antennaMask, bool* enabled);
-DUT_C_API bool DUT_C_API_ENTRY DUT_loadBeamformingMatrixFromFileSet(const DutHandle handle, const char* primaryHeaderFile, const char* primaryValuesFile, const char* primaryExtValuesEhtFile, const char* secondaryHeaderFile, const char* secondaryValuesFile, const char* secondaryExtValuesEhtFile);
+DUT_C_API bool DUT_C_API_ENTRY DUT_loadBeamformingMatrixFromFile(const DutHandle handle, const char* fileName, dut::BeamformingMatrixType type);
 DUT_C_API bool DUT_C_API_ENTRY DUT_loadNvmFromFile(const DutHandle handle, const char* fileName);
 DUT_C_API bool DUT_C_API_ENTRY DUT_measureRxLnaSubBandGains(const DutHandle handle);
 DUT_C_API bool DUT_C_API_ENTRY DUT_readMemory(const DutHandle handle, dut::ChipModule chipModule, size_t address, uint8_t* data, size_t length);
@@ -155,7 +155,6 @@ DUT_C_API bool DUT_C_API_ENTRY DUT_stopCw(const DutHandle handle);
 DUT_C_API bool DUT_C_API_ENTRY DUT_stopRxCalibration(const DutHandle handle);
 DUT_C_API bool DUT_C_API_ENTRY DUT_stopRxPer(const DutHandle handle, bool calcRxPer);
 DUT_C_API bool DUT_C_API_ENTRY DUT_stopTx(const DutHandle handle);
-DUT_C_API bool DUT_C_API_ENTRY DUT_validateBeamformingHeaderRegister(const DutHandle handle, dut::PhyMode expectedPhyMode, dut::Bandwidth expectedBandwidth);
 DUT_C_API bool DUT_C_API_ENTRY DUT_writeCalibrationFile(const DutHandle handle, dut::NvMemoryType memoryType, dut::NvMemorySize memorySize);
 DUT_C_API bool DUT_C_API_ENTRY DUT_writeMemory(const DutHandle handle, dut::ChipModule chipModule, size_t address, const uint8_t* data, size_t length);
 DUT_C_API bool DUT_C_API_ENTRY DUT_writeNvm(const DutHandle handle, size_t address, const uint8_t* data, size_t length);

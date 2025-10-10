@@ -247,12 +247,8 @@ public:
     bool execute(std::shared_ptr<dut::Dut> dut, Context& context) override;
 
 private:
-    std::string m_headerFileName;
-    std::string m_valuesFileName;
-    std::string m_extValuesEhtFileName;
-    std::string m_secondaryHeaderFileName;
-    std::string m_secondaryValuesFileName;
-    std::string m_secondaryExtValuesEhtFileName;
+    std::string m_fileName;
+    dut::BeamformingMatrixType m_type { dut::BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_VHT };
 };
 
 class LoadNvmFromFileFunction : public Function {
@@ -574,16 +570,6 @@ public:
 
 private:
     bool m_calcRxPer { false };
-};
-
-class ValidateBeamformingHeaderRegisterFunction : public Function {
-public:
-    bool parse(std::vector<std::string>& args) override;
-    bool execute(std::shared_ptr<dut::Dut> dut, Context& context) override;
-
-private:
-    dut::PhyMode m_expectedPhyMode = dut::PhyMode::PHY_MODE_AX;
-    dut::Bandwidth m_expectedBandwidth = dut::Bandwidth::BANDWIDTH_EIGHTY;
 };
 
 class WriteCalibrationFileFunction : public Function {

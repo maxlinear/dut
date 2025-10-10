@@ -89,7 +89,7 @@ public:
     bool getXtalCalValue([System::Runtime::InteropServices::OutAttribute] uint16_t % xtalValue);
     bool getXtalRegValue([System::Runtime::InteropServices::OutAttribute] uint16_t % xtalValue);
     bool getZwdfsStatus([System::Runtime::InteropServices::OutAttribute] AntennaMask ^ % antennaMask, [System::Runtime::InteropServices::OutAttribute] bool % enabled);
-    bool loadBeamformingMatrixFromFileSet(System::String ^ primaryHeaderFile, System::String ^ primaryValuesFile, System::String ^ primaryExtValuesEhtFile, System::String ^ secondaryHeaderFile, System::String ^ secondaryValuesFile, System::String ^ secondaryExtValuesEhtFile);
+    bool loadBeamformingMatrixFromFile(System::String ^ fileName, BeamformingMatrixType type);
     bool loadNvmFromFile(System::String ^ fileName);
     bool readMemory(ChipModule chipModule, size_t address, [System::Runtime::InteropServices::OutAttribute] cli::array<uint8_t> ^ % data, size_t length);
     bool readNvm(size_t address, [System::Runtime::InteropServices::OutAttribute] cli::array<uint8_t> ^ % data, size_t length, bool useCache);
@@ -123,7 +123,6 @@ public:
     bool stopCw();
     bool stopTx();
     bool stopRxPer(bool calcRxPer);
-    bool validateBeamformingHeaderRegister(PhyMode expectedPhyMode, Bandwidth expectedBandwidth);
     bool writeCalibrationFile(NvMemoryType memoryType, NvMemorySize memorySize);
     bool writeMemory(ChipModule chipModule, size_t address, cli::array<uint8_t> ^ data, size_t length);
     bool writeNvm(size_t address, cli::array<uint8_t> ^ data, size_t length);

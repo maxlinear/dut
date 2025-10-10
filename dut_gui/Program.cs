@@ -660,19 +660,9 @@ namespace DUT_GUI
             return Array.Empty<Band>();
         }
 
-
-        public bool LoadBeamformingMatrixFromFileSet( 
-            string primaryHeaderFile, string primaryValuesFile, string primaryExtValuesEhtFile,
-            string secondaryHeaderFile, string secondaryValuesFile, string secondaryExtValuesEhtFile)
+        public bool LoadBeamformingMatrixFromFile(string fileName, BeamformingMatrixType type)
         {
-            return dut.loadBeamformingMatrixFromFileSet(
-                primaryHeaderFile, primaryValuesFile, primaryExtValuesEhtFile,
-                secondaryHeaderFile, secondaryValuesFile, secondaryExtValuesEhtFile);
-        }
-
-        public bool ValidateBeamformingHeaderRegister(PhyMode expectedPhyMode, Bandwidth expectedBandwidth)
-        {
-            return dut.validateBeamformingHeaderRegister(expectedPhyMode, expectedBandwidth);
+            return dut.loadBeamformingMatrixFromFile(fileName, type);
         }
 
         public float GetTemperature()

@@ -22,7 +22,7 @@
  *   THIS COMPUTER PROGRAM IS PROVIDED "AS IS" WITHOUT ANY WARRANTIES, AND MAXLINEAR, INC.
  *   EXPRESSLY DISCLAIMS ALL WARRANTIES, EXPRESS OR IMPLIED, INCLUDING THE WARRANTIES OF
  *   MERCHANTIBILITY, FITNESS FOR A PARTICULAR PURPOSE, TITLE, AND NONINFRINGEMENT.
- * 
+ *  
  *  ***************************************************************************************
  *                                          Copyright (c) 2021/2022, MaxLinear, Inc.
  *  ***************************************************************************************
@@ -548,40 +548,12 @@ bool Dut::getZwdfsStatus([Out] AntennaMask ^ % antennaMask, [Out] bool % enabled
     return result;
 }
 
-bool Dut::loadBeamformingMatrixFromFileSet(System::String ^ primaryHeaderFile, System::String ^ primaryValuesFile, System::String ^ primaryExtValuesEhtFile, System::String ^ secondaryHeaderFile, System::String ^ secondaryValuesFile, System::String ^ secondaryExtValuesEhtFile)
+bool Dut::loadBeamformingMatrixFromFile(System::String ^ fileName, BeamformingMatrixType type)
 {
-    if (!primaryHeaderFile || !primaryValuesFile) {
-        return false;
-    }
+    auto _fileName = msclr::interop::marshal_as<std::string>(fileName);
+    auto _type = static_cast<dut::BeamformingMatrixType>(type);
 
-    // Convert managed strings to native strings
-    std::string _primaryHeaderFile = msclr::interop::marshal_as<std::string>(primaryHeaderFile);
-    std::string _primaryValuesFile = msclr::interop::marshal_as<std::string>(primaryValuesFile);
-    std::string _primaryExtValuesEhtFile = primaryExtValuesEhtFile ? msclr::interop::marshal_as<std::string>(primaryExtValuesEhtFile) : "";
-
-    // Create primary file set
-    dut::BeamformingFilePathSet_t primaryFileSet;
-    primaryFileSet.headerFile = _primaryHeaderFile.c_str();
-    primaryFileSet.valuesFile = _primaryValuesFile.c_str();
-    primaryFileSet.extValuesEhtFile = _primaryExtValuesEhtFile.empty() ? nullptr : _primaryExtValuesEhtFile.c_str();
-
-    // Create secondary file set
-    dut::BeamformingFilePathSet_t secondaryFileSet {};
-    if (secondaryHeaderFile && secondaryValuesFile) {
-        std::string _secondaryHeaderFile = msclr::interop::marshal_as<std::string>(secondaryHeaderFile);
-        std::string _secondaryValuesFile = msclr::interop::marshal_as<std::string>(secondaryValuesFile);
-        std::string _secondaryExtValuesEhtFile = secondaryExtValuesEhtFile ? msclr::interop::marshal_as<std::string>(secondaryExtValuesEhtFile) : "";
-
-        secondaryFileSet.headerFile = _secondaryHeaderFile.c_str();
-        secondaryFileSet.valuesFile = _secondaryValuesFile.c_str();
-        secondaryFileSet.extValuesEhtFile = _secondaryExtValuesEhtFile.empty() ? nullptr : _secondaryExtValuesEhtFile.c_str();
-    } else {
-        secondaryFileSet.headerFile = nullptr;
-        secondaryFileSet.valuesFile = nullptr;
-        secondaryFileSet.extValuesEhtFile = nullptr;
-    }
-
-    return GetInstance()->loadBeamformingMatrixFromFileSet(primaryFileSet, secondaryFileSet);
+    return GetInstance()->loadBeamformingMatrixFromFile(_fileName, _type);
 }
 
 bool Dut::loadNvmFromFile(System::String ^ fileName)
@@ -800,14 +772,6 @@ bool Dut::stopTx()
 bool Dut::stopRxPer(bool calcRxPer)
 {
     return GetInstance()->stopRxPer(calcRxPer);
-}
-
-bool Dut::validateBeamformingHeaderRegister(PhyMode expectedPhyMode, Bandwidth expectedBandwidth)
-{
-    auto _expectedPhyMode = static_cast<dut::PhyMode>(expectedPhyMode);
-    auto _expectedBandwidth = static_cast<dut::Bandwidth>(expectedBandwidth);
-
-    return GetInstance()->validateBeamformingHeaderRegister(_expectedPhyMode, _expectedBandwidth);
 }
 
 bool Dut::writeCalibrationFile(NvMemoryType memoryType, NvMemorySize memorySize)

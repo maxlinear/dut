@@ -35,7 +35,6 @@
 #include "dut/AntennaMask.h"
 
 #include <stdint.h>
-#include <string>
 #ifdef LINUX_HOST
 #include <cstddef>
 #endif
@@ -123,6 +122,11 @@ enum class Bandwidth {
     BANDWIDTH_INVALID = 0xff
 };
 
+enum class BeamformingMatrixType {
+    BEAMFORMING_MATRIX_TYPE_VHT = 0x00,
+    BEAMFORMING_MATRIX_TYPE_HE = 0x01,
+};
+
 enum class CalibrationFileVersion {
     CALIBRATION_FILE_VERSION_4 = 4,
     CALIBRATION_FILE_VERSION_5 = 5,
@@ -158,7 +162,8 @@ enum class ChipModule {
     CHIP_MODULE_PHY,
     CHIP_MODULE_RF,
     CHIP_MODULE_AFE,
-    CHIP_MODULE_REGISTER
+    CHIP_MODULE_BF_VHT,
+    CHIP_MODULE_BF_HE,
 };
 
 enum class FemType {
@@ -292,17 +297,6 @@ struct CorrelationResults_t {
     int32_t II;
     int32_t QQ;
     int32_t IQ;
-};
-
-struct BeamformingHeaderInfo_t {
-    PhyMode phyMode; // PHY mode (packet format)
-    Bandwidth bandwidth; // Bandwidth (20MHz, 40MHz, 80MHz, 160MHz, 320MHz)
-};
-
-struct BeamformingFilePathSet_t {
-    const char* headerFile = nullptr; // Header file path (always required)
-    const char* valuesFile = nullptr; // Standard values file path (always required)
-    const char* extValuesEhtFile = nullptr; // Extended EHT values file path (optional, NULL if not used)
 };
 
 struct TransmitPowerVector_t {

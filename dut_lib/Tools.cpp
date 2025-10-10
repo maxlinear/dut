@@ -79,6 +79,19 @@ std::ostream& operator<<(std::ostream& out, const Bandwidth& value)
     return out;
 }
 
+std::ostream& operator<<(std::ostream& out, const BeamformingMatrixType& value)
+{
+    switch (value) {
+    case BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_VHT:
+        out << "VHT";
+        break;
+    case BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_HE:
+        out << "HE";
+        break;
+    }
+    return out;
+}
+
 std::ostream& operator<<(std::ostream& out, const CalibrationFileVersion& value)
 {
     switch (value) {
@@ -125,8 +138,11 @@ std::ostream& operator<<(std::ostream& out, const ChipModule& value)
     case ChipModule::CHIP_MODULE_AFE:
         out << "AFE";
         break;
-    case ChipModule::CHIP_MODULE_REGISTER:
-        out << "REGISTER";
+    case ChipModule::CHIP_MODULE_BF_VHT:
+        out << "BF_VHT";
+        break;
+    case ChipModule::CHIP_MODULE_BF_HE:
+        out << "BF_HE";
         break;
     }
     return out;
@@ -436,19 +452,6 @@ std::ostream& operator<<(std::ostream& out, const RssiAB_t& value)
 std::ostream& operator<<(std::ostream& out, const CorrelationResults_t& value)
 {
     out << "{II=" << value.II << ",QQ=" << value.QQ << ",IQ=" << value.IQ << "}";
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const BeamformingHeaderInfo_t& value)
-{
-    out << "{phyMode=" << value.phyMode << ",bandwidth=" << value.bandwidth << "}";
-    return out;
-}
-
-std::ostream& operator<<(std::ostream& out, const BeamformingFilePathSet_t& value)
-{
-    out << "{headerFile=\"" << value.headerFile << "\",valuesFile=\"" << value.valuesFile 
-        << "\",extValuesEhtFile=\"" << value.extValuesEhtFile << "\"}";
     return out;
 }
 

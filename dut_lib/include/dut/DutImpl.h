@@ -159,7 +159,7 @@ public:
     bool getXtalCalValue(uint16_t& xtalValue) override;
     bool getXtalRegValue(uint16_t& xtalValue) override;
     bool getZwdfsStatus(AntennaMask& antennaMask, bool& enabled) override;
-    bool loadBeamformingMatrixFromFileSet(const BeamformingFilePathSet_t& primarySet, const BeamformingFilePathSet_t& secondarySet = BeamformingFilePathSet_t {}) override;
+    bool loadBeamformingMatrixFromFile(const std::string& fileName, BeamformingMatrixType type) override;
     bool loadNvmFromFile(const std::string& fileName) override;
     bool measureRxLnaSubBandGains() override;
     bool readMemory(ChipModule chipModule, size_t address, uint8_t* data, size_t length) override;
@@ -207,7 +207,6 @@ public:
     bool stopRxCalibration() override;
     bool stopTx() override;
     bool stopRxPer(bool calcRxPer) override;
-    bool validateBeamformingHeaderRegister(PhyMode expectedPhyMode, Bandwidth expectedBandwidth) override;
     bool writeCalibrationFile(NvMemoryType memoryType, NvMemorySize memorySize) override;
     bool writeMemory(ChipModule chipModule, size_t address, const uint8_t* data, size_t length) override;
     bool writeNvm(size_t address, const uint8_t* data, size_t length) override;

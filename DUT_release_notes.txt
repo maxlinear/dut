@@ -1,16 +1,4 @@
-Version 2.26.0 (WLANRTSYS-53879-Implement-WAVE700-Beamforming), Wed 08/20/2025
-
-Content/Fixes:
-- Implement manual beamforming - user can write pre-generated beamforming vals to chip to be used during beamforming
-
-Shared headers hash:
-ae93fe20526f774260e4f16354d06bf623b19818
-
-Verified CV by DUT Automation:
-
-----------------------------------------------------------------
-
-Version 2.25.2 (WLANRTSYS-90650-Transmit-Negative-Power-FCC-wlan-master), Wed 07/09/2025
+Version 2.25.2 (WLANRTSYS-90650-Transmit-Negative-Power-FCC), Wed 07/09/2025
 
 Content/Fixes:
 Transmit negative values, block invalid cpMode, change value of autoPower

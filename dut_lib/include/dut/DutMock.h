@@ -101,7 +101,7 @@ public:
     MOCK_METHOD(bool, getXtalCalValue, (uint16_t & xtalValue), (override));
     MOCK_METHOD(bool, getXtalRegValue, (uint16_t & xtalValue), (override));
     MOCK_METHOD(bool, getZwdfsStatus, (AntennaMask & antennaMask, bool& enabled), (override));
-    MOCK_METHOD(bool, loadBeamformingMatrixFromFileSet, (const BeamformingFilePathSet_t& primarySet, const BeamformingFilePathSet_t& secondarySet), (override));
+    MOCK_METHOD(bool, loadBeamformingMatrixFromFile, (const std::string& fileName, BeamformingMatrixType type), (override));
     MOCK_METHOD(bool, loadNvmFromFile, (const std::string& fileName), (override));
     MOCK_METHOD(bool, measureRxLnaSubBandGains, (), (override));
     MOCK_METHOD(bool, readMemory, (ChipModule chipModule, size_t address, uint8_t* data, size_t length), (override));
@@ -149,7 +149,6 @@ public:
     MOCK_METHOD(bool, stopTx, (), (override));
     MOCK_METHOD(bool, stopRxPer, (bool calcRxPer), (override));
     MOCK_METHOD(bool, setClipper, (bool enabled), (override));
-    MOCK_METHOD(bool, validateBeamformingHeaderRegister, (PhyMode expectedPhyMode, Bandwidth expectedBandwidth), (override));
     MOCK_METHOD(bool, writeCalibrationFile, (NvMemoryType memoryType, NvMemorySize memorySize), (override));
     MOCK_METHOD(bool, writeMemory, (ChipModule chipModule, size_t address, const uint8_t* data, size_t length), (override));
     MOCK_METHOD(bool, writeNvm, (size_t address, const uint8_t* data, size_t length), (override));

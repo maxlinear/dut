@@ -916,27 +916,9 @@ bool DUT_C_API_ENTRY DUT_getZwdfsStatus(const DutHandle handle, dut::AntennaMask
     return ok;
 }
 
-bool DUT_C_API_ENTRY DUT_loadBeamformingMatrixFromFileSet(const DutHandle handle,
-    const char* primaryHeaderFile, const char* primaryValuesFile, const char* primaryExtValuesEhtFile,
-    const char* secondaryHeaderFile, const char* secondaryValuesFile, const char* secondaryExtValuesEhtFile)
+bool DUT_C_API_ENTRY DUT_loadBeamformingMatrixFromFile(const DutHandle handle, const char* fileName, dut::BeamformingMatrixType type)
 {
-    if (!handle || !primaryHeaderFile || !primaryValuesFile) {
-        return false;
-    }
-
-    dut::BeamformingFilePathSet_t primaryFileSet;
-    primaryFileSet.headerFile = primaryHeaderFile;
-    primaryFileSet.valuesFile = primaryValuesFile;
-    primaryFileSet.extValuesEhtFile = primaryExtValuesEhtFile ? primaryExtValuesEhtFile : "";
-
-    dut::BeamformingFilePathSet_t secondaryFileSet {};
-    if (secondaryHeaderFile && secondaryValuesFile) {
-        secondaryFileSet.headerFile = secondaryHeaderFile;
-        secondaryFileSet.valuesFile = secondaryValuesFile;
-        secondaryFileSet.extValuesEhtFile = secondaryExtValuesEhtFile ? secondaryExtValuesEhtFile : "";
-    }
-
-    return handle->loadBeamformingMatrixFromFileSet(primaryFileSet, secondaryFileSet);
+    return handle->loadBeamformingMatrixFromFile(fileName, type);
 }
 
 bool DUT_C_API_ENTRY DUT_loadNvmFromFile(const DutHandle handle, const char* fileName)
@@ -1236,11 +1218,6 @@ bool DUT_C_API_ENTRY DUT_stopRxPer(const DutHandle handle, bool calcRxPer)
 bool DUT_C_API_ENTRY DUT_stopTx(const DutHandle handle)
 {
     return handle->stopTx();
-}
-
-bool DUT_C_API_ENTRY DUT_validateBeamformingHeaderRegister(const DutHandle handle, dut::PhyMode expectedPhyMode, dut::Bandwidth expectedBandwidth)
-{
-    return handle->validateBeamformingHeaderRegister(expectedPhyMode, expectedBandwidth);
 }
 
 bool DUT_C_API_ENTRY DUT_writeCalibrationFile(const DutHandle handle, dut::NvMemoryType memoryType, dut::NvMemorySize memorySize)

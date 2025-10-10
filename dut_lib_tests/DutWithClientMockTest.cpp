@@ -29,8 +29,6 @@
  *  </legal_notice>
  */
 
-#include "BeamformingTestHelpers.h"
-#include "BeamformingUtils.h"
 #include "dut/DutImpl.h"
 
 #include "CmdLineArgs.h"
@@ -45,7 +43,6 @@
 #include "dut/WindowsConsoleLogger.h"
 #include "resource.h"
 
-#include <fstream>
 #include <gtest/gtest.h>
 
 using ::testing::_;
@@ -91,10 +88,10 @@ struct GetRateTestData_t {
 };
 
 /*
- * These tests use a client mock instead of a connection mock, so they are easier to implement
- * because there's no need to specify request-response frames in the expectations but just method
+ * These tests use a client mock instead of a connection mock, so they are easier to implement 
+ * because there's no need to specify request-response frames in the expectations but just method 
  * calls (those of the client mock).
- * These tests are used to test sad paths, corner cases and boundary cases.
+ * These tests are used to test sad paths, corner cases and boundary cases. 
  */
 class DutWithClientMockTest : public ::testing::Test {
 public:
@@ -169,37 +166,6 @@ public:
         }
     }
 
-    void setupChannelAndRate(dut::PhyMode phyMode, dut::Bandwidth spectrumBandwidth, dut::Bandwidth signalBandwidth,
-        uint8_t channel = 36, uint8_t primaryChannelIndex = 0,
-        dut::RegulationType regulationType = dut::RegulationType::REGULATION_TYPE_FCC_SP,
-        dut::Mcs mcs = dut::Mcs::MCS_QPSK_34, uint8_t nss = 1,
-        dut::Gi gi = dut::Gi::GI_0_8_US, dut::Ltf ltf = dut::Ltf::LTF_MEDIUM)
-    {
-        uint8_t antenna = 1;
-        dut::AntennaMask enabledTxAntennaMask(1 << antenna);
-
-        dut::AntennaMask enabledRxAntennaMask = 0x00;
-        ASSERT_TRUE(m_dut.getEnabledRxAntennaMask(enabledRxAntennaMask));
-
-        {
-            InSequence sequence;
-
-            EXPECT_CALL(*m_client, setEnabledTxAntennas(enabledTxAntennaMask));
-            EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, dut::Bandwidth::BANDWIDTH_TWENTY, dut::defaultTransmitPowerLevel));
-            EXPECT_CALL(*m_client, setTransmitPowerControlAntennaParams(antenna, _, _, _));
-            EXPECT_CALL(*m_client, setRssiCalData(_, _));
-            EXPECT_CALL(*m_client, setChannel(channel, primaryChannelIndex, spectrumBandwidth, enabledTxAntennaMask, regulationType));
-            EXPECT_CALL(*m_client, setEnabledRxAntennas(enabledRxAntennaMask));
-            EXPECT_CALL(*m_client, setRate(phyMode, signalBandwidth, _, nss, gi, ltf));
-            EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, dut::defaultTransmitPowerLevel));
-        }
-
-        float rateMbps = 0.0f;
-        ASSERT_TRUE(m_dut.setEnabledTxAntennaMask(enabledTxAntennaMask));
-        ASSERT_TRUE(m_dut.setChannel(phyMode, spectrumBandwidth, channel, primaryChannelIndex, regulationType));
-        ASSERT_TRUE(m_dut.setRate(signalBandwidth, mcs, nss, gi, ltf, rateMbps));
-    }
-
     dut::ChipID m_chipId;
     std::shared_ptr<StrictMock<dut::ClientMock>> m_client = std::make_shared<StrictMock<dut::ClientMock>>();
     std::shared_ptr<dut::Logger> m_logger = std::make_shared<dut::WindowsConsoleLogger>(true, g_cmdLineArgs.getLogLevel());
@@ -266,37 +232,6 @@ public:
     DutWithClientMockTestGen7()
         : DutWithClientMockTest(dut::ChipID::CHIP_ID_GEN7)
     {
-    }
-
-protected:
-    // Override setupChannelAndRate for Wave700 hardware matching the actual calling sequence
-    void setupChannelAndRate(dut::PhyMode phyMode, dut::Bandwidth spectrumBandwidth, dut::Bandwidth signalBandwidth,
-        uint8_t channel = 36, uint8_t primaryChannelIndex = 0,
-        dut::RegulationType regulationType = dut::RegulationType::REGULATION_TYPE_FCC_SP,
-        dut::Mcs mcs = dut::Mcs::MCS_QPSK_34, uint8_t nss = 1,
-        dut::Gi gi = dut::Gi::GI_0_8_US, dut::Ltf ltf = dut::Ltf::LTF_MEDIUM)
-    {
-        uint8_t antenna = 1;
-        dut::AntennaMask enabledTxAntennaMask(1 << antenna);
-        dut::AntennaMask enabledRxAntennaMask = 0x00;
-        ASSERT_TRUE(m_dut.getEnabledRxAntennaMask(enabledRxAntennaMask));
-
-        {
-            InSequence sequence;
-
-            EXPECT_CALL(*m_client, setEnabledTxAntennas(enabledTxAntennaMask));
-            EXPECT_CALL(*m_client, setTransmitPowerLevel(_, _, _)).Times(::testing::AtLeast(1)); // Multiple calls with different params
-            EXPECT_CALL(*m_client, setChannel(channel, primaryChannelIndex, spectrumBandwidth, enabledTxAntennaMask, regulationType));
-            EXPECT_CALL(*m_client, setEnabledRxAntennas(enabledRxAntennaMask));
-            EXPECT_CALL(*m_client, setRate(phyMode, signalBandwidth, _, _, _, _));
-            EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, dut::defaultTransmitPowerLevel));
-        }
-
-        ASSERT_TRUE(m_dut.setEnabledTxAntennaMask(enabledTxAntennaMask));
-        ASSERT_TRUE(m_dut.setChannel(phyMode, spectrumBandwidth, channel, primaryChannelIndex, regulationType));
-
-        float rateMbps;
-        ASSERT_TRUE(m_dut.setRate(signalBandwidth, mcs, nss, gi, ltf, rateMbps));
     }
 };
 
@@ -1177,6 +1112,80 @@ TEST_F(DutWithClientMockTest, getTransmitPowerTableOffsetShouldFailWithInvalidAn
 
     EXPECT_FALSE(m_dut.getTransmitPowerTableOffset(antenna, bandwidth, offset));
     EXPECT_EQ(m_dut.getLastError(), "Invalid antenna index value (" + dut::toString(antenna) + "). Valid values range from 0 to " + dut::toString(dut::maxNumTxAntennas - 1));
+}
+
+TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileShouldFailIfFileNotFound)
+{
+    std::string fileName = "nonexistent-file-name";
+    dut::BeamformingMatrixType type = dut::BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_VHT;
+
+    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFile(fileName, type));
+    EXPECT_EQ(m_dut.getLastError(), "Unable to open file '" + fileName + "' for reading");
+}
+
+TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileShouldFailIfEmptyFile)
+{
+    // Empty buffer
+    const std::array<uint8_t, 1> buffer {};
+
+    TemporaryFile temporaryFile(buffer.data(), buffer.size());
+
+    std::string fileName = temporaryFile.getFilename();
+    dut::BeamformingMatrixType type = dut::BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_VHT;
+
+    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFile(fileName, type));
+    EXPECT_EQ(m_dut.getLastError(), "Unable to parse file '" + fileName + "'");
+}
+
+TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileShouldFailIfInvalidContents)
+{
+    // Buffer with invalid beamforming matrix contents
+    const char* buffer = "Hello, World!";
+
+    TemporaryFile temporaryFile(reinterpret_cast<const uint8_t*>(buffer), strlen(buffer));
+
+    std::string fileName = temporaryFile.getFilename();
+    dut::BeamformingMatrixType type = dut::BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_VHT;
+
+    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFile(fileName, type));
+    EXPECT_EQ(m_dut.getLastError(), "Unable to parse file '" + fileName + "'");
+}
+
+TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileShouldSucceedWithVht)
+{
+    EmbeddedResource beamformingMatrixResource(IDR_BEAMFORMINGMATRIX_VHT, BEAMFORMINGMATRIX);
+
+    TemporaryFile temporaryFile(beamformingMatrixResource.getData(), beamformingMatrixResource.getSize());
+
+    std::string fileName = temporaryFile.getFilename();
+    dut::BeamformingMatrixType type = dut::BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_VHT;
+
+    {
+        InSequence sequence;
+
+        EXPECT_CALL(*m_client, writeMemory(dut::ChipModule::CHIP_MODULE_BF_VHT, 0, _, _));
+    }
+
+    ASSERT_TRUE(m_dut.loadBeamformingMatrixFromFile(fileName, type));
+}
+
+TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileShouldSucceedWithHe)
+{
+    EmbeddedResource beamformingMatrixResource(IDR_BEAMFORMINGMATRIX_HE, BEAMFORMINGMATRIX);
+
+    TemporaryFile temporaryFile(beamformingMatrixResource.getData(), beamformingMatrixResource.getSize());
+
+    std::string fileName = temporaryFile.getFilename();
+    dut::BeamformingMatrixType type = dut::BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_HE;
+
+    {
+        InSequence sequence;
+
+        EXPECT_CALL(*m_client, writeMemory(dut::ChipModule::CHIP_MODULE_BF_HE, 0, _, dut::maxMemoryAccessLength));
+        EXPECT_CALL(*m_client, writeMemory(dut::ChipModule::CHIP_MODULE_BF_HE, dut::maxMemoryAccessLength, _, _));
+    }
+
+    ASSERT_TRUE(m_dut.loadBeamformingMatrixFromFile(fileName, type));
 }
 
 TEST_F(DutWithClientMockTest, loadNvmFromFileShouldFailIfInvalidContents)
@@ -2764,552 +2773,6 @@ TEST_F(DutWithClientMockTest, writeCalibrationFileShouldFailWithInvalidType)
 
     EXPECT_FALSE(m_dut.writeCalibrationFile(type, size));
     EXPECT_EQ(m_dut.getLastError(), "Invalid NVM type (EFuse)");
-}
-
-// ====================================================================================================
-// BEAMFORMING MATRIX LOADING TESTS
-// ====================================================================================================
-// These integration tests verify the loadBeamformingMatrixFromFileSet() function behavior including:
-// - File I/O operations and error handling with detailed error messages
-// - Integration with BeamformingUtils functions for parsing and validation
-// - Hardware routing and memory write operations for Wave600 and Wave700 chipsets
-// - Support for different PHY modes (HT, VHT, HE, EHT) and bandwidths
-// - Comprehensive validation functions including validateBeamformingHeaderRegister()
-// - Parameterized test suites covering all WiFi standard/bandwidth combinations
-// - Extensive embedded resource files for thorough test coverage
-// - Robust error handling with specific error messages for various failure scenarios
-//
-// For detailed unit tests of beamforming utilities (parsing, validation, etc.),
-// see BeamformingUtilsTest.cpp and HardwareUtilsTest.cpp
-
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfHeaderFileNotFound)
-{
-    EmbeddedResource beamformingMatrixResource(IDR_BEAMFORMINGMATRIX_VHT, BEAMFORMINGMATRIX);
-    TemporaryFile temporaryValuesFile(beamformingMatrixResource.getData(), beamformingMatrixResource.getSize());
-
-    std::string headerFileName = "nonexistent-file-name";
-    std::string valuesFileName = temporaryValuesFile.getFilename();
-
-    dut::BeamformingFilePathSet_t fileSet;
-    fileSet.headerFile = headerFileName.c_str();
-    fileSet.valuesFile = valuesFileName.c_str();
-
-    // Setup channel and rate
-    setupChannelAndRate(dut::PhyMode::PHY_MODE_N_5, dut::Bandwidth::BANDWIDTH_TWENTY, dut::Bandwidth::BANDWIDTH_TWENTY);
-
-    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(fileSet));
-    EXPECT_THAT(m_dut.getLastError(), ::testing::HasSubstr("Unable to open file '" + headerFileName + "' for reading"));
-}
-
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfValuesFileNotFound)
-{
-    EmbeddedResource headerResource(IDR_BEAMFORMINGMATRIX_WAVE600_HE_HEADER, BEAMFORMINGMATRIX);
-
-    TemporaryFile temporaryHeaderFile(headerResource.getData(), headerResource.getSize());
-
-    std::string headerFileName = temporaryHeaderFile.getFilename();
-    std::string valuesFileName = "nonexistent-file-name";
-
-    dut::BeamformingFilePathSet_t fileSet;
-    fileSet.headerFile = headerFileName.c_str();
-    fileSet.valuesFile = valuesFileName.c_str();
-
-    // Setup channel and rate
-    setupChannelAndRate(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY);
-
-    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(fileSet));
-    EXPECT_THAT(m_dut.getLastError(), ::testing::HasSubstr("Unable to open file '" + valuesFileName + "' for reading"));
-}
-
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfInvalidHeaderLength)
-{
-    std::string header = "00"; // Too short
-    EmbeddedResource valuesResource(IDR_BEAMFORMINGMATRIX_WAVE600_HE_PHASES, BEAMFORMINGMATRIX);
-
-    TemporaryFile temporaryHeaderFile(reinterpret_cast<const uint8_t*>(header.c_str()), header.length());
-    TemporaryFile temporaryValuesFile(valuesResource.getData(), valuesResource.getSize());
-
-    std::string headerFileName = temporaryHeaderFile.getFilename();
-    std::string valuesFileName = temporaryValuesFile.getFilename();
-
-    dut::BeamformingFilePathSet_t fileSet;
-    fileSet.headerFile = headerFileName.c_str();
-    fileSet.valuesFile = valuesFileName.c_str();
-
-    // Setup channel and rate
-    setupChannelAndRate(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY);
-
-    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(fileSet));
-    EXPECT_THAT(m_dut.getLastError(), ::testing::HasSubstr("Each line must contain exactly 8 hex characters"));
-}
-
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfInvalidBeamformingHeader)
-{
-    std::string header = "01000201\n04050607"; // Invalid PHY mode
-    EmbeddedResource valuesResource(IDR_BEAMFORMINGMATRIX_WAVE600_HE_PHASES, BEAMFORMINGMATRIX);
-
-    TemporaryFile temporaryHeaderFile(reinterpret_cast<const uint8_t*>(header.c_str()), header.length());
-    TemporaryFile temporaryValuesFile(valuesResource.getData(), valuesResource.getSize());
-
-    std::string headerFileName = temporaryHeaderFile.getFilename();
-    std::string valuesFileName = temporaryValuesFile.getFilename();
-
-    dut::BeamformingFilePathSet_t fileSet;
-    fileSet.headerFile = headerFileName.c_str();
-    fileSet.valuesFile = valuesFileName.c_str();
-
-    // Setup channel and rate
-    setupChannelAndRate(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY);
-
-    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(fileSet));
-    EXPECT_THAT(m_dut.getLastError(), ::testing::HasSubstr("Invalid beamforming header in primary file '" + headerFileName + "'"));
-}
-
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailWithCorruptedHexFile)
-{
-    std::string corruptedHeader = "0200G203\n04050607"; // Invalid hex character 'G'
-    EmbeddedResource beamformingMatrixResource(IDR_BEAMFORMINGMATRIX_WAVE600_HE_PHASES, BEAMFORMINGMATRIX);
-
-    TemporaryFile temporaryHeaderFile(reinterpret_cast<const uint8_t*>(corruptedHeader.c_str()), corruptedHeader.length());
-    TemporaryFile temporaryValuesFile(beamformingMatrixResource.getData(), beamformingMatrixResource.getSize());
-
-    std::string headerFileName = temporaryHeaderFile.getFilename();
-    std::string valuesFileName = temporaryValuesFile.getFilename();
-
-    dut::BeamformingFilePathSet_t fileSet;
-    fileSet.headerFile = headerFileName.c_str();
-    fileSet.valuesFile = valuesFileName.c_str();
-
-    // Setup channel and rate
-    setupChannelAndRate(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY);
-
-    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(fileSet));
-    EXPECT_THAT(m_dut.getLastError(), ::testing::HasSubstr("Line contains non-hex character"));
-}
-
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfTransmitting)
-{
-    // Setup valid beamforming files
-    std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
-    auto fileSetWithSizes = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
-        IDR_BEAMFORMINGMATRIX_WAVE600_VHT_HEADER, IDR_BEAMFORMINGMATRIX_WAVE600_VHT_PHASES);
-
-    // Setup channel and rate
-    setupChannelAndRate(dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY);
-
-    // Start transmission
-    EXPECT_CALL(*m_client, startTx(1, 1000, false, false));
-    ASSERT_TRUE(m_dut.startTx(1, 1000, false, false));
-
-    // Now try to load beamforming matrix while transmitting - should fail
-    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(fileSetWithSizes.fileSet));
-    EXPECT_EQ(m_dut.getLastError(), "Cannot load beamforming matrix while transmitting, stop transmission");
-
-    // Stop transmission and try again - should succeed
-    EXPECT_CALL(*m_client, stopTx());
-    ASSERT_TRUE(m_dut.stopTx());
-
-    beamforming_test_helpers::setupWave600BeamformingExpectations(m_client, fileSetWithSizes.valuesLineCount);
-    ASSERT_TRUE(m_dut.loadBeamformingMatrixFromFileSet(fileSetWithSizes.fileSet));
-}
-
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfChannelNotSet)
-{
-    // Setup valid beamforming files
-    std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
-    auto fileSetWithSizes = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
-        IDR_BEAMFORMINGMATRIX_WAVE600_VHT_HEADER, IDR_BEAMFORMINGMATRIX_WAVE600_VHT_PHASES);
-
-    // Try to load beamforming matrix without setting channel first - should fail
-    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(fileSetWithSizes.fileSet));
-    EXPECT_EQ(m_dut.getLastError(), "Channel not set");
-}
-
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfRateNotSet)
-{
-    // Setup valid beamforming files
-    std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
-    auto fileSetWithSizes = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
-        IDR_BEAMFORMINGMATRIX_WAVE600_VHT_HEADER, IDR_BEAMFORMINGMATRIX_WAVE600_VHT_PHASES);
-
-    // Setup only channel (without rate)
-    uint8_t antenna = 1;
-    dut::AntennaMask enabledTxAntennaMask(1 << antenna);
-    dut::AntennaMask enabledRxAntennaMask = 0x00;
-    ASSERT_TRUE(m_dut.getEnabledRxAntennaMask(enabledRxAntennaMask));
-
-    {
-        InSequence sequence;
-
-        EXPECT_CALL(*m_client, setEnabledTxAntennas(enabledTxAntennaMask));
-        EXPECT_CALL(*m_client, setTransmitPowerLevel(1, dut::Bandwidth::BANDWIDTH_TWENTY, dut::defaultTransmitPowerLevel));
-        EXPECT_CALL(*m_client, setTransmitPowerControlAntennaParams(antenna, _, _, _));
-        EXPECT_CALL(*m_client, setRssiCalData(_, _));
-        EXPECT_CALL(*m_client, setChannel(36, 0, dut::Bandwidth::BANDWIDTH_EIGHTY, enabledTxAntennaMask, dut::RegulationType::REGULATION_TYPE_FCC_SP));
-        EXPECT_CALL(*m_client, setEnabledRxAntennas(enabledRxAntennaMask));
-    }
-
-    ASSERT_TRUE(m_dut.setEnabledTxAntennaMask(enabledTxAntennaMask));
-    ASSERT_TRUE(m_dut.setChannel(dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_EIGHTY, 36, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP));
-
-    // Try to load beamforming matrix without setting rate - should fail
-    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(fileSetWithSizes.fileSet));
-    EXPECT_EQ(m_dut.getLastError(), "Rate not set");
-}
-
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfEmptyHeaderFile)
-{
-    // Create empty header file
-    std::string emptyHeader = "";
-    EmbeddedResource valuesResource(IDR_BEAMFORMINGMATRIX_WAVE600_VHT_PHASES, BEAMFORMINGMATRIX);
-
-    TemporaryFile temporaryHeaderFile(reinterpret_cast<const uint8_t*>(emptyHeader.c_str()), emptyHeader.length());
-    TemporaryFile temporaryValuesFile(valuesResource.getData(), valuesResource.getSize());
-
-    std::string headerFileName = temporaryHeaderFile.getFilename();
-    std::string valuesFileName = temporaryValuesFile.getFilename();
-
-    dut::BeamformingFilePathSet_t fileSet;
-    fileSet.headerFile = headerFileName.c_str();
-    fileSet.valuesFile = valuesFileName.c_str();
-
-    // Setup channel and rate
-    setupChannelAndRate(dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY);
-
-    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(fileSet));
-    EXPECT_THAT(m_dut.getLastError(), ::testing::HasSubstr("must contain exactly 2 32-bit values, got 0 values"));
-}
-
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldSucceedWithWave600VhtResource)
-{
-    std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
-    auto fileSetWithSizes = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
-        IDR_BEAMFORMINGMATRIX_WAVE600_VHT_HEADER, IDR_BEAMFORMINGMATRIX_WAVE600_VHT_PHASES);
-
-    // Setup channel and rate
-    setupChannelAndRate(dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY);
-
-    beamforming_test_helpers::setupWave600BeamformingExpectations(m_client, fileSetWithSizes.valuesLineCount);
-    ASSERT_TRUE(m_dut.loadBeamformingMatrixFromFileSet(fileSetWithSizes.fileSet));
-
-    beamforming_test_helpers::setupWave600BeamformingExpectations(m_client, fileSetWithSizes.valuesLineCount);
-    ASSERT_TRUE(m_dut.loadBeamformingMatrixFromFileSet(fileSetWithSizes.fileSet));
-}
-
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldSucceedWithWave600HeResource)
-{
-    std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
-    auto fileSetWithSizes = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
-        IDR_BEAMFORMINGMATRIX_WAVE600_HE_HEADER, IDR_BEAMFORMINGMATRIX_WAVE600_HE_PHASES);
-
-    // Setup channel and rate
-    setupChannelAndRate(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY);
-
-    beamforming_test_helpers::setupWave600BeamformingExpectations(m_client, fileSetWithSizes.valuesLineCount);
-    ASSERT_TRUE(m_dut.loadBeamformingMatrixFromFileSet(fileSetWithSizes.fileSet));
-}
-
-// ====================================================================================================
-// WAVE700 EMBEDDED FILES BEAMFORMING TEST SUITE
-// ====================================================================================================
-// Parameterized test suite for Wave700 beamforming matrix loading with embedded resources.
-// This consolidates all Wave700 beamforming tests into a single, maintainable test suite
-// with comprehensive coverage of all supported WiFi standards and bandwidth combinations.
-//
-// The test suite covers:
-// - VHT (802.11ac) Single-User: 20/40/80/160 MHz
-// - HE (802.11ax) Single-User: 20/40/80/160 MHz
-// - EHT (802.11be) Single-User: 20/40/80/160/320 MHz
-
-// Test parameter structure for Wave700 beamforming tests
-struct Wave700BeamformingTestParams {
-    std::string testName;
-    dut::PhyMode phyMode;
-    dut::Bandwidth bandwidth;
-    uint8_t channel;
-    uint8_t primaryChannelIndex;
-    int headerResourceId;
-    int phasesResourceId;
-    int extPhasesResourceId; // For EHT 160/320MHz tests
-    bool hasSecondarySet; // For EHT 320MHz tests
-    int secondaryHeaderResourceId;
-    int secondaryPhasesResourceId;
-    int secondaryExtPhasesResourceId;
-    bool useExtendedExpectations; // For EHT 160MHz tests
-    bool useSecondaryExpectations; // For EHT 320MHz tests
-};
-
-class Wave700BeamformingTestSuite : public DutWithClientMockTestGen7,
-                                    public ::testing::WithParamInterface<Wave700BeamformingTestParams> {
-};
-
-TEST_P(Wave700BeamformingTestSuite, loadBeamformingMatrixFromEmbeddedResourcesShouldSucceed)
-{
-    const auto& params = GetParam();
-    std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
-
-    setupChannelAndRate(params.phyMode, params.bandwidth, params.bandwidth, params.channel, params.primaryChannelIndex);
-
-    if (params.hasSecondarySet) {
-        // EHT 320MHz test with primary and secondary file sets
-        auto primarySetWithSizes = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
-            params.headerResourceId, params.phasesResourceId, params.extPhasesResourceId);
-        auto secondarySetWithSizes = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
-            params.secondaryHeaderResourceId, params.secondaryPhasesResourceId, params.secondaryExtPhasesResourceId);
-
-        beamforming_test_helpers::setupWave700BeamformingExpectations(m_client, 0, params.useExtendedExpectations, params.useSecondaryExpectations);
-        ASSERT_TRUE(m_dut.loadBeamformingMatrixFromFileSet(primarySetWithSizes.fileSet, secondarySetWithSizes.fileSet));
-    } else {
-        // Standard test with single file set
-        auto fileSetWithSizes = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
-            params.headerResourceId, params.phasesResourceId, params.extPhasesResourceId);
-
-        size_t expectedLineCount = params.useExtendedExpectations ? 0 : fileSetWithSizes.valuesLineCount;
-        beamforming_test_helpers::setupWave700BeamformingExpectations(m_client, expectedLineCount, params.useExtendedExpectations, params.useSecondaryExpectations);
-        ASSERT_TRUE(m_dut.loadBeamformingMatrixFromFileSet(fileSetWithSizes.fileSet));
-    }
-}
-
-// Test parameters for Wave700 beamforming test suite
-INSTANTIATE_TEST_SUITE_P(Wave700BeamformingTests, Wave700BeamformingTestSuite, ::testing::Values(
-                                                                                   // VHT (802.11ac) Single-User Tests
-                                                                                   Wave700BeamformingTestParams { "VhtSu20MHz", dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_TWENTY, 36, 0, IDR_BEAMFORMINGMATRIX_WAVE700_VHT_SU_20MHZ_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_VHT_SU_20MHZ_PHASES, 0, false, 0, 0, 0, false, false }, Wave700BeamformingTestParams { "VhtSu40MHz", dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_FOURTY, 38, 0, IDR_BEAMFORMINGMATRIX_WAVE700_VHT_SU_40MHZ_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_VHT_SU_40MHZ_PHASES, 0, false, 0, 0, 0, false, false }, Wave700BeamformingTestParams { "VhtSu80MHz", dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_EIGHTY, 36, 0, IDR_BEAMFORMINGMATRIX_WAVE700_VHT_SU_80MHZ_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_VHT_SU_80MHZ_PHASES, 0, false, 0, 0, 0, false, false }, Wave700BeamformingTestParams { "VhtSu160MHz", dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_ONE_HUNDRED_SIXTY, 36, 0, IDR_BEAMFORMINGMATRIX_WAVE700_VHT_SU_160MHZ_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_VHT_SU_160MHZ_PHASES, 0, false, 0, 0, 0, false, false },
-
-                                                                                   // HE (802.11ax) Single-User Tests
-                                                                                   Wave700BeamformingTestParams { "HeSu20MHz", dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_TWENTY, 36, 0, IDR_BEAMFORMINGMATRIX_WAVE700_HE_SU_20MHZ_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_HE_SU_20MHZ_PHASES, 0, false, 0, 0, 0, false, false }, Wave700BeamformingTestParams { "HeSu40MHz", dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_FOURTY, 38, 0, IDR_BEAMFORMINGMATRIX_WAVE700_HE_SU_40MHZ_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_HE_SU_40MHZ_PHASES, 0, false, 0, 0, 0, false, false }, Wave700BeamformingTestParams { "HeSu80MHz", dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_EIGHTY, 36, 0, IDR_BEAMFORMINGMATRIX_WAVE700_HE_SU_80MHZ_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_HE_SU_80MHZ_PHASES, 0, false, 0, 0, 0, false, false }, Wave700BeamformingTestParams { "HeSu160MHz", dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_ONE_HUNDRED_SIXTY, 36, 0, IDR_BEAMFORMINGMATRIX_WAVE700_HE_SU_160MHZ_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_HE_SU_160MHZ_PHASES, 0, false, 0, 0, 0, false, false },
-
-                                                                                   // EHT (802.11be) Single-User Tests
-                                                                                   Wave700BeamformingTestParams { "EhtSu20MHz", dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_TWENTY, 36, 0, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_20MHZ_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_20MHZ_PHASES, 0, false, 0, 0, 0, false, false }, Wave700BeamformingTestParams { "EhtSu40MHz", dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_FOURTY, 38, 0, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_40MHZ_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_40MHZ_PHASES, 0, false, 0, 0, 0, false, false }, Wave700BeamformingTestParams { "EhtSu80MHz", dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_EIGHTY, 36, 0, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_80MHZ_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_80MHZ_PHASES, 0, false, 0, 0, 0, false, false }, Wave700BeamformingTestParams {
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                     "EhtSu160MHz", dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_ONE_HUNDRED_SIXTY, 36, 0, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_160MHZ_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_160MHZ_PHASES, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_160MHZ_PHASES_EHT, false, 0, 0, 0, true, false // Extended expectations for EHT 160MHz
-                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                 },
-                                                                                   Wave700BeamformingTestParams {
-                                                                                       "EhtSu320MHz", dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_THREE_HUNDRED_TWENTY, 1, 0, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_LOWER_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_LOWER_PHASES, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_LOWER_PHASES_EHT, true, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_UPPER_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_UPPER_PHASES, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_UPPER_PHASES_EHT, false, true // Secondary expectations for EHT 320MHz
-                                                                                   }));
-
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfWave600WithSecondarySet)
-{
-    // Create valid file sets that have proper headers but we'll provide secondary sets
-    // Use Wave600 VHT files which should be valid but don't support secondary sets
-    std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
-    auto primaryFiles = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
-        IDR_BEAMFORMINGMATRIX_WAVE600_VHT_HEADER, IDR_BEAMFORMINGMATRIX_WAVE600_VHT_PHASES);
-    auto secondaryFiles = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
-        IDR_BEAMFORMINGMATRIX_WAVE600_VHT_HEADER, IDR_BEAMFORMINGMATRIX_WAVE600_VHT_PHASES);
-
-    // Setup channel and rate for VHT 80MHz (which Wave600 supports)
-    setupChannelAndRate(dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY);
-
-    // Try to load beamforming matrix with secondary set on Wave600 - should fail
-    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(primaryFiles.fileSet, secondaryFiles.fileSet));
-    EXPECT_EQ(m_dut.getLastError(), "Wave600 hardware does not support EHT 320MHz beamforming");
-}
-
-// Test for invalid secondary header error path on Wave700
-TEST_F(DutWithClientMockTestGen7, loadBeamformingMatrixFromFileSetShouldFailIfInvalidSecondaryHeader)
-{
-    // Create valid primary file and invalid secondary header file
-    std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
-    auto primaryFiles = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
-        IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_LOWER_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_LOWER_PHASES);
-
-    // Create secondary file with invalid header
-    std::string invalidSecondaryHeader = "02eb6ff1\n18405a76"; // Invalid PHY mode bits
-    EmbeddedResource secondaryValuesResource(IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_UPPER_PHASES, BEAMFORMINGMATRIX);
-
-    auto secondaryHeaderFile = std::make_unique<TemporaryFile>(
-        reinterpret_cast<const uint8_t*>(invalidSecondaryHeader.c_str()), invalidSecondaryHeader.length());
-    auto secondaryValuesFile = std::make_unique<TemporaryFile>(
-        secondaryValuesResource.getData(), secondaryValuesResource.getSize());
-
-    dut::BeamformingFilePathSet_t secondarySet;
-    secondarySet.headerFile = secondaryHeaderFile->getFilename();
-    secondarySet.valuesFile = secondaryValuesFile->getFilename();
-
-    tempFiles.push_back(std::move(secondaryHeaderFile));
-    tempFiles.push_back(std::move(secondaryValuesFile));
-
-    setupChannelAndRate(dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_THREE_HUNDRED_TWENTY, dut::Bandwidth::BANDWIDTH_THREE_HUNDRED_TWENTY, 1, 0);
-
-    // Try to load beamforming matrix with invalid secondary header - should fail
-    // No beamforming expectations since it should fail during header validation
-    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(primaryFiles.fileSet, secondarySet));
-    EXPECT_THAT(m_dut.getLastError(), ::testing::HasSubstr("Invalid beamforming header in secondary file"));
-    EXPECT_THAT(m_dut.getLastError(), ::testing::HasSubstr(secondarySet.headerFile));
-}
-
-// Test for invalid secondary header error path on Wave700
-TEST_F(DutWithClientMockTestGen7, loadBeamformingMatrixFromFileSetShouldFailIfSecondaryHeaderDoesNotMatchDutPhyMode)
-{
-    // Create valid primary file and invalid secondary header file
-    std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
-    auto primaryFiles = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
-        IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_LOWER_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_LOWER_PHASES);
-
-    // Create secondary file with invalid header
-    std::string invalidSecondaryHeader = "02eb6ffa\n18405a76"; // PhyMode set to VHT
-    EmbeddedResource secondaryValuesResource(IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_UPPER_PHASES, BEAMFORMINGMATRIX);
-
-    auto secondaryHeaderFile = std::make_unique<TemporaryFile>(
-        reinterpret_cast<const uint8_t*>(invalidSecondaryHeader.c_str()), invalidSecondaryHeader.length());
-    auto secondaryValuesFile = std::make_unique<TemporaryFile>(
-        secondaryValuesResource.getData(), secondaryValuesResource.getSize());
-
-    dut::BeamformingFilePathSet_t secondarySet;
-    secondarySet.headerFile = secondaryHeaderFile->getFilename();
-    secondarySet.valuesFile = secondaryValuesFile->getFilename();
-
-    tempFiles.push_back(std::move(secondaryHeaderFile));
-    tempFiles.push_back(std::move(secondaryValuesFile));
-
-    setupChannelAndRate(dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_THREE_HUNDRED_TWENTY, dut::Bandwidth::BANDWIDTH_THREE_HUNDRED_TWENTY, 1, 0);
-
-    // Try to load beamforming matrix with invalid secondary header - should fail
-    // No beamforming expectations since it should fail during header validation
-    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(primaryFiles.fileSet, secondarySet));
-    EXPECT_THAT(m_dut.getLastError(), ::testing::HasSubstr("secondary: Beamforming header PHY mode (AC) does not match DUT PHY mode (BE)"));
-}
-
-// ====================================================================================================
-// BEAMFORMING HEADER VALIDATION TESTS
-// ====================================================================================================
-// These tests verify the validateBeamformingHeaderRegister() function for both chipset generations:
-// - Wave600 (Gen6): Single header validation with bandwidth/PHY mode compatibility
-// - Wave700 (Gen7): Single and dual header validation for EHT 320MHz configurations
-// - Comprehensive error handling with specific validation failure messages
-// - Uninitialized header detection and appropriate error reporting
-
-// Wave600 (Gen6) Tests
-TEST_F(DutWithClientMockTest, validateBeamformingHeaderRegisterShouldSucceedForMatchingHeader)
-{
-    // Create a valid header for Wave600 HT 40MHz (from BeamformingUtilsTest)
-    uint32_t validHeader = 0x00100000; // HT 40MHz header pattern
-
-    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave600::headerAddress, _, sizeof(uint32_t)))
-        .WillOnce(Invoke([validHeader](dut::ChipModule, size_t, uint8_t* data, size_t) {
-            *reinterpret_cast<uint32_t*>(data) = validHeader;
-        }));
-
-    // This should succeed if the header matches the expected PHY mode and bandwidth
-    EXPECT_TRUE(m_dut.validateBeamformingHeaderRegister(dut::PhyMode::PHY_MODE_N_5, dut::Bandwidth::BANDWIDTH_FOURTY));
-}
-
-TEST_F(DutWithClientMockTest, validateBeamformingHeaderRegisterShouldFailForPhyModeMismatch)
-{
-    // Create a header that will parse as VHT mode but we'll expect HT mode
-    // Use a definitive VHT pattern that won't be compatible with HT
-    uint32_t vhtModeHeader = 0x00800002; // VHT 80MHz header pattern
-
-    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave600::headerAddress, _, sizeof(uint32_t)))
-        .WillOnce(Invoke([vhtModeHeader](dut::ChipModule, size_t, uint8_t* data, size_t) {
-            *reinterpret_cast<uint32_t*>(data) = vhtModeHeader;
-        }));
-
-    // Should return false due to PHY mode or bandwidth mismatch
-    EXPECT_FALSE(m_dut.validateBeamformingHeaderRegister(dut::PhyMode::PHY_MODE_N_5, dut::Bandwidth::BANDWIDTH_TWENTY));
-
-    // Check that error message contains expected content
-    std::string errorMsg = m_dut.getLastError();
-    EXPECT_TRUE(
-        (errorMsg.find("PHY mode mismatch") != std::string::npos) || (errorMsg.find("Bandwidth mismatch") != std::string::npos));
-}
-
-TEST_F(DutWithClientMockTest, validateBeamformingHeaderRegisterShouldFailForBandwidthMismatch)
-{
-    // Create a header that will parse with 20MHz bandwidth but we'll expect 40MHz
-    uint32_t bw20Header = 0x00000000; // HT 20MHz header pattern
-
-    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave600::headerAddress, _, sizeof(uint32_t)))
-        .WillOnce(Invoke([bw20Header](dut::ChipModule, size_t, uint8_t* data, size_t) {
-            *reinterpret_cast<uint32_t*>(data) = bw20Header;
-        }));
-
-    // Should return false with bandwidth mismatch message
-    EXPECT_FALSE(m_dut.validateBeamformingHeaderRegister(dut::PhyMode::PHY_MODE_N_5, dut::Bandwidth::BANDWIDTH_FOURTY));
-
-    std::string errorMsg = m_dut.getLastError();
-    EXPECT_TRUE(errorMsg.find("Bandwidth mismatch") != std::string::npos);
-    EXPECT_TRUE(errorMsg.find("Expected: 40MHz") != std::string::npos);
-}
-
-// Wave700 (Gen7) Tests
-TEST_F(DutWithClientMockTestGen7, validateBeamformingHeaderRegisterShouldSucceedForMatchingHeader)
-{
-    // Create a valid header for Wave700 HE 80MHz: RU value 5, PHY mode 3
-    uint32_t validHeader = (5 << 21) | 3; // HE 80MHz header pattern
-
-    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave700::primaryBfHeaderAddress, _, sizeof(uint32_t)))
-        .WillOnce(Invoke([validHeader](dut::ChipModule, size_t, uint8_t* data, size_t) {
-            *reinterpret_cast<uint32_t*>(data) = validHeader;
-        }));
-
-    // This should succeed if the header matches the expected PHY mode and bandwidth
-    EXPECT_TRUE(m_dut.validateBeamformingHeaderRegister(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_EIGHTY));
-}
-
-TEST_F(DutWithClientMockTestGen7, validateBeamformingHeaderRegisterShouldSucceedForEht320DualHeaders)
-{
-    // Create valid headers for both primary and secondary headers for EHT 320MHz
-    uint32_t validPrimaryHeader = (7 << 21) | 4; // EHT 320MHz: RU value 7, PHY mode 4
-    uint32_t validSecondaryHeader = (7 << 21) | 4; // EHT 320MHz: same pattern for secondary
-
-    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave700::primaryBfHeaderAddress, _, sizeof(uint32_t)))
-        .WillOnce(Invoke([validPrimaryHeader](dut::ChipModule, size_t, uint8_t* data, size_t) {
-            *reinterpret_cast<uint32_t*>(data) = validPrimaryHeader;
-        }));
-
-    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave700::secondaryBfHeaderAddress, _, sizeof(uint32_t)))
-        .WillOnce(Invoke([validSecondaryHeader](dut::ChipModule, size_t, uint8_t* data, size_t) {
-            *reinterpret_cast<uint32_t*>(data) = validSecondaryHeader;
-        }));
-
-    // This should succeed if both headers match the expected PHY mode and bandwidth
-    EXPECT_TRUE(m_dut.validateBeamformingHeaderRegister(dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_THREE_HUNDRED_TWENTY));
-}
-
-TEST_F(DutWithClientMockTestGen7, validateBeamformingHeaderRegisterShouldFailForUninitializedHeader)
-{
-    // For Wave700, 0x00000000 should be treated as uninitialized since it doesn't match
-    // the expected PHY mode/RU value pattern for any valid configuration
-    uint32_t uninitializedHeader = 0x00000000;
-
-    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave700::primaryBfHeaderAddress, _, sizeof(uint32_t)))
-        .WillOnce(Invoke([uninitializedHeader](dut::ChipModule, size_t, uint8_t* data, size_t) {
-            *reinterpret_cast<uint32_t*>(data) = uninitializedHeader;
-        }));
-
-    // Should return false with specific message about uninitialized header
-    EXPECT_FALSE(m_dut.validateBeamformingHeaderRegister(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_EIGHTY));
-
-    std::string errorMsg = m_dut.getLastError();
-    EXPECT_TRUE(errorMsg.find("has not been written (contains all zeros)") != std::string::npos);
-    EXPECT_TRUE(errorMsg.find("Please configure beamforming before validation") != std::string::npos);
-}
-
-TEST_F(DutWithClientMockTestGen7, validateBeamformingHeaderRegisterShouldFailForEht320PartiallyUninitializedHeaders)
-{
-    // Primary header initialized with EHT 320MHz, secondary header with incompatible data
-    uint32_t validPrimaryHeader = (7 << 21) | 4; // EHT 320MHz: RU value 7, PHY mode 4
-    uint32_t incompatibleSecondaryHeader = (3 << 21) | 2; // VHT 20MHz: RU value 3, PHY mode 2
-
-    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave700::primaryBfHeaderAddress, _, sizeof(uint32_t)))
-        .WillOnce(Invoke([validPrimaryHeader](dut::ChipModule, size_t, uint8_t* data, size_t) {
-            *reinterpret_cast<uint32_t*>(data) = validPrimaryHeader;
-        }));
-
-    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave700::secondaryBfHeaderAddress, _, sizeof(uint32_t)))
-        .WillOnce(Invoke([incompatibleSecondaryHeader](dut::ChipModule, size_t, uint8_t* data, size_t) {
-            *reinterpret_cast<uint32_t*>(data) = incompatibleSecondaryHeader;
-        }));
-
-    // Should return false with EHT 320MHz validation failure mentioning secondary header mismatch
-    EXPECT_FALSE(m_dut.validateBeamformingHeaderRegister(dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_THREE_HUNDRED_TWENTY));
-
-    std::string errorMsg = m_dut.getLastError();
-    EXPECT_TRUE(errorMsg.find("EHT 320MHz validation failed") != std::string::npos);
-    EXPECT_TRUE(errorMsg.find("secondary header") != std::string::npos);
-    // Could be PHY mode or bandwidth mismatch in the secondary header
-    EXPECT_TRUE(
-        (errorMsg.find("PHY mode mismatch") != std::string::npos) || (errorMsg.find("Bandwidth mismatch") != std::string::npos));
 }
 
 }

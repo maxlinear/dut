@@ -47,6 +47,8 @@ std::ostream& operator<<(std::ostream& out, const Band& value);
 
 std::ostream& operator<<(std::ostream& out, const Bandwidth& value);
 
+std::ostream& operator<<(std::ostream& out, const BeamformingMatrixType& value);
+
 std::ostream& operator<<(std::ostream& out, const CalibrationFileVersion& value);
 
 std::ostream& operator<<(std::ostream& out, const CalibrationFileSubversion& value);
@@ -74,10 +76,6 @@ std::ostream& operator<<(std::ostream& out, const VersionedComponent& value);
 std::ostream& operator<<(std::ostream& out, const RssiAB_t& value);
 
 std::ostream& operator<<(std::ostream& out, const CorrelationResults_t& value);
-
-std::ostream& operator<<(std::ostream& out, const BeamformingHeaderInfo_t& value);
-
-std::ostream& operator<<(std::ostream& out, const BeamformingFilePathSet_t& value);
 
 std::ostream& operator<<(std::ostream& stream, uint8_t byte);
 
