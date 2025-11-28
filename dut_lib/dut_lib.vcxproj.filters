@@ -186,6 +186,12 @@
     <ClInclude Include="TssiCalibrationDataVer7.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="BeamformingUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HardwareUtils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="ConnectionImpl.cpp">
@@ -291,6 +297,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="TssiCalibrationDataVer6_7.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="BeamformingUtils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HardwareUtils.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

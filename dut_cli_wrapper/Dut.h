@@ -89,7 +89,7 @@ public:
     bool getXtalCalValue([System::Runtime::InteropServices::OutAttribute] uint16_t % xtalValue);
     bool getXtalRegValue([System::Runtime::InteropServices::OutAttribute] uint16_t % xtalValue);
     bool getZwdfsStatus([System::Runtime::InteropServices::OutAttribute] AntennaMask ^ % antennaMask, [System::Runtime::InteropServices::OutAttribute] bool % enabled);
-    bool loadBeamformingMatrixFromFile(System::String ^ fileName, BeamformingMatrixType type);
+    bool loadBeamformingMatrixFromFileSet(System::String ^ primaryHeaderFile, System::String ^ primaryValuesFile, System::String ^ primaryExtValuesEhtFile, System::String ^ secondaryHeaderFile, System::String ^ secondaryValuesFile, System::String ^ secondaryExtValuesEhtFile);
     bool loadNvmFromFile(System::String ^ fileName);
     bool readMemory(ChipModule chipModule, size_t address, [System::Runtime::InteropServices::OutAttribute] cli::array<uint8_t> ^ % data, size_t length);
     bool readNvm(size_t address, [System::Runtime::InteropServices::OutAttribute] cli::array<uint8_t> ^ % data, size_t length, bool useCache);
@@ -118,11 +118,12 @@ public:
     bool setXtalRegValue(uint16_t xtalValue);
     bool setZwdfsConfiguration(uint8_t zwdfsChannel, Bandwidth zwdfsBandwidth, Bandwidth radarDetectionBandwidth);
     bool startCw(int8_t amplitude, int16_t tone);
-    bool startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming);
+    bool startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, CodingType codingType);
     bool startRxPer(uint32_t packetLimit);
     bool stopCw();
     bool stopTx();
     bool stopRxPer(bool calcRxPer);
+    bool validateBeamformingHeaderRegister(PhyMode expectedPhyMode, Bandwidth expectedBandwidth);
     bool writeCalibrationFile(NvMemoryType memoryType, NvMemorySize memorySize);
     bool writeMemory(ChipModule chipModule, size_t address, cli::array<uint8_t> ^ data, size_t length);
     bool writeNvm(size_t address, cli::array<uint8_t> ^ data, size_t length);

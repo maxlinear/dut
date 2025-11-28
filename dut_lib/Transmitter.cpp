@@ -48,7 +48,7 @@ Transmitter::State Transmitter::getState() const
     return m_state;
 }
 
-void Transmitter::startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming)
+void Transmitter::startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, bool ldpc)
 {
     if (repetitions == 0) {
         throw std::invalid_argument("The number of repetitions cannot be 0");
@@ -56,12 +56,13 @@ void Transmitter::startTx(uint16_t repetitions, uint32_t packetLength, bool long
 
     stop();
 
-    m_client->startTx(repetitions, packetLength, longData, beamforming);
+    m_client->startTx(repetitions, packetLength, longData, beamforming, ldpc);
 
     m_txParams.repetitions = repetitions;
     m_txParams.packetLength = packetLength;
     m_txParams.longData = longData;
     m_txParams.beamforming = beamforming;
+    m_txParams.ldpc = ldpc;
 
     m_state = State::TX_STARTED;
 }
@@ -107,7 +108,7 @@ void Transmitter::pause()
 void Transmitter::resume()
 {
     if (m_state == State::TX_PAUSED) {
-        m_client->startTx(m_txParams.repetitions, m_txParams.packetLength, m_txParams.longData, m_txParams.beamforming);
+        m_client->startTx(m_txParams.repetitions, m_txParams.packetLength, m_txParams.longData, m_txParams.beamforming, m_txParams.ldpc);
 
         m_state = State::TX_STARTED;
     } else if (m_state == State::CW_PAUSED) {

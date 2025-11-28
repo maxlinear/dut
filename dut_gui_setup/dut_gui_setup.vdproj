@@ -21,8 +21,20 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2445DECFB9844BE18EA01FE0FBEE4DD4"
+        "OwnerKey" = "8:_045F365C4F3F4AAE8158C4EC8E8A45E1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_3EBA45BFE2A24AEC8107AD4013304CB4"
         "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_5F4C91D8A6B7B9F28F242D2FAC68B3B7"
+        "OwnerKey" = "8:_86EDC475B08A4A67AAF3CBFC43EB8816"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -39,14 +51,20 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9DC1ADB034E4D924D9505F70C4B48606"
+        "OwnerKey" = "8:_045F365C4F3F4AAE8158C4EC8E8A45E1"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BC74D59D5F3048D395BC3AD9B4649B1B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
         {
-        "MsmKey" = "8:_FC1276227D7FDE6196F04B89BFBE42D6"
-        "OwnerKey" = "8:_86EDC475B08A4A67AAF3CBFC43EB8816"
+        "MsmKey" = "8:_F250D870E660AAB335DDDF70CAA7B843"
+        "OwnerKey" = "8:_045F365C4F3F4AAE8158C4EC8E8A45E1"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -58,7 +76,7 @@
         "Entry"
         {
         "MsmKey" = "8:_UNDEFINED"
-        "OwnerKey" = "8:_FC1276227D7FDE6196F04B89BFBE42D6"
+        "OwnerKey" = "8:_5F4C91D8A6B7B9F28F242D2FAC68B3B7"
         "MsmSig" = "8:_UNDEFINED"
         }
         "Entry"
@@ -75,7 +93,7 @@
         "DisplayName" = "8:Debug"
         "IsDebugOnly" = "11:TRUE"
         "IsReleaseOnly" = "11:FALSE"
-        "OutputFilename" = "8:Debug\\dut_gui_setup_2.25.2_WLANRTSYS-90650-Transmit-Negative-Power-FCC.msi"
+        "OutputFilename" = "8:Debug\\dut_gui_setup_2.27.1_WLANRTSYS-94460-Allow-spaceless-beamforming.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -107,7 +125,7 @@
         "DisplayName" = "8:Release"
         "IsDebugOnly" = "11:FALSE"
         "IsReleaseOnly" = "11:TRUE"
-        "OutputFilename" = "8:Release\\dut_gui_setup_2.25.2_WLANRTSYS-90650-Transmit-Negative-Power-FCC.msi"
+        "OutputFilename" = "8:Release\\dut_gui_setup_2.27.1_WLANRTSYS-94460-Allow-spaceless-beamforming.msi"
         "PackageFilesAs" = "3:2"
         "PackageFileSize" = "3:-2147483648"
         "CabType" = "3:1"
@@ -182,6 +200,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2445DECFB9844BE18EA01FE0FBEE4DD4"
+            {
+            "SourcePath" = "8:ucrtbased.dll"
+            "TargetName" = "8:ucrtbased.dll"
+            "Tag" = "8:"
+            "Folder" = "8:_6A475CDB313A4E31B66625F271B4942B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3EBA45BFE2A24AEC8107AD4013304CB4"
             {
             "SourcePath" = "8:..\\output\\dut_dev.zip"
@@ -202,6 +240,37 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_5F4C91D8A6B7B9F28F242D2FAC68B3B7"
+            {
+            "AssemblyRegister" = "3:1"
+            "AssemblyIsInGAC" = "11:FALSE"
+            "AssemblyAsmDisplayName" = "8:dut_cli_wrapper, Version=2.26.0.0, Culture=neutral, processorArchitecture=AMD64"
+                "ScatterAssemblies"
+                {
+                    "_5F4C91D8A6B7B9F28F242D2FAC68B3B7"
+                    {
+                    "Name" = "8:dut_cli_wrapper.dll"
+                    "Attributes" = "3:512"
+                    }
+                }
+            "SourcePath" = "8:dut_cli_wrapper.dll"
+            "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_6A475CDB313A4E31B66625F271B4942B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
             "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_85573B13B4245EAF2676997A3CF72425"
             {
             "AssemblyRegister" = "3:1"
@@ -217,6 +286,26 @@
                 }
             "SourcePath" = "8:System.Net.Http.dll"
             "TargetName" = "8:"
+            "Tag" = "8:"
+            "Folder" = "8:_6A475CDB313A4E31B66625F271B4942B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:TRUE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9DC1ADB034E4D924D9505F70C4B48606"
+            {
+            "SourcePath" = "8:MSVCP140D.dll"
+            "TargetName" = "8:MSVCP140D.dll"
             "Tag" = "8:"
             "Folder" = "8:_6A475CDB313A4E31B66625F271B4942B"
             "Condition" = "8:"
@@ -253,21 +342,10 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
-            "{9F6F8455-1EF1-4B85-886A-4223BCC8E7F7}:_FC1276227D7FDE6196F04B89BFBE42D6"
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F250D870E660AAB335DDDF70CAA7B843"
             {
-            "AssemblyRegister" = "3:1"
-            "AssemblyIsInGAC" = "11:FALSE"
-            "AssemblyAsmDisplayName" = "8:dut_cli_wrapper, Version=2.6.8.0, Culture=neutral, processorArchitecture=AMD64"
-                "ScatterAssemblies"
-                {
-                    "_FC1276227D7FDE6196F04B89BFBE42D6"
-                    {
-                    "Name" = "8:dut_cli_wrapper.dll"
-                    "Attributes" = "3:512"
-                    }
-                }
-            "SourcePath" = "8:dut_cli_wrapper.dll"
-            "TargetName" = "8:"
+            "SourcePath" = "8:VCRUNTIME140D.dll"
+            "TargetName" = "8:VCRUNTIME140D.dll"
             "Tag" = "8:"
             "Folder" = "8:_6A475CDB313A4E31B66625F271B4942B"
             "Condition" = "8:"
@@ -339,10 +417,10 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:DUT_GUI_2.25.2_WLANRTSYS-90650-Transmit-Negative-Power-FCC"
-        "ProductCode" = "8:{3E2E9842-D734-4CC8-8612-7DEA57CDD4D0}"
+        "ProductName" = "8:DUT_GUI_2.27.1_WLANRTSYS-94460-Allow-spaceless-beamforming"
+        "ProductCode" = "8:{9F78829B-628E-4FB5-9B13-F6F5097936E0}"
         "PackageCode" = "8:{C8543BC0-6490-4EEC-93B9-DA7AF5F29811}"
-        "UpgradeCode" = "8:{F52FA8B8-E2A1-4A58-A0BA-3FEA0F68B896}"
+        "UpgradeCode" = "8:{300FCC48-DB7D-4AFA-86FD-2F09198514BD}"
         "AspNetVersion" = "8:4.0.30319.0"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:FALSE"
@@ -890,7 +968,7 @@
         {
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_045F365C4F3F4AAE8158C4EC8E8A45E1"
             {
-            "SourcePath" = "8:..\\output\\x64\\Release\\dut_cli.exe"
+            "SourcePath" = "8:..\\output\\x64\\Debug\\dut_cli.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_6A475CDB313A4E31B66625F271B4942B"
@@ -918,7 +996,7 @@
             }
             "{5259A561-127C-4D43-A0A1-72F10C7B3BF8}:_86EDC475B08A4A67AAF3CBFC43EB8816"
             {
-            "SourcePath" = "8:..\\dut_gui\\obj\\Release\\dut_gui.exe"
+            "SourcePath" = "8:..\\dut_gui\\obj\\x64\\Debug\\dut_gui.exe"
             "TargetName" = "8:"
             "Tag" = "8:"
             "Folder" = "8:_6A475CDB313A4E31B66625F271B4942B"

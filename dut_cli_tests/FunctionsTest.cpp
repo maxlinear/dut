@@ -50,6 +50,14 @@ namespace {
 
 MATCHER_P(startCalibrationParamsMatcher, expectedParams, "") { return (arg.type == expectedParams.type) && (arg.maskType == expectedParams.maskType) && (arg.mask == expectedParams.mask); }
 
+MATCHER_P3(beamformingFilePathSetMatcher, expectedHeaderFile, expectedValuesFile, expectedExtValuesEhtFile, "")
+{
+    bool headerMatch = (expectedHeaderFile == nullptr && arg.headerFile == nullptr) || (expectedHeaderFile != nullptr && arg.headerFile != nullptr && std::string(arg.headerFile) == std::string(expectedHeaderFile));
+    bool valuesMatch = (expectedValuesFile == nullptr && arg.valuesFile == nullptr) || (expectedValuesFile != nullptr && arg.valuesFile != nullptr && std::string(arg.valuesFile) == std::string(expectedValuesFile));
+    bool extMatch = (expectedExtValuesEhtFile == nullptr && arg.extValuesEhtFile == nullptr) || (expectedExtValuesEhtFile != nullptr && arg.extValuesEhtFile != nullptr && std::string(arg.extValuesEhtFile) == std::string(expectedExtValuesEhtFile));
+    return headerMatch && valuesMatch && extMatch;
+}
+
 class FunctionsTest : public ::testing::Test {
 public:
     FunctionsTest()
@@ -729,15 +737,40 @@ TEST_F(FunctionsTest, loadBeamformingMatrixFromFileShouldSucceed)
         InSequence sequence;
 
         EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
-        EXPECT_CALL(*m_dut0, loadBeamformingMatrixFromFile("beamforming-matrix.txt", dut::BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_HE)).WillOnce(Return(true));
+
+        // Verify the correct arguments are passed to loadBeamformingMatrixFromFileSet
+        EXPECT_CALL(*m_dut0, loadBeamformingMatrixFromFileSet(beamformingFilePathSetMatcher("beamforming-matrix-header.txt", "beamforming-matrix-values.txt", nullptr), beamformingFilePathSetMatcher(nullptr, nullptr, nullptr))).WillOnce(Return(true));
     }
 
-    ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 loadBeamformingMatrixFromFile --filename beamforming-matrix.txt --beamforming-matrix-type 1", m_context));
+    ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 loadBeamformingMatrixFromFile --header-filename beamforming-matrix-header.txt --values-filename beamforming-matrix-values.txt", m_context));
 }
 
-TEST_F(FunctionsTest, loadBeamformingMatrixFromFileShouldFailWithInvalidMatrixType)
+TEST_F(FunctionsTest, loadBeamformingMatrixFromFileShouldSucceedWithOptionalArguments)
 {
-    ASSERT_FALSE(dut_cli::CommandLine::run("exec 0 loadBeamformingMatrixFromFile --filename beamforming-matrix.txt --beamforming-matrix-type 999", m_context));
+    {
+        InSequence sequence;
+
+        EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
+
+        // Verify that optional arguments are correctly parsed and passed to loadBeamformingMatrixFromFileSet
+        EXPECT_CALL(*m_dut0, loadBeamformingMatrixFromFileSet(beamformingFilePathSetMatcher("beamforming-matrix-header.txt", "beamforming-matrix-values.txt", "beamforming-matrix-ext-eht.txt"), beamformingFilePathSetMatcher("secondary-header.txt", "secondary-values.txt", "secondary-ext-eht.txt"))).WillOnce(Return(true));
+    }
+
+    ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 loadBeamformingMatrixFromFile --header-filename beamforming-matrix-header.txt --values-filename beamforming-matrix-values.txt --ext-values-eht-filename beamforming-matrix-ext-eht.txt --secondary-header-filename secondary-header.txt --secondary-values-filename secondary-values.txt --secondary-ext-values-eht-filename secondary-ext-eht.txt", m_context));
+}
+
+TEST_F(FunctionsTest, loadBeamformingMatrixFromFileShouldSucceedWithPartialOptionalArguments)
+{
+    {
+        InSequence sequence;
+
+        EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
+
+        // Verify that only EHT extension file is parsed correctly (without secondary files)
+        EXPECT_CALL(*m_dut0, loadBeamformingMatrixFromFileSet(beamformingFilePathSetMatcher("beamforming-matrix-header.txt", "beamforming-matrix-values.txt", "beamforming-matrix-ext-eht.txt"), beamformingFilePathSetMatcher(nullptr, nullptr, nullptr))).WillOnce(Return(true));
+    }
+
+    ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 loadBeamformingMatrixFromFile --header-filename beamforming-matrix-header.txt --values-filename beamforming-matrix-values.txt --ext-values-eht-filename beamforming-matrix-ext-eht.txt", m_context));
 }
 
 TEST_F(FunctionsTest, loadNvmFromFileShouldSucceed)
@@ -1262,16 +1295,52 @@ TEST_F(FunctionsTest, startCwShouldSucceed)
     ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 startCw --amplitude 10 --tone 4", m_context));
 }
 
-TEST_F(FunctionsTest, startTxShouldSucceed)
+TEST_F(FunctionsTest, startTxShouldSucceedDefaultCoding)
 {
     {
         InSequence sequence;
 
         EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
-        EXPECT_CALL(*m_dut0, startTx(65535, 1234, true, true)).WillOnce(Return(true));
+        EXPECT_CALL(*m_dut0, startTx(65535, 1234, true, true, dut::CodingType::CODING_TYPE_AUTO)).WillOnce(Return(true));
     }
 
     ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 startTx --repetitions 65535 --packet-length 1234 --long-data --beamforming", m_context));
+}
+
+TEST_F(FunctionsTest, startTxShouldSucceedAutoCoding)
+{
+    {
+        InSequence sequence;
+
+        EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
+        EXPECT_CALL(*m_dut0, startTx(65535, 1234, true, true, dut::CodingType::CODING_TYPE_AUTO)).WillOnce(Return(true));
+    }
+
+    ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 startTx --repetitions 65535 --packet-length 1234 --long-data --beamforming --coding-type 0", m_context));
+}
+
+TEST_F(FunctionsTest, startTxShouldSucceedBccCoding)
+{
+    {
+        InSequence sequence;
+
+        EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
+        EXPECT_CALL(*m_dut0, startTx(65535, 1234, true, true, dut::CodingType::CODING_TYPE_BCC)).WillOnce(Return(true));
+    }
+
+    ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 startTx --repetitions 65535 --packet-length 1234 --long-data --beamforming --coding-type 1", m_context));
+}
+
+TEST_F(FunctionsTest, startTxShouldSucceedLdpcCoding)
+{
+    {
+        InSequence sequence;
+
+        EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
+        EXPECT_CALL(*m_dut0, startTx(65535, 1234, true, true, dut::CodingType::CODING_TYPE_LDPC)).WillOnce(Return(true));
+    }
+
+    ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 startTx --repetitions 65535 --packet-length 1234 --long-data --beamforming --coding-type 2", m_context));
 }
 
 TEST_F(FunctionsTest, startRxPerShouldSucceed)
@@ -1320,6 +1389,32 @@ TEST_F(FunctionsTest, stopTxShouldSucceed)
     }
 
     ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 stopTx", m_context));
+}
+
+TEST_F(FunctionsTest, validateBeamformingHeaderRegisterShouldSucceed)
+{
+    {
+        InSequence sequence;
+
+        EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
+        EXPECT_CALL(*m_dut0, validateBeamformingHeaderRegister(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_EIGHTY)).WillOnce(Return(true));
+        EXPECT_CALL(m_console, cout("Beamforming header register is valid.\n")).Times(1);
+    }
+
+    ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 validateBeamformingHeaderRegister --phy-mode 7 --bandwidth 2", m_context));
+}
+
+TEST_F(FunctionsTest, validateBeamformingHeaderRegisterShouldFail)
+{
+    {
+        InSequence sequence;
+
+        EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
+        EXPECT_CALL(*m_dut0, validateBeamformingHeaderRegister(dut::PhyMode::PHY_MODE_N_5, dut::Bandwidth::BANDWIDTH_FOURTY)).WillOnce(Return(false));
+        EXPECT_CALL(m_console, cout("Beamforming header register is NOT valid.\n")).Times(1);
+    }
+
+    ASSERT_FALSE(dut_cli::CommandLine::run("exec 0 validateBeamformingHeaderRegister --phy-mode 4 --bandwidth 1", m_context));
 }
 
 TEST_F(FunctionsTest, writeCalibrationFileShouldSucceed)

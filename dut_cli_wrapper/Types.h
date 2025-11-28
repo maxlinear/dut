@@ -70,12 +70,6 @@ enum class Bandwidth {
 };
 
 public
-enum class BeamformingMatrixType {
-    BEAMFORMING_MATRIX_TYPE_VHT = 0x00,
-    BEAMFORMING_MATRIX_TYPE_HE = 0x01,
-};
-
-public
 enum class CalibrationFileVersion {
     CALIBRATION_FILE_VERSION_4 = 4,
     CALIBRATION_FILE_VERSION_5 = 5,
@@ -98,6 +92,14 @@ enum class ChipModule {
     CHIP_MODULE_PHY,
     CHIP_MODULE_RF,
     CHIP_MODULE_AFE,
+    DUT_CHIP_MODULE_REGISTER
+};
+
+public
+enum class CodingType {
+    CODING_TYPE_AUTO = 0,
+    CODING_TYPE_BCC = 1,
+    CODING_TYPE_LDPC = 2
 };
 
 public

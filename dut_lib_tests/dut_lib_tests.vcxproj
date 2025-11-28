@@ -57,9 +57,12 @@
     <ClInclude Include="EmbeddedResource.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="TemporaryFile.h" />
+    <ClInclude Include="BeamformingTestHelpers.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="AntennaMaskTest.cpp" />
+    <ClCompile Include="BeamformingUtilsTest.cpp" />
+    <ClCompile Include="BeamformingTestHelpers.cpp" />
     <ClCompile Include="BitsTest.cpp" />
     <ClCompile Include="CalibrationFileImplTest.cpp" />
     <ClCompile Include="ChannelsTest.cpp" />
@@ -74,6 +77,7 @@
     <ClCompile Include="EmbeddedResource.cpp" />
     <ClCompile Include="DeviceNvmTest.cpp" />
     <ClCompile Include="FunctionPtrLoggerTest.cpp" />
+    <ClCompile Include="HardwareUtilsTest.cpp" />
     <ClCompile Include="LoggerTest.cpp" />
     <ClCompile Include="ResizableBufferTest.cpp" />
     <ClCompile Include="StreamLoggerTest.cpp" />

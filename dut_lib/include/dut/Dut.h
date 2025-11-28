@@ -737,16 +737,30 @@ public:
     virtual bool getZwdfsStatus(AntennaMask& antennaMask, bool& enabled) = 0;
 
     /**
-     * @brief Loads beamforming matrix from the specified file into FW.
+     * @brief Loads beamforming matrix from file set(s) to hardware.
+     *
+     * Supports both single and dual-segment beamforming operations:
+     * - Single segment: Only primarySet is used (standard 2-file or EHT 3-file operation)
+     * - Dual segment: Both primarySet and secondarySet are used (EHT 320MHz dual-segment operation)
+     *
+     * It must be run after setChannel() and setRate(), it cannot be run during an ongoing transmission.
+     * If a transmission is ongoing, it must be stopped first by calling stopTx().
      * 
-     * The file must contain a dump of the beamforming matrix memory values in hexadecimal format. 
-     * 
-     * @param fileName Name of the file containing the beamforming matrix.
-     * @param type Type of beamforming matrix (VHT, HE, ...).
-     * 
+     * The function is band-agnostic and determines the appropriate hardware addresses based on the
+     * beamforming data content and hardware configuration. Primary data uses standard addresses,
+     * while secondary data (for EHT 320MHz) uses upper segment addresses automatically.
+     *
+     * The reason it is band-agnostic is because the HW translates the addresses based on the
+     * the band we connect to.
+     *
+     * @param primarySet Primary file set containing header, values, and optional extended EHT values
+     * @param secondarySet Optional secondary file set for EHT 320MHz dual-segment operations (empty if not used)
      * @return true on success and false otherwise.
      */
-    virtual bool loadBeamformingMatrixFromFile(const std::string& fileName, BeamformingMatrixType type) = 0;
+    virtual bool loadBeamformingMatrixFromFileSet(
+        const BeamformingFilePathSet_t& primarySet,
+        const BeamformingFilePathSet_t& secondarySet = BeamformingFilePathSet_t {})
+        = 0;
 
     /**
      * @brief Loads calibration file from the specified file into non-volatile memory.
@@ -1287,10 +1301,12 @@ public:
      * bytes, otherwise the maximum value depends on current PHY mode.
      * @param beamforming Set to true to use beamforming. A beamforming matrix must have been 
      * loaded previously using the function loadBeamformingMatrixFromFile(). 
+     * @param codingType Optional parameter to specify coding type. Set to CODING_TYPE_LDPC to use LDPC coding, 
+     * CODING_TYPE_BCC to use BCC coding, or omit for automatic selection based on PHY mode (LDPC for 11ax and later, BCC for earlier).
      * 
      * @return true on success and false otherwise.
      */
-    virtual bool startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming) = 0;
+    virtual bool startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, CodingType codingType = CodingType::CODING_TYPE_AUTO) = 0;
 
     /**
      * @brief Start Rx PER packet limit count.
@@ -1330,6 +1346,20 @@ public:
      * @return true on success and false otherwise.
      */
     virtual bool stopRxPer(bool calcRxPer) = 0;
+
+    /**
+     * @brief Validates that the beamforming header register matches the expected parameters
+     *
+     * This function reads the beamforming header register from hardware and validates that it
+     * matches the expected PHY mode and bandwidth parameters. This is useful to verify the
+     * beamforming configuration before starting a transmission to ensure compatibility and
+     * prevent incorrect beamforming transmissions.
+     *
+     * @param expectedPhyMode Expected PHY mode (e.g., PHY_MODE_AC, PHY_MODE_AX, PHY_MODE_BE)
+     * @param expectedBandwidth Expected bandwidth (e.g., BANDWIDTH_TWENTY, BANDWIDTH_EIGHTY, etc.)
+     * @return true if the header matches the expected parameters, false otherwise
+     */
+    virtual bool validateBeamformingHeaderRegister(PhyMode expectedPhyMode, Bandwidth expectedBandwidth) = 0;
 
     /**
      * @brief Writes calibration data to non-volatile memory.

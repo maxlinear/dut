@@ -101,24 +101,16 @@ const std::set<dut::Bandwidth> validValuesForRadarDetectionBandwidth {
 
 const std::string validValuesForRadarDetectionBandwidthString = "80Mhz = 2, 160Mhz = 3 and Invalid = 255";
 
-const std::set<dut::BeamformingMatrixType> validValuesForBeamformingMatrixType {
-    dut::BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_VHT,
-    dut::BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_HE,
-};
-
-const std::string validValuesForBeamformingMatrixTypeString = "VHT = 0 and HE = 1";
-
 const std::set<dut::ChipModule> validValuesForChipModule {
     dut::ChipModule::CHIP_MODULE_UMAC_MEM,
     dut::ChipModule::CHIP_MODULE_LMAC_MEM,
     dut::ChipModule::CHIP_MODULE_PHY,
     dut::ChipModule::CHIP_MODULE_RF,
     dut::ChipModule::CHIP_MODULE_AFE,
-    dut::ChipModule::CHIP_MODULE_BF_VHT,
-    dut::ChipModule::CHIP_MODULE_BF_HE,
+    dut::ChipModule::CHIP_MODULE_REGISTER,
 };
 
-const std::string validValuesForChipModuleString = "UMAC_MEM = 1, LMAC_MEM = 2, PHY = 3, RF = 4, AFE = 5, BF_VHT = 6 and BF_HE = 7";
+const std::string validValuesForChipModuleString = "UMAC_MEM = 1, LMAC_MEM = 2, PHY = 3, RF = 4, AFE = 5 and REGISTER = 6";
 
 const std::set<dut::Gi> validValuesForGi {
     dut::Gi::GI_0_8_US,
@@ -301,6 +293,7 @@ const std::map<std::string, FunctionFactory, std::less<>> g_functions {
     { "stopCw", createFunctionFactory<StopCwFunction>() },
     { "stopTx", createFunctionFactory<StopTxFunction>() },
     { "stopRxPer", createFunctionFactory<StopRxPerFunction>() },
+    { "validateBeamformingHeaderRegister", createFunctionFactory<ValidateBeamformingHeaderRegisterFunction>() },
     { "writeCalibrationFile", createFunctionFactory<WriteCalibrationFileFunction>() },
     { "writeMemory", createFunctionFactory<WriteMemoryFunction>() },
     { "writeNvm", createFunctionFactory<WriteNvmFunction>() },
@@ -1126,43 +1119,95 @@ bool LoadBeamformingMatrixFromFileFunction::parse(std::vector<std::string>& args
 {
     TCLAP::CmdLine cmd(args.at(0), ' ');
 
-    TCLAP::ValueArg<std::string> fileNameArg(
+    TCLAP::ValueArg<std::string> headerFileNameArg(
         "f",
-        "filename",
-        "Name of the file containing the beamforming matrix.",
+        "header-filename",
+        "Name of the file containing the beamforming matrix header.",
         true,
         "",
         "File name",
         cmd);
 
-    TCLAP::ValueArg<uint32_t> typeArg(
-        "t",
-        "beamforming-matrix-type",
-        "Beamforming matrix type. Valid values: " + validValuesForBeamformingMatrixTypeString + ". Default value: " + std::to_string(static_cast<uint32_t>(m_type)),
-        false,
-        static_cast<uint32_t>(m_type),
-        "Beamforming matrix type",
+    TCLAP::ValueArg<std::string> valuesFileNameArg(
+        "v",
+        "values-filename",
+        "Name of the file containing the beamforming matrix values.",
+        true,
+        "",
+        "File name",
         cmd);
 
-    auto validator = [&typeArg]() {
-        if (validValuesForBeamformingMatrixType.find(static_cast<dut::BeamformingMatrixType>(typeArg.getValue())) == validValuesForBeamformingMatrixType.end()) {
-            throw TCLAP::ArgException("Invalid value", typeArg.longID());
-        }
-    };
+    TCLAP::ValueArg<std::string> extValuesEhtFileNameArg(
+        "e",
+        "ext-values-eht-filename",
+        "Name of the file containing the extended EHT beamforming matrix values (optional, for EHT 160MHz/320MHz).",
+        false,
+        "",
+        "File name",
+        cmd);
 
-    if (!parseCmdLine(args, cmd, validator)) {
+    TCLAP::ValueArg<std::string> secondaryHeaderFileNameArg(
+        "",
+        "secondary-header-filename",
+        "Name of the file containing the secondary segment beamforming matrix header (optional, for EHT 320MHz).",
+        false,
+        "",
+        "File name",
+        cmd);
+
+    TCLAP::ValueArg<std::string> secondaryValuesFileNameArg(
+        "",
+        "secondary-values-filename",
+        "Name of the file containing the secondary segment beamforming matrix values (optional, for EHT 320MHz).",
+        false,
+        "",
+        "File name",
+        cmd);
+
+    TCLAP::ValueArg<std::string> secondaryExtValuesEhtFileNameArg(
+        "",
+        "secondary-ext-values-eht-filename",
+        "Name of the file containing the secondary band extended EHT beamforming matrix values (optional, for EHT 320MHz).",
+        false,
+        "",
+        "File name",
+        cmd);
+
+    if (!parseCmdLine(args, cmd)) {
         return false;
     }
 
-    m_fileName = static_cast<std::string>(fileNameArg.getValue());
-    m_type = static_cast<dut::BeamformingMatrixType>(typeArg.getValue());
+    m_headerFileName = static_cast<std::string>(headerFileNameArg.getValue());
+    m_valuesFileName = static_cast<std::string>(valuesFileNameArg.getValue());
+    m_extValuesEhtFileName = static_cast<std::string>(extValuesEhtFileNameArg.getValue());
+    m_secondaryHeaderFileName = static_cast<std::string>(secondaryHeaderFileNameArg.getValue());
+    m_secondaryValuesFileName = static_cast<std::string>(secondaryValuesFileNameArg.getValue());
+    m_secondaryExtValuesEhtFileName = static_cast<std::string>(secondaryExtValuesEhtFileNameArg.getValue());
 
     return true;
 }
 
 bool LoadBeamformingMatrixFromFileFunction::execute(std::shared_ptr<dut::Dut> dut, Context& context)
 {
-    return dut->loadBeamformingMatrixFromFile(m_fileName, m_type);
+    // Create primary file set
+    dut::BeamformingFilePathSet_t primarySet;
+    primarySet.headerFile = m_headerFileName.c_str();
+    primarySet.valuesFile = m_valuesFileName.c_str();
+    primarySet.extValuesEhtFile = m_extValuesEhtFileName.empty() ? nullptr : m_extValuesEhtFileName.c_str();
+
+    // Create secondary file set if provided
+    dut::BeamformingFilePathSet_t secondarySet;
+    if (!m_secondaryHeaderFileName.empty() && !m_secondaryValuesFileName.empty()) {
+        secondarySet.headerFile = m_secondaryHeaderFileName.c_str();
+        secondarySet.valuesFile = m_secondaryValuesFileName.c_str();
+        secondarySet.extValuesEhtFile = m_secondaryExtValuesEhtFileName.empty() ? nullptr : m_secondaryExtValuesEhtFileName.c_str();
+    } else {
+        secondarySet.headerFile = nullptr;
+        secondarySet.valuesFile = nullptr;
+        secondarySet.extValuesEhtFile = nullptr;
+    }
+
+    return dut->loadBeamformingMatrixFromFileSet(primarySet, secondarySet);
 }
 
 bool LoadNvmFromFileFunction::parse(std::vector<std::string>& args)
@@ -2322,7 +2367,23 @@ bool StartTxFunction::parse(std::vector<std::string>& args)
         cmd,
         m_beamforming);
 
-    if (!parseCmdLine(args, cmd)) {
+    TCLAP::ValueArg<uint32_t> codingTypeArg(
+        "c",
+        "coding-type",
+        "Coding type. Valid values: 0=AUTO (auto-select based on PHY mode), 1=BCC, 2=LDPC. Default value: " + std::to_string(static_cast<uint32_t>(m_codingType)),
+        false,
+        static_cast<uint32_t>(m_codingType),
+        "Coding type",
+        cmd);
+
+    auto validator = [&codingTypeArg]() {
+        auto codingType = static_cast<dut::CodingType>(codingTypeArg.getValue());
+        if (codingType != dut::CodingType::CODING_TYPE_AUTO && codingType != dut::CodingType::CODING_TYPE_BCC && codingType != dut::CodingType::CODING_TYPE_LDPC) {
+            throw TCLAP::ArgException("Invalid value", codingTypeArg.longID());
+        }
+    };
+
+    if (!parseCmdLine(args, cmd, validator)) {
         return false;
     }
 
@@ -2330,13 +2391,14 @@ bool StartTxFunction::parse(std::vector<std::string>& args)
     m_packetLength = packetLengthArg.getValue();
     m_longData = longDataArg.getValue();
     m_beamforming = beamformingArg.getValue();
+    m_codingType = static_cast<dut::CodingType>(codingTypeArg.getValue());
 
     return true;
 }
 
 bool StartTxFunction::execute(std::shared_ptr<dut::Dut> dut, Context& context)
 {
-    return dut->startTx(m_repetitions, m_packetLength, m_longData, m_beamforming);
+    return dut->startTx(m_repetitions, m_packetLength, m_longData, m_beamforming, m_codingType);
 }
 
 bool StartRxPerFunction::parse(std::vector<std::string>& args)
@@ -2409,6 +2471,48 @@ bool StopRxPerFunction::parse(std::vector<std::string>& args)
 bool StopRxPerFunction::execute(std::shared_ptr<dut::Dut> dut, Context& context)
 {
     return dut->stopRxPer(m_calcRxPer);
+}
+
+bool ValidateBeamformingHeaderRegisterFunction::parse(std::vector<std::string>& args)
+{
+    TCLAP::CmdLine cmd(args.at(0), ' ');
+
+    TCLAP::ValueArg<uint32_t> expectedPhyModeArg(
+        "p",
+        "phy-mode",
+        "Expected PHY mode. Valid values: " + validValuesForPhyModeString + ". Default value: " + std::to_string(static_cast<uint32_t>(m_expectedPhyMode)),
+        false,
+        static_cast<uint32_t>(m_expectedPhyMode),
+        "Expected PHY mode",
+        cmd);
+
+    TCLAP::ValueArg<uint32_t> expectedBandwidthArg(
+        "b",
+        "bandwidth",
+        "Expected bandwidth. Valid values: " + validValuesForBandwidthString + ". Default value: " + std::to_string(static_cast<uint32_t>(m_expectedBandwidth)),
+        false,
+        static_cast<uint32_t>(m_expectedBandwidth),
+        "Expected bandwidth",
+        cmd);
+
+    if (!parseCmdLine(args, cmd)) {
+        return false;
+    }
+
+    m_expectedPhyMode = static_cast<dut::PhyMode>(expectedPhyModeArg.getValue());
+    m_expectedBandwidth = static_cast<dut::Bandwidth>(expectedBandwidthArg.getValue());
+
+    return true;
+}
+
+bool ValidateBeamformingHeaderRegisterFunction::execute(std::shared_ptr<dut::Dut> dut, Context& context)
+{
+    bool valid = dut->validateBeamformingHeaderRegister(m_expectedPhyMode, m_expectedBandwidth);
+    context.getConsole().cout(
+        valid ? "Beamforming header register is valid.\n"
+              : "Beamforming header register is NOT valid.\n");
+
+    return valid;
 }
 
 bool WriteCalibrationFileFunction::parse(std::vector<std::string>& args)

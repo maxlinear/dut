@@ -30,7 +30,9 @@
  */
 
 #include "dut/DutImpl.h"
+#include "SharedHeaders.h" // For hardware register bit masks and constants
 
+#include "BeamformingUtils.h"
 #include "CalibrationFile.h"
 #include "CalibrationFileFactory.h"
 #include "CalibrationFileVer6.h"
@@ -51,6 +53,7 @@
 #include "TssiCalibrationDataVer6.h"
 #include "TssiCalibrationDataVer7.h"
 
+#include <cstring>
 #include <fstream>
 #include <stdexcept>
 
@@ -197,18 +200,6 @@ static std::vector<Band> getSupportedBands(uint8_t supportedBandsMask)
     }
 
     return supportedBands;
-}
-
-static ChipModule getChipModule(BeamformingMatrixType type)
-{
-    switch (type) {
-    case BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_VHT:
-        return ChipModule::CHIP_MODULE_BF_VHT;
-    case BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_HE:
-        return ChipModule::CHIP_MODULE_BF_HE;
-    default:
-        throw std::invalid_argument("Invalid beamforming matrix type (" + toString(type) + ")");
-    }
 }
 
 static HardwareType getHardwareType(ChipID chipId)
@@ -809,44 +800,120 @@ bool DutImpl::getZwdfsStatus(AntennaMask& antennaMask, bool& enabled)
     });
 }
 
-bool DutImpl::loadBeamformingMatrixFromFile(const std::string& fileName, BeamformingMatrixType type)
+bool DutImpl::loadBeamformingMatrixFromFileSet(
+    const BeamformingFilePathSet_t& primarySet, const BeamformingFilePathSet_t& secondarySet)
 {
-    return execute("loadBeamformingMatrixFromFile", [this, fileName, type]() {
-        logInput({ { "fileName", fileName }, { "type", toString(type) } });
+    return execute("loadBeamformingMatrixFromFileSet", [this, primarySet, secondarySet]() {
+        // Log input parameters
+        std::vector<std::pair<std::string, std::string>> logParams = {
+            { "primarySet.headerFile", primarySet.headerFile },
+            { "primarySet.valuesFile", primarySet.valuesFile }
+        };
+        if (beamforming_utils::hasExtendedEhtValues(primarySet)) {
+            logParams.emplace_back("primarySet.extValuesEhtFile", primarySet.extValuesEhtFile);
+        }
+        if (beamforming_utils::isValid(secondarySet)) {
+            logParams.emplace_back("secondarySet.headerFile", secondarySet.headerFile);
+            logParams.emplace_back("secondarySet.valuesFile", secondarySet.valuesFile);
+            if (beamforming_utils::hasExtendedEhtValues(secondarySet)) {
+                logParams.emplace_back("secondarySet.extValuesEhtFile", secondarySet.extValuesEhtFile);
+            }
+        }
+        logInput(logParams);
 
-        ChipModule chipModule = getChipModule(type);
-
-        std::ifstream f(fileName, std::ios::in);
-        if (!f.is_open()) {
-            throw std::invalid_argument("Unable to open file '" + fileName + "' for reading");
+        // Check that the DUT is not transmitting
+        if (m_transmitter->getState() != Transmitter::State::IDLE) {
+            throw std::logic_error("Cannot load beamforming matrix while transmitting, stop transmission");
         }
 
-        std::string contents;
-        std::string line;
-        while (std::getline(f, line)) {
-            contents += line;
+        // Check that phyMode has been set (via setChannel)
+        if (!m_status->phyMode.isValueSet()) {
+            throw std::logic_error("Channel not set");
         }
 
-        f.close();
-
-        if (f.fail() && (!f.eof())) {
-            throw std::invalid_argument("Unable to read file '" + fileName + "'");
+        // Check that signal bandwidth has been set (via setRate)
+        if (!m_status->signalBandwidth.isValueSet()) {
+            throw std::logic_error("Rate not set");
         }
 
-        std::vector<uint8_t> bytes;
-        try {
-            bytes = toBytes(contents);
-        } catch (...) {
-            throw std::invalid_argument("Unable to parse file '" + fileName + "'");
+        // Read beamforming data
+        beamforming_utils::BeamformingData dataSet = beamforming_utils::readBeamformingFiles(primarySet, secondarySet);
+
+        // Determine hardware type
+        HardwareType hwType = dut::getHardwareType(m_status->chipId.getValue());
+
+        // Helper lambda to validate header data
+        auto validateHeader = [&](const std::vector<uint32_t>& headerData, const std::string& fileName, const std::string& setName) -> BeamformingHeaderInfo_t {
+            uint32_t headerLSB = headerData[0];
+            BeamformingHeaderInfo_t headerInfo;
+
+            if (!beamforming_utils::extractBeamformingHeaderInfo(headerLSB, hwType, headerInfo)) {
+                throw std::invalid_argument("Invalid beamforming header in " + setName + " file '" + fileName + "'");
+            }
+
+            // Ensure it matches current DUT PhyMode and Signal Bandwidth
+            auto validation = beamforming_utils::validateBeamformingCompatibility(headerInfo,
+                m_status->signalBandwidth.getValue(),
+                m_status->phyMode.getValue());
+            if (!validation.isValid) {
+                throw std::invalid_argument(setName + ": " + validation.errorMessage);
+            }
+
+            return headerInfo;
+        };
+
+        // Validate primary header
+        BeamformingHeaderInfo_t primaryHeaderInfo = validateHeader(dataSet.primary.header, primarySet.headerFile, "primary");
+
+        // Validate secondary header if present
+        if (dataSet.hasSecondary()) {
+            validateHeader(dataSet.secondary.header, secondarySet.headerFile, "secondary");
         }
 
-        size_t bytesWritten = 0;
-        while (bytesWritten < bytes.size()) {
-            size_t bytesToWrite = std::min(maxMemoryAccessLength, (bytes.size() - bytesWritten));
+        // Write beamforming data to hardware based on hardware type
+        switch (hwType) {
+        case HardwareType::HARDWARE_TYPE_GEN6:
 
-            m_client->writeMemory(chipModule, bytesWritten, &bytes.data()[bytesWritten], bytesToWrite);
+            // // Wave600 only supports single-band operation
+            // if (dataSet.hasSecondary()) {
+            //     throw std::invalid_argument("Wave600 hardware does not support EHT 320MHz beamforming");
+            // }
+            // beamforming_utils::writeWave600BeamformingHeader(m_client, dataSet.primary.header);
+            // beamforming_utils::writeWave600BeamformingValues(m_client, dataSet.primary.values);
 
-            bytesWritten += bytesToWrite;
+            throw std::runtime_error("The Wave600 loadBeamformingMatrixFromFileSet implementation hasn't been tested.");
+            break;
+
+        case HardwareType::HARDWARE_TYPE_GEN7: {
+            beamforming_utils::Wave700BeamformingAddresses primaryAddresses = beamforming_utils::getWave700PrimaryAddresses();
+
+            // Write primary band data
+            beamforming_utils::writeWave700BeamformingHeader(m_client, dataSet.primary.header, primaryAddresses);
+
+            uint8_t suPage = beamforming_utils::beamforming::wave700::suPage::vhtHeEht; // Default: 0
+            beamforming_utils::writeWave700BeamformingValues(m_client, dataSet.primary.values, primaryAddresses, suPage);
+
+            // Write EHT extra phases for higher bandwidths (160MHz, 320MHz)
+            if ((primaryHeaderInfo.phyMode == PhyMode::PHY_MODE_BE) && ((primaryHeaderInfo.bandwidth == Bandwidth::BANDWIDTH_ONE_HUNDRED_SIXTY) || (primaryHeaderInfo.bandwidth == Bandwidth::BANDWIDTH_THREE_HUNDRED_TWENTY))) {
+                uint8_t ehtExtraPage = beamforming_utils::beamforming::wave700::suPage::ehtExtra; // 4
+                beamforming_utils::writeWave700BeamformingValues(m_client, dataSet.primary.extValues, primaryAddresses, ehtExtraPage);
+            }
+
+            // Write secondary segment data if present (for EHT 320MHz)
+            if (dataSet.hasSecondary()) {
+                // For secondary data (EHT 320MHz), use secondary addresses
+                beamforming_utils::Wave700BeamformingAddresses secondaryAddresses = beamforming_utils::getWave700SecondaryAddresses();
+                beamforming_utils::writeWave700BeamformingHeader(m_client, dataSet.secondary.header, secondaryAddresses);
+                beamforming_utils::writeWave700BeamformingValues(m_client, dataSet.secondary.values, secondaryAddresses, suPage);
+
+                // Write EHT extra phases for secondary as well
+                uint8_t ehtExtraPage = beamforming_utils::beamforming::wave700::suPage::ehtExtra; // 4
+                beamforming_utils::writeWave700BeamformingValues(m_client, dataSet.secondary.extValues, secondaryAddresses, ehtExtraPage);
+            }
+        } break;
+
+        default:
+            throw std::invalid_argument("Unsupported hardware type for beamforming: " + toString(static_cast<uint32_t>(hwType)));
         }
     });
 }
@@ -1315,6 +1382,93 @@ void DutImpl::setTpcAntennaParams(uint8_t channel) const
     }
 }
 
+bool DutImpl::validateBeamformingHeaderRegister(PhyMode expectedPhyMode, Bandwidth expectedBandwidth)
+{
+    return execute("validateBeamformingHeaderRegister", [this, expectedPhyMode, expectedBandwidth]() {
+        logInput({ { "expectedPhyMode", toString(expectedPhyMode) },
+            { "expectedBandwidth", toString(expectedBandwidth) } });
+
+        validateBeamformingHeaderRegisterImpl(expectedPhyMode, expectedBandwidth);
+    });
+}
+
+void DutImpl::validateBeamformingHeaderRegisterImpl(PhyMode expectedPhyMode, Bandwidth expectedBandwidth) const
+{
+    HardwareType hwType = dut::getHardwareType(m_status->chipId.getValue());
+
+    if (hwType != HardwareType::HARDWARE_TYPE_GEN6 && hwType != HardwareType::HARDWARE_TYPE_GEN7) {
+        throw std::runtime_error("Beamforming is not supported on this hardware type: " + toString(static_cast<uint32_t>(hwType)));
+    }
+
+    auto validateHeader = [this, hwType, expectedPhyMode, expectedBandwidth](uint32_t headerAddress, const std::string& headerName = "header") -> std::string {
+        uint32_t headerLSB = 0;
+        m_client->readMemory(ChipModule::CHIP_MODULE_REGISTER, headerAddress,
+            reinterpret_cast<uint8_t*>(&headerLSB), sizeof(headerLSB));
+
+        // Check if header has been written at all (all zeros indicates uninitialized)
+        // For Wave600, 0x00000000 is a valid HT 20MHz header, so skip this check
+        if (hwType == HardwareType::HARDWARE_TYPE_GEN7 && headerLSB == 0) {
+            return "Beamforming " + headerName + " has not been written (contains all zeros). Please configure beamforming before validation.";
+        }
+
+        BeamformingHeaderInfo_t headerInfo;
+        if (!beamforming_utils::extractBeamformingHeaderInfo(headerLSB, hwType, headerInfo)) {
+            return "Failed to extract beamforming header info from " + headerName + ". Header may be corrupted.";
+        }
+
+        std::vector<std::string> mismatches;
+
+        // Check PHY mode compatibility
+        if (!beamforming_utils::isBeamformingPhyModeCompatible(headerInfo.phyMode, expectedPhyMode)) {
+            mismatches.push_back("PHY mode mismatch - Expected: " + toString(expectedPhyMode) + ", Found in " + headerName + ": " + toString(headerInfo.phyMode));
+        }
+
+        // Check bandwidth
+        if (headerInfo.bandwidth != expectedBandwidth) {
+            mismatches.push_back("Bandwidth mismatch - Expected: " + toString(expectedBandwidth) + ", Found in " + headerName + ": " + toString(headerInfo.bandwidth));
+        }
+
+        if (!mismatches.empty()) {
+            std::string errorMsg = "Beamforming " + headerName + " validation failed:\n";
+            for (const auto& mismatch : mismatches) {
+                errorMsg += "  - " + mismatch + "\n";
+            }
+            return errorMsg;
+        }
+
+        return ""; // Success - no error message
+    };
+
+    // Validate headers based on hardware type and bandwidth
+    std::string errorMessage;
+    uint32_t primaryAddress = (hwType == HardwareType::HARDWARE_TYPE_GEN6) ? beamforming_utils::beamforming::wave600::headerAddress : beamforming_utils::beamforming::wave700::primaryBfHeaderAddress;
+
+    if (hwType == HardwareType::HARDWARE_TYPE_GEN7 && expectedBandwidth == Bandwidth::BANDWIDTH_THREE_HUNDRED_TWENTY) {
+        // EHT 320MHz: both headers must be valid
+        uint32_t secondaryAddress = beamforming_utils::beamforming::wave700::secondaryBfHeaderAddress;
+
+        std::string primaryError = validateHeader(primaryAddress, "primary header");
+        std::string secondaryError = validateHeader(secondaryAddress, "secondary header");
+
+        if (!primaryError.empty() || !secondaryError.empty()) {
+            errorMessage = "EHT 320MHz validation failed:\n";
+            if (!primaryError.empty()) {
+                errorMessage += primaryError;
+            }
+            if (!secondaryError.empty()) {
+                errorMessage += secondaryError;
+            }
+        }
+    } else {
+        // All other cases: only primary header
+        errorMessage = validateHeader(primaryAddress);
+    }
+
+    if (!errorMessage.empty()) {
+        throw std::runtime_error(errorMessage);
+    }
+}
+
 void DutImpl::writeRssiCalDataToFw(const AntennaMask& antennaMask) const
 {
     auto calibrationFile = static_cast<dut::CalibrationFileVer6*>(m_calibrationFile.get());
@@ -1708,10 +1862,10 @@ bool DutImpl::startCw(int8_t amplitude, int16_t tone)
     });
 }
 
-bool DutImpl::startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming)
+bool DutImpl::startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, CodingType codingType)
 {
-    return execute("startTx", [this, repetitions, packetLength, longData, beamforming]() {
-        logInput({ { "repetitions", toString(repetitions) }, { "packetLength", toString(packetLength) }, { "longData", toString(longData) }, { "beamforming", toString(beamforming) } });
+    return execute("startTx", [this, repetitions, packetLength, longData, beamforming, codingType]() {
+        logInput({ { "repetitions", toString(repetitions) }, { "packetLength", toString(packetLength) }, { "longData", toString(longData) }, { "beamforming", toString(beamforming) }, { "codingType", toString(static_cast<uint32_t>(codingType)) } });
 
         if (!m_status->lowestChannel.isValueSet()) {
             throw std::logic_error("Channel not set");
@@ -1730,7 +1884,62 @@ bool DutImpl::startTx(uint16_t repetitions, uint32_t packetLength, bool longData
             throw std::logic_error("Transmission rate not set");
         }
 
-        m_transmitter->startTx(repetitions, packetLength, longData, beamforming);
+        // Determine coding type based on default logic
+        bool ldpc;
+        switch (codingType) {
+        case CodingType::CODING_TYPE_LDPC:
+            ldpc = true;
+            break;
+        case CodingType::CODING_TYPE_BCC:
+            ldpc = false;
+            break;
+        case CodingType::CODING_TYPE_AUTO: {
+            // Use LDPC for 11ax (AX) and later, BCC for earlier standards
+            PhyMode phyMode = m_status->phyMode.getValue();
+            if (phyMode >= PhyMode::PHY_MODE_AX) {
+                ldpc = true;
+            } else {
+                ldpc = false;
+            }
+            break;
+        }
+        default:
+            throw std::invalid_argument("Invalid coding type (" + toString(static_cast<uint32_t>(codingType)) + ")");
+            break;
+        }
+
+        // Validate coding type against PHY mode constraints
+        PhyMode phyMode = m_status->phyMode.getValue();
+        Bandwidth signalBandwidth = m_status->signalBandwidth.getValue();
+        Mcs mcs = m_status->mcs.getValue();
+
+        if (ldpc) {
+            // LDPC validation
+            if (phyMode == PhyMode::PHY_MODE_B) {
+                throw std::invalid_argument("LDPC is not supported for 11b PHY mode");
+            }
+            if (phyMode == PhyMode::PHY_MODE_A || phyMode == PhyMode::PHY_MODE_G) {
+                throw std::invalid_argument("LDPC is not supported for 11a/g PHY modes (only BCC is supported)");
+            }
+        } else {
+            // BCC validation
+            if (phyMode == PhyMode::PHY_MODE_AX || phyMode == PhyMode::PHY_MODE_BE) {
+                // For 11ax/be: BCC only supported if BW <= 20MHz and MCS <= 9
+                if (signalBandwidth > Bandwidth::BANDWIDTH_TWENTY) {
+                    throw std::invalid_argument("BCC is not supported for 11ax/be with bandwidth greater than 20MHz");
+                }
+                if (mcs > Mcs::MCS_256QAM_56) {
+                    throw std::invalid_argument("BCC is not supported for 11ax/be with MCS greater than 9 (QAM256)");
+                }
+            }
+        }
+
+        // Validate beamforming settings
+        if (beamforming) {
+            validateBeamformingHeaderRegisterImpl(phyMode, signalBandwidth);
+        }
+
+        m_transmitter->startTx(repetitions, packetLength, longData, beamforming, ldpc);
     });
 }
 

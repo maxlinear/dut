@@ -57,9 +57,10 @@ TEST_F(TransmitterTest, startTxShouldFailIfZeroRepetitions)
     uint32_t packetLength = 1;
     bool longData = false;
     bool beamforming = false;
+    bool ldpc = false;
 
     const char* expectedMessage = "The number of repetitions cannot be 0";
-    EXPECT_THAT([&]() { transmitter.startTx(repetitions, packetLength, longData, beamforming); }, ThrowsMessage<std::invalid_argument>(expectedMessage));
+    EXPECT_THAT([&]() { transmitter.startTx(repetitions, packetLength, longData, beamforming, ldpc); }, ThrowsMessage<std::invalid_argument>(expectedMessage));
 }
 
 TEST_F(TransmitterTest, startAndStopTxShouldSucceed)
@@ -70,17 +71,18 @@ TEST_F(TransmitterTest, startAndStopTxShouldSucceed)
     uint32_t packetLength = 1;
     bool longData = false;
     bool beamforming = false;
+    bool ldpc = false;
 
     {
         InSequence sequence;
 
-        EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming)).Times(1);
+        EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, ldpc)).Times(1);
         EXPECT_CALL(*m_client, stopTx()).Times(1);
-        EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming)).Times(1);
+        EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, ldpc)).Times(1);
         EXPECT_CALL(*m_client, stopTx()).Times(1);
     }
 
-    EXPECT_NO_THROW(transmitter.startTx(repetitions, packetLength, longData, beamforming));
+    EXPECT_NO_THROW(transmitter.startTx(repetitions, packetLength, longData, beamforming, ldpc));
     EXPECT_EQ(transmitter.getState(), dut::Transmitter::State::TX_STARTED);
 
     EXPECT_NO_THROW(transmitter.pause());

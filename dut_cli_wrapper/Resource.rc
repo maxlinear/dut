@@ -68,13 +68,13 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "MaxLinear"
-            VALUE "FileDescription", "DUT C++/CLI wrapper for DUT library (WLANRTSYS-90650-Transmit-Negative-Power-FCC)"
+            VALUE "FileDescription", "DUT C++/CLI wrapper for DUT library (WLANRTSYS-94460-Allow-spaceless-beamforming)"
             VALUE "FileVersion", "1.0.0.1"
             VALUE "InternalName", "dut_cli_wrapper.dll"
             VALUE "LegalCopyright", "Copyright (c) 2022 MaxLinear. All rights reserved."
             VALUE "OriginalFilename", "dut_cli_wrapper.dll"
             VALUE "ProductName", "dut_cli_wrapper"
-            VALUE "ProductVersion", "2.25.2"
+            VALUE "ProductVersion", "2.27.1"
         END
     END
     BLOCK "VarFileInfo"

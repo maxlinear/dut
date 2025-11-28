@@ -347,9 +347,9 @@ namespace DUT_GUI
             return true;
         }
 
-        public bool StartTxPackets(ushort repetitions, uint packetLength, bool longData, bool beamforming)
+        public bool StartTxPackets(ushort repetitions, uint packetLength, bool longData, bool beamforming, CodingType codingType)
         {
-            if (dut.startTx(repetitions, packetLength, longData, beamforming))
+            if (dut.startTx(repetitions, packetLength, longData, beamforming, codingType))
             {
                 IsTransmitting = true;
                 return true;
@@ -660,9 +660,19 @@ namespace DUT_GUI
             return Array.Empty<Band>();
         }
 
-        public bool LoadBeamformingMatrixFromFile(string fileName, BeamformingMatrixType type)
+
+        public bool LoadBeamformingMatrixFromFileSet(
+            string primaryHeaderFile, string primaryValuesFile, string primaryExtValuesEhtFile,
+            string secondaryHeaderFile, string secondaryValuesFile, string secondaryExtValuesEhtFile)
         {
-            return dut.loadBeamformingMatrixFromFile(fileName, type);
+            return dut.loadBeamformingMatrixFromFileSet(
+                primaryHeaderFile, primaryValuesFile, primaryExtValuesEhtFile,
+                secondaryHeaderFile, secondaryValuesFile, secondaryExtValuesEhtFile);
+        }
+
+        public bool ValidateBeamformingHeaderRegister(PhyMode expectedPhyMode, Bandwidth expectedBandwidth)
+        {
+            return dut.validateBeamformingHeaderRegister(expectedPhyMode, expectedBandwidth);
         }
 
         public float GetTemperature()

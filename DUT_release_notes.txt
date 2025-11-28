@@ -1,10 +1,46 @@
-Version 2.25.2 (WLANRTSYS-90650-Transmit-Negative-Power-FCC), Wed 07/09/2025
+Version 2.27.1 (WLANRTSYS-94460-Allow-spaceless-beamforming), Wed 09/10/2025
+
+Content/Fixes:
+
+
+Shared headers hash:
+cde9866f147660f17ab5b12e424551a490315ea3
+
+Verified CV by DUT Automation:
+
+----------------------------------------------------------------
+
+Version 2.27.0 (WLANRTSYS-91333-expose-coding-type-dut-wlan_master), Wed 09/10/2025
+
+Content/Fixes:
+- Expose the coding type of a transmission to the DUT to allow the user to override default.
+
+Shared headers hash:
+cde9866f147660f17ab5b12e424551a490315ea3
+
+Verified CV by DUT Automation:
+
+----------------------------------------------------------------
+
+Version 2.26.0 (WLANRTSYS-53879-Implement-WAVE700-Beamforming), Wed 08/20/2025
+
+Content/Fixes:
+- Implement manual beamforming - user can write pre-generated beamforming vals to chip to be used during beamforming
+
+Shared headers hash:
+ae93fe20526f774260e4f16354d06bf623b19818
+
+Verified CV by DUT Automation:
+
+----------------------------------------------------------------
+
+Version 2.25.2 (WLANRTSYS-90650-Transmit-Negative-Power-FCC-wlan-master), Wed 07/09/2025
 
 Content/Fixes:
 Transmit negative values, block invalid cpMode, change value of autoPower
 
 Shared headers hash:
-efc2897bee77d771cc4454e6d8cd17b1b4d3afbb
+1c48e86bf8804cf049938f33270a6a453c029862
 
 Verified CV by DUT Automation:
 

@@ -159,7 +159,7 @@ public:
     bool getXtalCalValue(uint16_t& xtalValue) override;
     bool getXtalRegValue(uint16_t& xtalValue) override;
     bool getZwdfsStatus(AntennaMask& antennaMask, bool& enabled) override;
-    bool loadBeamformingMatrixFromFile(const std::string& fileName, BeamformingMatrixType type) override;
+    bool loadBeamformingMatrixFromFileSet(const BeamformingFilePathSet_t& primarySet, const BeamformingFilePathSet_t& secondarySet = BeamformingFilePathSet_t {}) override;
     bool loadNvmFromFile(const std::string& fileName) override;
     bool measureRxLnaSubBandGains() override;
     bool readMemory(ChipModule chipModule, size_t address, uint8_t* data, size_t length) override;
@@ -201,12 +201,13 @@ public:
     bool startCalibration(const StartCalibrationParams_t& params, uint8_t& status) override;
     bool startCw(int8_t amplitude, int16_t tone) override;
     bool startRxCalibration() override;
-    bool startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming) override;
+    bool startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, CodingType codingType = CodingType::CODING_TYPE_AUTO) override;
     bool startRxPer(uint32_t packetLimit) override;
     bool stopCw() override;
     bool stopRxCalibration() override;
     bool stopTx() override;
     bool stopRxPer(bool calcRxPer) override;
+    bool validateBeamformingHeaderRegister(PhyMode expectedPhyMode, Bandwidth expectedBandwidth) override;
     bool writeCalibrationFile(NvMemoryType memoryType, NvMemorySize memorySize) override;
     bool writeMemory(ChipModule chipModule, size_t address, const uint8_t* data, size_t length) override;
     bool writeNvm(size_t address, const uint8_t* data, size_t length) override;
@@ -268,6 +269,8 @@ private:
 
     void startRxCalibrationImpl() const;
     void stopRxCalibrationImpl() const;
+
+    void validateBeamformingHeaderRegisterImpl(PhyMode expectedPhyMode, Bandwidth expectedBandwidth) const;
 
     // Returns true if Wave700 and ZWDFS antenna mask is not 0x00
     bool isZwdfsAvailable() const;

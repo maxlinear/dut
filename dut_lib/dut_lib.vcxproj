@@ -188,6 +188,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="BeamformingUtils.h" />
     <ClInclude Include="Bits.h" />
     <ClInclude Include="CalibrationData.h" />
     <ClInclude Include="CalibrationFile.h" />
@@ -202,6 +203,7 @@
     <ClInclude Include="DutDriverFwGeneralMsg.h" />
     <ClInclude Include="DutMessage.h" />
     <ClInclude Include="FixedSizeBuffer.h" />
+    <ClInclude Include="HardwareUtils.h" />
     <ClInclude Include="include\dut\AntennaMask.h" />
     <ClInclude Include="include\dut\API.h" />
     <ClInclude Include="include\dut\Buffer.h" />
@@ -245,6 +247,7 @@
     <ClInclude Include="VersionInfo.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="BeamformingUtils.cpp" />
     <ClCompile Include="Bits.cpp" />
     <ClCompile Include="CalibrationFileFactory.cpp" />
     <ClCompile Include="CalibrationFileImpl.cpp" />
@@ -260,6 +263,7 @@
     <ClCompile Include="Country.cpp" />
     <ClCompile Include="DutDriverFwGeneralMsg.cpp" />
     <ClCompile Include="DutMessage.cpp" />
+    <ClCompile Include="HardwareUtils.cpp" />
     <ClCompile Include="Logger.cpp" />
     <ClCompile Include="Messenger.cpp" />
     <ClCompile Include="DeviceNvm.cpp" />

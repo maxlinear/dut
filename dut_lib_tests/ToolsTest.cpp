@@ -69,18 +69,6 @@ TEST(ToolsTest, toStringForBandwidthShouldSucceed)
     }
 }
 
-TEST(ToolsTest, toStringForBeamformingMatrixTypeShouldSucceed)
-{
-    const std::unordered_map<dut::BeamformingMatrixType, std::string> values {
-        { dut::BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_VHT, "VHT" },
-        { dut::BeamformingMatrixType::BEAMFORMING_MATRIX_TYPE_HE, "HE" }
-    };
-
-    for (const auto& entry : values) {
-        EXPECT_EQ(dut::toString(entry.first), entry.second);
-    }
-}
-
 TEST(ToolsTest, toStringForCalibrationFileVersionShouldSucceed)
 {
     const std::unordered_map<dut::CalibrationFileVersion, std::string> values {
@@ -104,8 +92,7 @@ TEST(ToolsTest, toStringForChipModuleShouldSucceed)
         { dut::ChipModule::CHIP_MODULE_PHY, "PHY" },
         { dut::ChipModule::CHIP_MODULE_RF, "RF" },
         { dut::ChipModule::CHIP_MODULE_AFE, "AFE" },
-        { dut::ChipModule::CHIP_MODULE_BF_VHT, "BF_VHT" },
-        { dut::ChipModule::CHIP_MODULE_BF_HE, "BF_HE" }
+        { dut::ChipModule::CHIP_MODULE_REGISTER, "REGISTER" }
     };
 
     for (const auto& entry : values) {
