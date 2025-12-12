@@ -52,7 +52,7 @@ public:
 
     State getState() const;
 
-    void startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming);
+    void startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, bool ldpc);
     void startCw(int8_t amplitude, int16_t tone);
     void stop();
     void pause();
@@ -66,6 +66,7 @@ private:
         uint32_t packetLength = 1000;
         bool longData = false;
         bool beamforming = false;
+        bool ldpc = false;
     };
 
     struct CwParams {

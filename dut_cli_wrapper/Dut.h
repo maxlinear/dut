@@ -118,7 +118,7 @@ public:
     bool setXtalRegValue(uint16_t xtalValue);
     bool setZwdfsConfiguration(uint8_t zwdfsChannel, Bandwidth zwdfsBandwidth, Bandwidth radarDetectionBandwidth);
     bool startCw(int8_t amplitude, int16_t tone);
-    bool startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming);
+    bool startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, CodingType codingType);
     bool startRxPer(uint32_t packetLimit);
     bool stopCw();
     bool stopTx();

@@ -89,7 +89,7 @@ public:
     virtual void setSpacelessTxEnabled(bool enabled) = 0;
     virtual void startCw(int8_t amplitude, int16_t tone) = 0;
     virtual void stopCw() = 0;
-    virtual void startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming) = 0;
+    virtual void startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, bool ldpc) = 0;
     virtual void stopTx() = 0;
 
     // Non Volatile Memory (NVM)

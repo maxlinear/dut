@@ -1295,16 +1295,52 @@ TEST_F(FunctionsTest, startCwShouldSucceed)
     ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 startCw --amplitude 10 --tone 4", m_context));
 }
 
-TEST_F(FunctionsTest, startTxShouldSucceed)
+TEST_F(FunctionsTest, startTxShouldSucceedDefaultCoding)
 {
     {
         InSequence sequence;
 
         EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
-        EXPECT_CALL(*m_dut0, startTx(65535, 1234, true, true)).WillOnce(Return(true));
+        EXPECT_CALL(*m_dut0, startTx(65535, 1234, true, true, dut::CodingType::CODING_TYPE_AUTO)).WillOnce(Return(true));
     }
 
     ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 startTx --repetitions 65535 --packet-length 1234 --long-data --beamforming", m_context));
+}
+
+TEST_F(FunctionsTest, startTxShouldSucceedAutoCoding)
+{
+    {
+        InSequence sequence;
+
+        EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
+        EXPECT_CALL(*m_dut0, startTx(65535, 1234, true, true, dut::CodingType::CODING_TYPE_AUTO)).WillOnce(Return(true));
+    }
+
+    ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 startTx --repetitions 65535 --packet-length 1234 --long-data --beamforming --coding-type 0", m_context));
+}
+
+TEST_F(FunctionsTest, startTxShouldSucceedBccCoding)
+{
+    {
+        InSequence sequence;
+
+        EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
+        EXPECT_CALL(*m_dut0, startTx(65535, 1234, true, true, dut::CodingType::CODING_TYPE_BCC)).WillOnce(Return(true));
+    }
+
+    ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 startTx --repetitions 65535 --packet-length 1234 --long-data --beamforming --coding-type 1", m_context));
+}
+
+TEST_F(FunctionsTest, startTxShouldSucceedLdpcCoding)
+{
+    {
+        InSequence sequence;
+
+        EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
+        EXPECT_CALL(*m_dut0, startTx(65535, 1234, true, true, dut::CodingType::CODING_TYPE_LDPC)).WillOnce(Return(true));
+    }
+
+    ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 startTx --repetitions 65535 --packet-length 1234 --long-data --beamforming --coding-type 2", m_context));
 }
 
 TEST_F(FunctionsTest, startRxPerShouldSucceed)

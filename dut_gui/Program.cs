@@ -347,9 +347,9 @@ namespace DUT_GUI
             return true;
         }
 
-        public bool StartTxPackets(ushort repetitions, uint packetLength, bool longData, bool beamforming)
+        public bool StartTxPackets(ushort repetitions, uint packetLength, bool longData, bool beamforming, CodingType codingType)
         {
-            if (dut.startTx(repetitions, packetLength, longData, beamforming))
+            if (dut.startTx(repetitions, packetLength, longData, beamforming, codingType))
             {
                 IsTransmitting = true;
                 return true;
@@ -661,7 +661,7 @@ namespace DUT_GUI
         }
 
 
-        public bool LoadBeamformingMatrixFromFileSet( 
+        public bool LoadBeamformingMatrixFromFileSet(
             string primaryHeaderFile, string primaryValuesFile, string primaryExtValuesEhtFile,
             string secondaryHeaderFile, string secondaryValuesFile, string secondaryExtValuesEhtFile)
         {

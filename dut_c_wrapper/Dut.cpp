@@ -1213,9 +1213,9 @@ bool DUT_C_API_ENTRY DUT_startRxPer(const DutHandle handle, uint32_t packetLimit
     return handle->startRxPer(packetLimit);
 }
 
-bool DUT_C_API_ENTRY DUT_startTx(const DutHandle handle, uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming)
+bool DUT_C_API_ENTRY DUT_startTx(const DutHandle handle, uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, dut::CodingType codingType)
 {
-    return handle->startTx(repetitions, packetLength, longData, beamforming);
+    return handle->startTx(repetitions, packetLength, longData, beamforming, codingType);
 }
 
 bool DUT_C_API_ENTRY DUT_stopCw(const DutHandle handle)

@@ -150,7 +150,7 @@ DUT_C_API bool DUT_C_API_ENTRY DUT_startCalibration(const DutHandle handle, cons
 DUT_C_API bool DUT_C_API_ENTRY DUT_startCw(const DutHandle handle, int8_t amplitude, int16_t tone);
 DUT_C_API bool DUT_C_API_ENTRY DUT_startRxCalibration(const DutHandle handle);
 DUT_C_API bool DUT_C_API_ENTRY DUT_startRxPer(const DutHandle handle, uint32_t packetLimit);
-DUT_C_API bool DUT_C_API_ENTRY DUT_startTx(const DutHandle handle, uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming);
+DUT_C_API bool DUT_C_API_ENTRY DUT_startTx(const DutHandle handle, uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, dut::CodingType codingType);
 DUT_C_API bool DUT_C_API_ENTRY DUT_stopCw(const DutHandle handle);
 DUT_C_API bool DUT_C_API_ENTRY DUT_stopRxCalibration(const DutHandle handle);
 DUT_C_API bool DUT_C_API_ENTRY DUT_stopRxPer(const DutHandle handle, bool calcRxPer);

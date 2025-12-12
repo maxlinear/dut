@@ -2367,7 +2367,23 @@ bool StartTxFunction::parse(std::vector<std::string>& args)
         cmd,
         m_beamforming);
 
-    if (!parseCmdLine(args, cmd)) {
+    TCLAP::ValueArg<uint32_t> codingTypeArg(
+        "c",
+        "coding-type",
+        "Coding type. Valid values: 0=AUTO (auto-select based on PHY mode), 1=BCC, 2=LDPC. Default value: " + std::to_string(static_cast<uint32_t>(m_codingType)),
+        false,
+        static_cast<uint32_t>(m_codingType),
+        "Coding type",
+        cmd);
+
+    auto validator = [&codingTypeArg]() {
+        auto codingType = static_cast<dut::CodingType>(codingTypeArg.getValue());
+        if (codingType != dut::CodingType::CODING_TYPE_AUTO && codingType != dut::CodingType::CODING_TYPE_BCC && codingType != dut::CodingType::CODING_TYPE_LDPC) {
+            throw TCLAP::ArgException("Invalid value", codingTypeArg.longID());
+        }
+    };
+
+    if (!parseCmdLine(args, cmd, validator)) {
         return false;
     }
 
@@ -2375,13 +2391,14 @@ bool StartTxFunction::parse(std::vector<std::string>& args)
     m_packetLength = packetLengthArg.getValue();
     m_longData = longDataArg.getValue();
     m_beamforming = beamformingArg.getValue();
+    m_codingType = static_cast<dut::CodingType>(codingTypeArg.getValue());
 
     return true;
 }
 
 bool StartTxFunction::execute(std::shared_ptr<dut::Dut> dut, Context& context)
 {
-    return dut->startTx(m_repetitions, m_packetLength, m_longData, m_beamforming);
+    return dut->startTx(m_repetitions, m_packetLength, m_longData, m_beamforming, m_codingType);
 }
 
 bool StartRxPerFunction::parse(std::vector<std::string>& args)

@@ -5,7 +5,7 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("dut_automation (WLANRTSYS-53879-Implement-WAVE700-Beamforming)")]
+[assembly: AssemblyTitle("dut_automation (WLANRTSYS-95013-port-dut-7-2-300)")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
@@ -32,5 +32,5 @@ using System.Runtime.InteropServices;
 // You can specify all the values or you can default the Build and Revision Numbers 
 // by using the '*' as shown below:
 // [assembly: AssemblyVersion("1.0.*")]
-[assembly: AssemblyVersion("2.26.0")]
-[assembly: AssemblyFileVersion("2.26.0")]
+[assembly: AssemblyVersion("2.27.1")]
+[assembly: AssemblyFileVersion("2.27.1")]

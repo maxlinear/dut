@@ -156,6 +156,9 @@ namespace DUT_GUI
             this.combox_basicOp_phyType = new System.Windows.Forms.ComboBox();
             this.lbl_basicOp_phy_choose = new System.Windows.Forms.Label();
             this.panel_basicOp_txParams_params = new System.Windows.Forms.Panel();
+            this.radio_basicOp_codingLDPC = new System.Windows.Forms.RadioButton();
+            this.radio_basicOp_codingBCC = new System.Windows.Forms.RadioButton();
+            this.lbl_basicOp_codingType = new System.Windows.Forms.Label();
             this.check_basicOp_numSymbols = new System.Windows.Forms.CheckBox();
             this.txtBox_basicOp_numSymbols = new System.Windows.Forms.TextBox();
             this.check_basicOp_txBeamforming = new System.Windows.Forms.CheckBox();
@@ -402,6 +405,7 @@ namespace DUT_GUI
             this.openBeamformingMatrixValuesFile_upper_320mhz = new System.Windows.Forms.OpenFileDialog();
             this.openBeamformingMatrixValuesFile_ehtExtra_upper_320mhz = new System.Windows.Forms.OpenFileDialog();
             this.openBeamformingMatrixValuesFile_ehtExtra_lower_320mhz = new System.Windows.Forms.OpenFileDialog();
+            this.radio_basicOp_codingAuto = new System.Windows.Forms.RadioButton();
             this.table_nvMemCtrl_versionInfo.SuspendLayout();
             this.table_basicOp_antennas.SuspendLayout();
             this.groupBox_tx.SuspendLayout();
@@ -475,11 +479,11 @@ namespace DUT_GUI
             // dllConsole
             // 
             this.dllConsole.BackColor = System.Drawing.Color.GhostWhite;
-            this.dllConsole.Location = new System.Drawing.Point(420, 1119);
+            this.dllConsole.Location = new System.Drawing.Point(420, 1159);
             this.dllConsole.Margin = new System.Windows.Forms.Padding(4);
             this.dllConsole.Name = "dllConsole";
             this.dllConsole.ReadOnly = true;
-            this.dllConsole.Size = new System.Drawing.Size(829, 286);
+            this.dllConsole.Size = new System.Drawing.Size(829, 246);
             this.dllConsole.TabIndex = 0;
             this.dllConsole.Text = "";
             // 
@@ -803,7 +807,7 @@ namespace DUT_GUI
             this.groupBox_tx.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox_tx.Name = "groupBox_tx";
             this.groupBox_tx.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox_tx.Size = new System.Drawing.Size(651, 1000);
+            this.groupBox_tx.Size = new System.Drawing.Size(651, 1040);
             this.groupBox_tx.TabIndex = 7;
             this.groupBox_tx.TabStop = false;
             this.groupBox_tx.Text = "TX";
@@ -849,7 +853,7 @@ namespace DUT_GUI
             this.table_basicOp_txALL.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 88F));
             this.table_basicOp_txALL.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 122F));
             this.table_basicOp_txALL.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 30F));
-            this.table_basicOp_txALL.Size = new System.Drawing.Size(646, 963);
+            this.table_basicOp_txALL.Size = new System.Drawing.Size(646, 1003);
             this.table_basicOp_txALL.TabIndex = 8;
             // 
             // panel1
@@ -1170,14 +1174,14 @@ namespace DUT_GUI
             this.panel_txParams_cmd.Controls.Add(this.cmd_basicOp_startTransmitting);
             this.panel_txParams_cmd.Location = new System.Drawing.Point(506, 783);
             this.panel_txParams_cmd.Name = "panel_txParams_cmd";
-            this.panel_txParams_cmd.Size = new System.Drawing.Size(136, 176);
+            this.panel_txParams_cmd.Size = new System.Drawing.Size(136, 216);
             this.panel_txParams_cmd.TabIndex = 21;
             // 
             // cmd_basicOp_stopTransmission
             // 
             this.cmd_basicOp_stopTransmission.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.cmd_basicOp_stopTransmission.Enabled = false;
-            this.cmd_basicOp_stopTransmission.Location = new System.Drawing.Point(2, 93);
+            this.cmd_basicOp_stopTransmission.Location = new System.Drawing.Point(1, 101);
             this.cmd_basicOp_stopTransmission.Margin = new System.Windows.Forms.Padding(4);
             this.cmd_basicOp_stopTransmission.Name = "cmd_basicOp_stopTransmission";
             this.cmd_basicOp_stopTransmission.Size = new System.Drawing.Size(135, 51);
@@ -1188,7 +1192,7 @@ namespace DUT_GUI
             // 
             // cmd_basicOp_startTransmitting
             // 
-            this.cmd_basicOp_startTransmitting.Location = new System.Drawing.Point(2, 34);
+            this.cmd_basicOp_startTransmitting.Location = new System.Drawing.Point(1, 42);
             this.cmd_basicOp_startTransmitting.Margin = new System.Windows.Forms.Padding(4);
             this.cmd_basicOp_startTransmitting.Name = "cmd_basicOp_startTransmitting";
             this.cmd_basicOp_startTransmitting.Size = new System.Drawing.Size(135, 51);
@@ -1201,7 +1205,7 @@ namespace DUT_GUI
             // 
             this.lbl_basicOp_txParam.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lbl_basicOp_txParam.AutoSize = true;
-            this.lbl_basicOp_txParam.Location = new System.Drawing.Point(5, 861);
+            this.lbl_basicOp_txParam.Location = new System.Drawing.Point(5, 881);
             this.lbl_basicOp_txParam.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbl_basicOp_txParam.Name = "lbl_basicOp_txParam";
             this.lbl_basicOp_txParam.Size = new System.Drawing.Size(119, 20);
@@ -1435,6 +1439,10 @@ namespace DUT_GUI
             this.panel_basicOp_txParams_params.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel_basicOp_txParams_params.Controls.Add(this.radio_basicOp_codingAuto);
+            this.panel_basicOp_txParams_params.Controls.Add(this.radio_basicOp_codingLDPC);
+            this.panel_basicOp_txParams_params.Controls.Add(this.radio_basicOp_codingBCC);
+            this.panel_basicOp_txParams_params.Controls.Add(this.lbl_basicOp_codingType);
             this.panel_basicOp_txParams_params.Controls.Add(this.check_basicOp_numSymbols);
             this.panel_basicOp_txParams_params.Controls.Add(this.txtBox_basicOp_numSymbols);
             this.panel_basicOp_txParams_params.Controls.Add(this.check_basicOp_txBeamforming);
@@ -1445,13 +1453,47 @@ namespace DUT_GUI
             this.panel_basicOp_txParams_params.Controls.Add(this.txtBox_basicOp_packetLen);
             this.panel_basicOp_txParams_params.Location = new System.Drawing.Point(133, 783);
             this.panel_basicOp_txParams_params.Name = "panel_basicOp_txParams_params";
-            this.panel_basicOp_txParams_params.Size = new System.Drawing.Size(366, 176);
+            this.panel_basicOp_txParams_params.Size = new System.Drawing.Size(366, 216);
             this.panel_basicOp_txParams_params.TabIndex = 15;
+            // 
+            // radio_basicOp_codingLDPC
+            // 
+            this.radio_basicOp_codingLDPC.AutoSize = true;
+            this.radio_basicOp_codingLDPC.Location = new System.Drawing.Point(274, 169);
+            this.radio_basicOp_codingLDPC.Name = "radio_basicOp_codingLDPC";
+            this.radio_basicOp_codingLDPC.Size = new System.Drawing.Size(80, 24);
+            this.radio_basicOp_codingLDPC.TabIndex = 21;
+            this.radio_basicOp_codingLDPC.TabStop = true;
+            this.radio_basicOp_codingLDPC.Text = "LDPC";
+            this.radio_basicOp_codingLDPC.UseVisualStyleBackColor = true;
+            // 
+            // radio_basicOp_codingBCC
+            // 
+            this.radio_basicOp_codingBCC.AutoSize = true;
+            this.radio_basicOp_codingBCC.Location = new System.Drawing.Point(193, 169);
+            this.radio_basicOp_codingBCC.Name = "radio_basicOp_codingBCC";
+            this.radio_basicOp_codingBCC.Size = new System.Drawing.Size(70, 24);
+            this.radio_basicOp_codingBCC.TabIndex = 20;
+            this.radio_basicOp_codingBCC.TabStop = true;
+            this.radio_basicOp_codingBCC.Text = "BCC";
+            this.radio_basicOp_codingBCC.UseVisualStyleBackColor = true;
+            // 
+            // lbl_basicOp_codingType
+            // 
+            this.lbl_basicOp_codingType.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lbl_basicOp_codingType.AutoSize = true;
+            this.lbl_basicOp_codingType.Location = new System.Drawing.Point(9, 171);
+            this.lbl_basicOp_codingType.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
+            this.lbl_basicOp_codingType.Name = "lbl_basicOp_codingType";
+            this.lbl_basicOp_codingType.Size = new System.Drawing.Size(107, 20);
+            this.lbl_basicOp_codingType.TabIndex = 19;
+            this.lbl_basicOp_codingType.Text = "Coding Type:";
+            this.lbl_basicOp_codingType.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // check_basicOp_numSymbols
             // 
             this.check_basicOp_numSymbols.AutoSize = true;
-            this.check_basicOp_numSymbols.Location = new System.Drawing.Point(8, 132);
+            this.check_basicOp_numSymbols.Location = new System.Drawing.Point(10, 128);
             this.check_basicOp_numSymbols.Name = "check_basicOp_numSymbols";
             this.check_basicOp_numSymbols.Size = new System.Drawing.Size(194, 24);
             this.check_basicOp_numSymbols.TabIndex = 18;
@@ -1463,7 +1505,7 @@ namespace DUT_GUI
             // 
             this.txtBox_basicOp_numSymbols.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.txtBox_basicOp_numSymbols.BackColor = System.Drawing.SystemColors.Window;
-            this.txtBox_basicOp_numSymbols.Location = new System.Drawing.Point(207, 129);
+            this.txtBox_basicOp_numSymbols.Location = new System.Drawing.Point(210, 126);
             this.txtBox_basicOp_numSymbols.Margin = new System.Windows.Forms.Padding(4);
             this.txtBox_basicOp_numSymbols.Name = "txtBox_basicOp_numSymbols";
             this.txtBox_basicOp_numSymbols.Size = new System.Drawing.Size(156, 26);
@@ -1497,7 +1539,7 @@ namespace DUT_GUI
             // 
             this.txtBox_basicOp_repetitions.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.txtBox_basicOp_repetitions.BackColor = System.Drawing.SystemColors.Window;
-            this.txtBox_basicOp_repetitions.Location = new System.Drawing.Point(207, 49);
+            this.txtBox_basicOp_repetitions.Location = new System.Drawing.Point(210, 46);
             this.txtBox_basicOp_repetitions.Margin = new System.Windows.Forms.Padding(4);
             this.txtBox_basicOp_repetitions.Name = "txtBox_basicOp_repetitions";
             this.txtBox_basicOp_repetitions.Size = new System.Drawing.Size(156, 26);
@@ -1509,7 +1551,7 @@ namespace DUT_GUI
             // 
             this.lbl_basicOp_repetitions.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lbl_basicOp_repetitions.AutoSize = true;
-            this.lbl_basicOp_repetitions.Location = new System.Drawing.Point(3, 53);
+            this.lbl_basicOp_repetitions.Location = new System.Drawing.Point(6, 50);
             this.lbl_basicOp_repetitions.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbl_basicOp_repetitions.Name = "lbl_basicOp_repetitions";
             this.lbl_basicOp_repetitions.Size = new System.Drawing.Size(98, 20);
@@ -1521,7 +1563,7 @@ namespace DUT_GUI
             // 
             this.lbl_basicOp_packetLen.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lbl_basicOp_packetLen.AutoSize = true;
-            this.lbl_basicOp_packetLen.Location = new System.Drawing.Point(3, 93);
+            this.lbl_basicOp_packetLen.Location = new System.Drawing.Point(6, 90);
             this.lbl_basicOp_packetLen.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbl_basicOp_packetLen.Name = "lbl_basicOp_packetLen";
             this.lbl_basicOp_packetLen.Size = new System.Drawing.Size(172, 20);
@@ -1533,7 +1575,7 @@ namespace DUT_GUI
             // 
             this.txtBox_basicOp_packetLen.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.txtBox_basicOp_packetLen.BackColor = System.Drawing.SystemColors.Window;
-            this.txtBox_basicOp_packetLen.Location = new System.Drawing.Point(207, 89);
+            this.txtBox_basicOp_packetLen.Location = new System.Drawing.Point(210, 86);
             this.txtBox_basicOp_packetLen.Margin = new System.Windows.Forms.Padding(4);
             this.txtBox_basicOp_packetLen.Name = "txtBox_basicOp_packetLen";
             this.txtBox_basicOp_packetLen.Size = new System.Drawing.Size(156, 26);
@@ -1725,10 +1767,10 @@ namespace DUT_GUI
             // 
             this.lbl_nvMemCtrl_calFile.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lbl_nvMemCtrl_calFile.AutoSize = true;
-            this.lbl_nvMemCtrl_calFile.Location = new System.Drawing.Point(51, 28);
+            this.lbl_nvMemCtrl_calFile.Location = new System.Drawing.Point(12, 25);
             this.lbl_nvMemCtrl_calFile.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbl_nvMemCtrl_calFile.Name = "lbl_nvMemCtrl_calFile";
-            this.lbl_nvMemCtrl_calFile.Size = new System.Drawing.Size(78, 13);
+            this.lbl_nvMemCtrl_calFile.Size = new System.Drawing.Size(117, 20);
             this.lbl_nvMemCtrl_calFile.TabIndex = 0;
             this.lbl_nvMemCtrl_calFile.Text = "Calibration File:";
             // 
@@ -1737,10 +1779,10 @@ namespace DUT_GUI
             this.txtBox_nvMemCtrl_eepromFile.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.txtBox_nvMemCtrl_eepromFile.BackColor = System.Drawing.Color.LavenderBlush;
             this.txtBox_nvMemCtrl_eepromFile.ForeColor = System.Drawing.Color.Black;
-            this.txtBox_nvMemCtrl_eepromFile.Location = new System.Drawing.Point(137, 25);
+            this.txtBox_nvMemCtrl_eepromFile.Location = new System.Drawing.Point(137, 22);
             this.txtBox_nvMemCtrl_eepromFile.Margin = new System.Windows.Forms.Padding(4);
             this.txtBox_nvMemCtrl_eepromFile.Name = "txtBox_nvMemCtrl_eepromFile";
-            this.txtBox_nvMemCtrl_eepromFile.Size = new System.Drawing.Size(373, 20);
+            this.txtBox_nvMemCtrl_eepromFile.Size = new System.Drawing.Size(373, 26);
             this.txtBox_nvMemCtrl_eepromFile.TabIndex = 3;
             // 
             // cmd_nvMemCtrl_browseEEPROM
@@ -1770,10 +1812,10 @@ namespace DUT_GUI
             // 
             this.lbl_nvMemCtrl_barcode.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lbl_nvMemCtrl_barcode.AutoSize = true;
-            this.lbl_nvMemCtrl_barcode.Location = new System.Drawing.Point(60, 14);
+            this.lbl_nvMemCtrl_barcode.Location = new System.Drawing.Point(37, 11);
             this.lbl_nvMemCtrl_barcode.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbl_nvMemCtrl_barcode.Name = "lbl_nvMemCtrl_barcode";
-            this.lbl_nvMemCtrl_barcode.Size = new System.Drawing.Size(50, 13);
+            this.lbl_nvMemCtrl_barcode.Size = new System.Drawing.Size(73, 20);
             this.lbl_nvMemCtrl_barcode.TabIndex = 0;
             this.lbl_nvMemCtrl_barcode.Text = "Barcode:";
             // 
@@ -1782,10 +1824,10 @@ namespace DUT_GUI
             this.txtBox_nvMemCtrl_barcode.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtBox_nvMemCtrl_barcode.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(252)))), ((int)(((byte)(199)))));
             this.txtBox_nvMemCtrl_barcode.ForeColor = System.Drawing.Color.Black;
-            this.txtBox_nvMemCtrl_barcode.Location = new System.Drawing.Point(118, 11);
+            this.txtBox_nvMemCtrl_barcode.Location = new System.Drawing.Point(118, 8);
             this.txtBox_nvMemCtrl_barcode.Margin = new System.Windows.Forms.Padding(4);
             this.txtBox_nvMemCtrl_barcode.Name = "txtBox_nvMemCtrl_barcode";
-            this.txtBox_nvMemCtrl_barcode.Size = new System.Drawing.Size(292, 20);
+            this.txtBox_nvMemCtrl_barcode.Size = new System.Drawing.Size(292, 26);
             this.txtBox_nvMemCtrl_barcode.TabIndex = 0;
             // 
             // cmd_nvMemCtrl_viewEEPROM
@@ -2032,7 +2074,7 @@ namespace DUT_GUI
             this.groupBox_connection.Controls.Add(this.ipAddress);
             this.groupBox_connection.Controls.Add(this.ConnectButton);
             this.groupBox_connection.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.groupBox_connection.Location = new System.Drawing.Point(12, 1119);
+            this.groupBox_connection.Location = new System.Drawing.Point(12, 1159);
             this.groupBox_connection.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox_connection.Name = "groupBox_connection";
             this.groupBox_connection.Padding = new System.Windows.Forms.Padding(4);
@@ -2183,7 +2225,7 @@ namespace DUT_GUI
             this.tabControl.Margin = new System.Windows.Forms.Padding(4);
             this.tabControl.Name = "tabControl";
             this.tabControl.SelectedIndex = 0;
-            this.tabControl.Size = new System.Drawing.Size(1233, 1056);
+            this.tabControl.Size = new System.Drawing.Size(1233, 1096);
             this.tabControl.SizeMode = System.Windows.Forms.TabSizeMode.FillToRight;
             this.tabControl.TabIndex = 15;
             this.tabControl.DrawItem += new System.Windows.Forms.DrawItemEventHandler(this.tabControl_DrawGray);
@@ -2200,11 +2242,11 @@ namespace DUT_GUI
             this.basicOperationTab.Controls.Add(this.groupBox_antennasOnOff);
             this.basicOperationTab.Controls.Add(this.groupBox_tx);
             this.basicOperationTab.Controls.Add(this.groupBox_genRisc);
-            this.basicOperationTab.Location = new System.Drawing.Point(4, 22);
+            this.basicOperationTab.Location = new System.Drawing.Point(4, 29);
             this.basicOperationTab.Margin = new System.Windows.Forms.Padding(4);
             this.basicOperationTab.Name = "basicOperationTab";
             this.basicOperationTab.Padding = new System.Windows.Forms.Padding(4);
-            this.basicOperationTab.Size = new System.Drawing.Size(1225, 1030);
+            this.basicOperationTab.Size = new System.Drawing.Size(1225, 1063);
             this.basicOperationTab.TabIndex = 0;
             this.basicOperationTab.Text = "Basic Operation";
             // 
@@ -2240,7 +2282,7 @@ namespace DUT_GUI
             this.txtBox_basicOp_user2.Location = new System.Drawing.Point(255, 36);
             this.txtBox_basicOp_user2.Margin = new System.Windows.Forms.Padding(4);
             this.txtBox_basicOp_user2.Name = "txtBox_basicOp_user2";
-            this.txtBox_basicOp_user2.Size = new System.Drawing.Size(104, 20);
+            this.txtBox_basicOp_user2.Size = new System.Drawing.Size(104, 26);
             this.txtBox_basicOp_user2.TabIndex = 9;
             // 
             // txtBox_basicOp_user1
@@ -2248,7 +2290,7 @@ namespace DUT_GUI
             this.txtBox_basicOp_user1.Location = new System.Drawing.Point(72, 36);
             this.txtBox_basicOp_user1.Margin = new System.Windows.Forms.Padding(4);
             this.txtBox_basicOp_user1.Name = "txtBox_basicOp_user1";
-            this.txtBox_basicOp_user1.Size = new System.Drawing.Size(104, 20);
+            this.txtBox_basicOp_user1.Size = new System.Drawing.Size(104, 26);
             this.txtBox_basicOp_user1.TabIndex = 8;
             // 
             // lbl_basicOp_user2
@@ -2257,7 +2299,7 @@ namespace DUT_GUI
             this.lbl_basicOp_user2.Location = new System.Drawing.Point(189, 42);
             this.lbl_basicOp_user2.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbl_basicOp_user2.Name = "lbl_basicOp_user2";
-            this.lbl_basicOp_user2.Size = new System.Drawing.Size(38, 13);
+            this.lbl_basicOp_user2.Size = new System.Drawing.Size(56, 20);
             this.lbl_basicOp_user2.TabIndex = 3;
             this.lbl_basicOp_user2.Text = "User 2";
             // 
@@ -2267,7 +2309,7 @@ namespace DUT_GUI
             this.lbl_basicOp_user1.Location = new System.Drawing.Point(6, 42);
             this.lbl_basicOp_user1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbl_basicOp_user1.Name = "lbl_basicOp_user1";
-            this.lbl_basicOp_user1.Size = new System.Drawing.Size(38, 13);
+            this.lbl_basicOp_user1.Size = new System.Drawing.Size(56, 20);
             this.lbl_basicOp_user1.TabIndex = 2;
             this.lbl_basicOp_user1.Text = "User 1";
             // 
@@ -2505,11 +2547,11 @@ namespace DUT_GUI
             this.extendedOperationTab.Controls.Add(this.groupBox2);
             this.extendedOperationTab.Controls.Add(this.groupBox_antennaPhase);
             this.extendedOperationTab.Controls.Add(this.groupBox_xtalCalib);
-            this.extendedOperationTab.Location = new System.Drawing.Point(4, 22);
+            this.extendedOperationTab.Location = new System.Drawing.Point(4, 29);
             this.extendedOperationTab.Margin = new System.Windows.Forms.Padding(4);
             this.extendedOperationTab.Name = "extendedOperationTab";
             this.extendedOperationTab.Padding = new System.Windows.Forms.Padding(4);
-            this.extendedOperationTab.Size = new System.Drawing.Size(1225, 1030);
+            this.extendedOperationTab.Size = new System.Drawing.Size(1225, 1063);
             this.extendedOperationTab.TabIndex = 4;
             this.extendedOperationTab.Text = "Extended Operation";
             // 
@@ -4052,11 +4094,11 @@ namespace DUT_GUI
             this.nvMemControlTab.Controls.Add(this.groupBox_burnEEPROM);
             this.nvMemControlTab.Controls.Add(this.groupBox_eepromInfo);
             this.nvMemControlTab.Enabled = false;
-            this.nvMemControlTab.Location = new System.Drawing.Point(4, 22);
+            this.nvMemControlTab.Location = new System.Drawing.Point(4, 29);
             this.nvMemControlTab.Margin = new System.Windows.Forms.Padding(4);
             this.nvMemControlTab.Name = "nvMemControlTab";
             this.nvMemControlTab.Padding = new System.Windows.Forms.Padding(4);
-            this.nvMemControlTab.Size = new System.Drawing.Size(1225, 1030);
+            this.nvMemControlTab.Size = new System.Drawing.Size(1225, 1063);
             this.nvMemControlTab.TabIndex = 1;
             this.nvMemControlTab.Text = "NV Memory Control & DUT Version";
             // 
@@ -4117,7 +4159,7 @@ namespace DUT_GUI
             this.combox_nvMemCtrl_prodValue.Margin = new System.Windows.Forms.Padding(4);
             this.combox_nvMemCtrl_prodValue.Name = "combox_nvMemCtrl_prodValue";
             this.combox_nvMemCtrl_prodValue.ReadOnly = true;
-            this.combox_nvMemCtrl_prodValue.Size = new System.Drawing.Size(50, 20);
+            this.combox_nvMemCtrl_prodValue.Size = new System.Drawing.Size(50, 26);
             this.combox_nvMemCtrl_prodValue.TabIndex = 7;
             // 
             // label4
@@ -4127,7 +4169,7 @@ namespace DUT_GUI
             this.label4.Location = new System.Drawing.Point(228, 38);
             this.label4.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(60, 13);
+            this.label4.Size = new System.Drawing.Size(86, 20);
             this.label4.TabIndex = 6;
             this.label4.Text = "Byte value:";
             // 
@@ -4156,7 +4198,7 @@ namespace DUT_GUI
             this.combox_nvMemCtrl_prodFlag.Location = new System.Drawing.Point(78, 32);
             this.combox_nvMemCtrl_prodFlag.Margin = new System.Windows.Forms.Padding(4);
             this.combox_nvMemCtrl_prodFlag.Name = "combox_nvMemCtrl_prodFlag";
-            this.combox_nvMemCtrl_prodFlag.Size = new System.Drawing.Size(139, 21);
+            this.combox_nvMemCtrl_prodFlag.Size = new System.Drawing.Size(139, 28);
             this.combox_nvMemCtrl_prodFlag.TabIndex = 4;
             this.combox_nvMemCtrl_prodFlag.SelectedIndexChanged += new System.EventHandler(this.combox_nvMemCtrl_prodFlag_SelectedIndexChanged);
             // 
@@ -4167,7 +4209,7 @@ namespace DUT_GUI
             this.label1.Location = new System.Drawing.Point(9, 36);
             this.label1.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(37, 13);
+            this.label1.Size = new System.Drawing.Size(53, 20);
             this.label1.TabIndex = 1;
             this.label1.Text = "Mode:";
             // 
@@ -4215,10 +4257,10 @@ namespace DUT_GUI
             // 
             this.lbl_nvMemCtrl_serial.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lbl_nvMemCtrl_serial.AutoSize = true;
-            this.lbl_nvMemCtrl_serial.Location = new System.Drawing.Point(49, 11);
+            this.lbl_nvMemCtrl_serial.Location = new System.Drawing.Point(12, 8);
             this.lbl_nvMemCtrl_serial.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbl_nvMemCtrl_serial.Name = "lbl_nvMemCtrl_serial";
-            this.lbl_nvMemCtrl_serial.Size = new System.Drawing.Size(76, 13);
+            this.lbl_nvMemCtrl_serial.Size = new System.Drawing.Size(113, 20);
             this.lbl_nvMemCtrl_serial.TabIndex = 2;
             this.lbl_nvMemCtrl_serial.Text = "Serial Number:";
             // 
@@ -4226,10 +4268,10 @@ namespace DUT_GUI
             // 
             this.lbl_nvMemCtrl_year.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lbl_nvMemCtrl_year.AutoSize = true;
-            this.lbl_nvMemCtrl_year.Location = new System.Drawing.Point(93, 87);
+            this.lbl_nvMemCtrl_year.Location = new System.Drawing.Point(78, 83);
             this.lbl_nvMemCtrl_year.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbl_nvMemCtrl_year.Name = "lbl_nvMemCtrl_year";
-            this.lbl_nvMemCtrl_year.Size = new System.Drawing.Size(32, 13);
+            this.lbl_nvMemCtrl_year.Size = new System.Drawing.Size(47, 20);
             this.lbl_nvMemCtrl_year.TabIndex = 6;
             this.lbl_nvMemCtrl_year.Text = "Year:";
             // 
@@ -4237,21 +4279,21 @@ namespace DUT_GUI
             // 
             this.txtBox_nvMemCtrl_year.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.txtBox_nvMemCtrl_year.BackColor = System.Drawing.Color.PaleGoldenrod;
-            this.txtBox_nvMemCtrl_year.Location = new System.Drawing.Point(133, 83);
+            this.txtBox_nvMemCtrl_year.Location = new System.Drawing.Point(133, 80);
             this.txtBox_nvMemCtrl_year.Margin = new System.Windows.Forms.Padding(4);
             this.txtBox_nvMemCtrl_year.Name = "txtBox_nvMemCtrl_year";
             this.txtBox_nvMemCtrl_year.ReadOnly = true;
-            this.txtBox_nvMemCtrl_year.Size = new System.Drawing.Size(61, 20);
+            this.txtBox_nvMemCtrl_year.Size = new System.Drawing.Size(61, 26);
             this.txtBox_nvMemCtrl_year.TabIndex = 7;
             // 
             // lbl_nvMemCtrl_week
             // 
             this.lbl_nvMemCtrl_week.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lbl_nvMemCtrl_week.AutoSize = true;
-            this.lbl_nvMemCtrl_week.Location = new System.Drawing.Point(86, 48);
+            this.lbl_nvMemCtrl_week.Location = new System.Drawing.Point(71, 45);
             this.lbl_nvMemCtrl_week.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbl_nvMemCtrl_week.Name = "lbl_nvMemCtrl_week";
-            this.lbl_nvMemCtrl_week.Size = new System.Drawing.Size(39, 13);
+            this.lbl_nvMemCtrl_week.Size = new System.Drawing.Size(54, 20);
             this.lbl_nvMemCtrl_week.TabIndex = 4;
             this.lbl_nvMemCtrl_week.Text = "Week:";
             // 
@@ -4259,32 +4301,32 @@ namespace DUT_GUI
             // 
             this.txtBox_nvMemCtrl_week.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.txtBox_nvMemCtrl_week.BackColor = System.Drawing.Color.PaleGoldenrod;
-            this.txtBox_nvMemCtrl_week.Location = new System.Drawing.Point(133, 45);
+            this.txtBox_nvMemCtrl_week.Location = new System.Drawing.Point(133, 42);
             this.txtBox_nvMemCtrl_week.Margin = new System.Windows.Forms.Padding(4);
             this.txtBox_nvMemCtrl_week.Name = "txtBox_nvMemCtrl_week";
             this.txtBox_nvMemCtrl_week.ReadOnly = true;
-            this.txtBox_nvMemCtrl_week.Size = new System.Drawing.Size(61, 20);
+            this.txtBox_nvMemCtrl_week.Size = new System.Drawing.Size(61, 26);
             this.txtBox_nvMemCtrl_week.TabIndex = 5;
             // 
             // txtBox_nvMemCtrl_serial
             // 
             this.txtBox_nvMemCtrl_serial.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtBox_nvMemCtrl_serial.BackColor = System.Drawing.Color.PaleGoldenrod;
-            this.txtBox_nvMemCtrl_serial.Location = new System.Drawing.Point(133, 8);
+            this.txtBox_nvMemCtrl_serial.Location = new System.Drawing.Point(133, 5);
             this.txtBox_nvMemCtrl_serial.Margin = new System.Windows.Forms.Padding(4);
             this.txtBox_nvMemCtrl_serial.Name = "txtBox_nvMemCtrl_serial";
             this.txtBox_nvMemCtrl_serial.ReadOnly = true;
-            this.txtBox_nvMemCtrl_serial.Size = new System.Drawing.Size(561, 20);
+            this.txtBox_nvMemCtrl_serial.Size = new System.Drawing.Size(561, 26);
             this.txtBox_nvMemCtrl_serial.TabIndex = 3;
             // 
             // lbl_nvMemCtrl_country
             // 
             this.lbl_nvMemCtrl_country.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lbl_nvMemCtrl_country.AutoSize = true;
-            this.lbl_nvMemCtrl_country.Location = new System.Drawing.Point(79, 127);
+            this.lbl_nvMemCtrl_country.Location = new System.Drawing.Point(57, 123);
             this.lbl_nvMemCtrl_country.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbl_nvMemCtrl_country.Name = "lbl_nvMemCtrl_country";
-            this.lbl_nvMemCtrl_country.Size = new System.Drawing.Size(46, 13);
+            this.lbl_nvMemCtrl_country.Size = new System.Drawing.Size(68, 20);
             this.lbl_nvMemCtrl_country.TabIndex = 6;
             this.lbl_nvMemCtrl_country.Text = "Country:";
             // 
@@ -4292,11 +4334,11 @@ namespace DUT_GUI
             // 
             this.txtBox_nvMemCtrl_country.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtBox_nvMemCtrl_country.BackColor = System.Drawing.Color.PaleGoldenrod;
-            this.txtBox_nvMemCtrl_country.Location = new System.Drawing.Point(133, 123);
+            this.txtBox_nvMemCtrl_country.Location = new System.Drawing.Point(133, 120);
             this.txtBox_nvMemCtrl_country.Margin = new System.Windows.Forms.Padding(4);
             this.txtBox_nvMemCtrl_country.Name = "txtBox_nvMemCtrl_country";
             this.txtBox_nvMemCtrl_country.ReadOnly = true;
-            this.txtBox_nvMemCtrl_country.Size = new System.Drawing.Size(561, 20);
+            this.txtBox_nvMemCtrl_country.Size = new System.Drawing.Size(561, 26);
             this.txtBox_nvMemCtrl_country.TabIndex = 7;
             // 
             // burnBarcodeAndMAC
@@ -4351,20 +4393,20 @@ namespace DUT_GUI
             // 
             this.txtBox_nvMemCtrl_MACaddr.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtBox_nvMemCtrl_MACaddr.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(252)))), ((int)(((byte)(199)))));
-            this.txtBox_nvMemCtrl_MACaddr.Location = new System.Drawing.Point(118, 56);
+            this.txtBox_nvMemCtrl_MACaddr.Location = new System.Drawing.Point(118, 53);
             this.txtBox_nvMemCtrl_MACaddr.Margin = new System.Windows.Forms.Padding(4);
             this.txtBox_nvMemCtrl_MACaddr.Name = "txtBox_nvMemCtrl_MACaddr";
-            this.txtBox_nvMemCtrl_MACaddr.Size = new System.Drawing.Size(292, 20);
+            this.txtBox_nvMemCtrl_MACaddr.Size = new System.Drawing.Size(292, 26);
             this.txtBox_nvMemCtrl_MACaddr.TabIndex = 1;
             // 
             // lbl_nvMemCtrl_MACaddr
             // 
             this.lbl_nvMemCtrl_MACaddr.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lbl_nvMemCtrl_MACaddr.AutoSize = true;
-            this.lbl_nvMemCtrl_MACaddr.Location = new System.Drawing.Point(36, 60);
+            this.lbl_nvMemCtrl_MACaddr.Location = new System.Drawing.Point(38, 46);
             this.lbl_nvMemCtrl_MACaddr.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbl_nvMemCtrl_MACaddr.Name = "lbl_nvMemCtrl_MACaddr";
-            this.lbl_nvMemCtrl_MACaddr.Size = new System.Drawing.Size(74, 13);
+            this.lbl_nvMemCtrl_MACaddr.Size = new System.Drawing.Size(72, 40);
             this.lbl_nvMemCtrl_MACaddr.TabIndex = 0;
             this.lbl_nvMemCtrl_MACaddr.Text = "MAC Address:";
             // 
@@ -4386,10 +4428,10 @@ namespace DUT_GUI
             // 
             this.lbl_nvMemCtrl_countryCurrent.Anchor = System.Windows.Forms.AnchorStyles.Right;
             this.lbl_nvMemCtrl_countryCurrent.AutoSize = true;
-            this.lbl_nvMemCtrl_countryCurrent.Location = new System.Drawing.Point(64, 108);
+            this.lbl_nvMemCtrl_countryCurrent.Location = new System.Drawing.Point(42, 104);
             this.lbl_nvMemCtrl_countryCurrent.Margin = new System.Windows.Forms.Padding(4, 0, 4, 0);
             this.lbl_nvMemCtrl_countryCurrent.Name = "lbl_nvMemCtrl_countryCurrent";
-            this.lbl_nvMemCtrl_countryCurrent.Size = new System.Drawing.Size(46, 13);
+            this.lbl_nvMemCtrl_countryCurrent.Size = new System.Drawing.Size(68, 20);
             this.lbl_nvMemCtrl_countryCurrent.TabIndex = 0;
             this.lbl_nvMemCtrl_countryCurrent.Text = "Country:";
             // 
@@ -4398,10 +4440,10 @@ namespace DUT_GUI
             this.combox_nvMemCtrl_country.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.combox_nvMemCtrl_country.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(245)))), ((int)(((byte)(252)))), ((int)(((byte)(199)))));
             this.combox_nvMemCtrl_country.FormattingEnabled = true;
-            this.combox_nvMemCtrl_country.Location = new System.Drawing.Point(118, 104);
+            this.combox_nvMemCtrl_country.Location = new System.Drawing.Point(118, 100);
             this.combox_nvMemCtrl_country.Margin = new System.Windows.Forms.Padding(4);
             this.combox_nvMemCtrl_country.Name = "combox_nvMemCtrl_country";
-            this.combox_nvMemCtrl_country.Size = new System.Drawing.Size(292, 21);
+            this.combox_nvMemCtrl_country.Size = new System.Drawing.Size(292, 28);
             this.combox_nvMemCtrl_country.TabIndex = 3;
             // 
             // check_nvMemCtrl_SNformatBarcode
@@ -4422,9 +4464,9 @@ namespace DUT_GUI
             // 
             this.tpcTab.BackColor = System.Drawing.Color.White;
             this.tpcTab.Controls.Add(this.groupBox_calData);
-            this.tpcTab.Location = new System.Drawing.Point(4, 22);
+            this.tpcTab.Location = new System.Drawing.Point(4, 29);
             this.tpcTab.Name = "tpcTab";
-            this.tpcTab.Size = new System.Drawing.Size(1225, 1030);
+            this.tpcTab.Size = new System.Drawing.Size(1225, 1063);
             this.tpcTab.TabIndex = 2;
             this.tpcTab.Text = "EEPROM";
             // 
@@ -4511,11 +4553,11 @@ namespace DUT_GUI
             this.groupBox1.Controls.Add(this.combox_DebugConsole);
             this.groupBox1.Controls.Add(this.combox_nvMemCtrl_printLevel);
             this.groupBox1.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.groupBox1.Location = new System.Drawing.Point(12, 1298);
+            this.groupBox1.Location = new System.Drawing.Point(12, 1338);
             this.groupBox1.Margin = new System.Windows.Forms.Padding(4);
             this.groupBox1.Name = "groupBox1";
             this.groupBox1.Padding = new System.Windows.Forms.Padding(4);
-            this.groupBox1.Size = new System.Drawing.Size(399, 108);
+            this.groupBox1.Size = new System.Drawing.Size(399, 68);
             this.groupBox1.TabIndex = 22;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Debug";
@@ -4560,6 +4602,17 @@ namespace DUT_GUI
             // 
             this.openBeamformingMatrixValuesFile_ehtExtra_lower_320mhz.DefaultExt = "txt";
             // 
+            // radio_basicOp_codingAuto
+            // 
+            this.radio_basicOp_codingAuto.AutoSize = true;
+            this.radio_basicOp_codingAuto.Location = new System.Drawing.Point(119, 169);
+            this.radio_basicOp_codingAuto.Name = "radio_basicOp_codingAuto";
+            this.radio_basicOp_codingAuto.Size = new System.Drawing.Size(68, 24);
+            this.radio_basicOp_codingAuto.TabIndex = 22;
+            this.radio_basicOp_codingAuto.TabStop = true;
+            this.radio_basicOp_codingAuto.Text = "Auto";
+            this.radio_basicOp_codingAuto.UseVisualStyleBackColor = true;
+            // 
             // DUT_GUI
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(144F, 144F);
@@ -4567,7 +4620,7 @@ namespace DUT_GUI
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.White;
             this.BackgroundImageLayout = System.Windows.Forms.ImageLayout.None;
-            this.ClientSize = new System.Drawing.Size(1260, 870);
+            this.ClientSize = new System.Drawing.Size(1260, 1126);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.pictureBoxLogo);
             this.Controls.Add(this.tabControl);
@@ -5007,6 +5060,10 @@ namespace DUT_GUI
         private System.Windows.Forms.OpenFileDialog openBeamformingMatrixValuesFile_upper_320mhz;
         private System.Windows.Forms.OpenFileDialog openBeamformingMatrixValuesFile_ehtExtra_upper_320mhz;
         private System.Windows.Forms.OpenFileDialog openBeamformingMatrixValuesFile_ehtExtra_lower_320mhz;
+        private System.Windows.Forms.RadioButton radio_basicOp_codingLDPC;
+        private System.Windows.Forms.RadioButton radio_basicOp_codingBCC;
+        private System.Windows.Forms.Label lbl_basicOp_codingType;
+        private System.Windows.Forms.RadioButton radio_basicOp_codingAuto;
     }
 }
 

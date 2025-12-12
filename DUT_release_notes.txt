@@ -1,3 +1,22 @@
+Version 2.27.1 (WLANRTSYS-95013-port-dut-7-2-300), Sun 09/21/2025
+
+Content/Fixes:
+Cherry-picked the following commits from wlan_master:
+- de338e8dc6a1f14bb82792e55d1dc19beceb2bbe WLANRTSYS-53879 Implement WAVE700 DUT Beamforming
+- b1a7b1745895a43eeaed879a317dfc47e48e07ab WLANRTSYS-53879 Disable Wave600 beamforming
+- 254e29af952c405138bfec5cfec19163d0e58887 WLANRTSYS-53879 Beamforming GUI bugfix
+- 32c6d384aec41850a3db54347b8e271b93f68d44 WLANRTSYS-91333 Expose coding type to DUT interface
+- 4dd6a1cb1f04a8a05e69771e0d31d8c99015bee4 WLANRTSYS-53879 Allow spaceless beamforming
+
+NOTE: Version skips to 2.27.1 to align with wlan_master
+
+Shared headers hash:
+3864bb2b46701bdc1aa04c6c5f474ef40f5439ad
+
+Verified CV by DUT Automation:
+
+----------------------------------------------------------------
+
 Version 2.26.0 (WLANRTSYS-53879-Implement-WAVE700-Beamforming), Wed 08/20/2025
 
 Content/Fixes:

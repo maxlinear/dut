@@ -777,9 +777,11 @@ bool Dut::startCw(int8_t amplitude, int16_t tone)
     return GetInstance()->startCw(amplitude, tone);
 }
 
-bool Dut::startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming)
+bool Dut::startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, CodingType codingType)
 {
-    return GetInstance()->startTx(repetitions, packetLength, longData, beamforming);
+    auto _codingType = static_cast<dut::CodingType>(codingType);
+
+    return GetInstance()->startTx(repetitions, packetLength, longData, beamforming, _codingType);
 }
 
 bool Dut::startRxPer(uint32_t packetLimit)

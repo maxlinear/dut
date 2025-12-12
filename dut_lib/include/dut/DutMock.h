@@ -142,7 +142,7 @@ public:
     MOCK_METHOD(bool, startCalibration, (const StartCalibrationParams_t& params, uint8_t& status), (override));
     MOCK_METHOD(bool, startCw, (int8_t amplitude, int16_t tone), (override));
     MOCK_METHOD(bool, startRxCalibration, (), (override));
-    MOCK_METHOD(bool, startTx, (uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming), (override));
+    MOCK_METHOD(bool, startTx, (uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, CodingType codingType), (override));
     MOCK_METHOD(bool, startRxPer, (uint32_t packetLimit), (override));
     MOCK_METHOD(bool, stopCw, (), (override));
     MOCK_METHOD(bool, stopRxCalibration, (), (override));

@@ -1301,10 +1301,12 @@ public:
      * bytes, otherwise the maximum value depends on current PHY mode.
      * @param beamforming Set to true to use beamforming. A beamforming matrix must have been 
      * loaded previously using the function loadBeamformingMatrixFromFile(). 
+     * @param codingType Optional parameter to specify coding type. Set to CODING_TYPE_LDPC to use LDPC coding, 
+     * CODING_TYPE_BCC to use BCC coding, or omit for automatic selection based on PHY mode (LDPC for 11ax and later, BCC for earlier).
      * 
      * @return true on success and false otherwise.
      */
-    virtual bool startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming) = 0;
+    virtual bool startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, CodingType codingType = CodingType::CODING_TYPE_AUTO) = 0;
 
     /**
      * @brief Start Rx PER packet limit count.

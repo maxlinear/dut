@@ -762,24 +762,24 @@ TEST_F(DutWithClientMockTest, calibrateTssiS2dShouldSucceedIfTransmitVoltageHigh
         EXPECT_CALL(*m_client, setEnabledRxAntennas(enabledRxAntennaMask));
         EXPECT_CALL(*m_client, setRate(phyMode, signalBandwidth, dut::Rates::getMcsIndex(phyMode, mcs, nss), nss, gi, ltf));
         EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, dut::defaultTransmitPowerLevel));
-        EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+        EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
         // setTssiS2dParams
         {
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setS2dParams(antenna, signalBandwidth, region, powerThreshold, gain, offset));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
         }
         // transmitPowersGetVoltage
         {
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, lowerPowerLevel));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
             EXPECT_CALL(*m_client, getTransmitVoltages(enabledTxAntennaMask, _)).WillOnce(Invoke([antenna](const dut::AntennaMask&, std::array<uint32_t, dut::maxNumTxAntennas>& voltages) {
                 voltages[antenna] = 9243;
             }));
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, upperPowerLevel));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
             EXPECT_CALL(*m_client, getTransmitVoltages(enabledTxAntennaMask, _)).WillOnce(Invoke([antenna](const dut::AntennaMask&, std::array<uint32_t, dut::maxNumTxAntennas>& voltages) {
                 voltages[antenna] = 16368;
             }));
@@ -788,10 +788,10 @@ TEST_F(DutWithClientMockTest, calibrateTssiS2dShouldSucceedIfTransmitVoltageHigh
         {
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setS2dParams(antenna, signalBandwidth, region, powerThreshold, _, _));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, lowerPowerLevel));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
             EXPECT_CALL(*m_client, getTransmitVoltages(enabledTxAntennaMask, _)).WillOnce(Invoke([antenna](const dut::AntennaMask&, std::array<uint32_t, dut::maxNumTxAntennas>& voltages) {
                 voltages[antenna] = 9435;
             }));
@@ -800,19 +800,19 @@ TEST_F(DutWithClientMockTest, calibrateTssiS2dShouldSucceedIfTransmitVoltageHigh
         {
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setS2dParams(antenna, signalBandwidth, region, powerThreshold, _, _));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
         }
         // transmitPowersGetVoltage
         {
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, lowerPowerLevel));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
             EXPECT_CALL(*m_client, getTransmitVoltages(enabledTxAntennaMask, _)).WillOnce(Invoke([antenna](const dut::AntennaMask&, std::array<uint32_t, dut::maxNumTxAntennas>& voltages) {
                 voltages[antenna] = 4731;
             }));
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, upperPowerLevel));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
             EXPECT_CALL(*m_client, getTransmitVoltages(enabledTxAntennaMask, _)).WillOnce(Invoke([antenna](const dut::AntennaMask&, std::array<uint32_t, dut::maxNumTxAntennas>& voltages) {
                 voltages[antenna] = 18000;
             }));
@@ -821,7 +821,7 @@ TEST_F(DutWithClientMockTest, calibrateTssiS2dShouldSucceedIfTransmitVoltageHigh
         {
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setS2dParams(antenna, signalBandwidth, region, powerThreshold, _, _));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
         }
         EXPECT_CALL(*m_client, stopTx());
     }
@@ -889,24 +889,24 @@ TEST_F(DutWithClientMockTest, calibrateTssiS2dShouldSucceed)
         EXPECT_CALL(*m_client, setEnabledRxAntennas(enabledRxAntennaMask));
         EXPECT_CALL(*m_client, setRate(phyMode, signalBandwidth, dut::Rates::getMcsIndex(phyMode, mcs, nss), nss, gi, ltf));
         EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, dut::defaultTransmitPowerLevel));
-        EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+        EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
         // setTssiS2dParams
         {
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setS2dParams(antenna, signalBandwidth, region, powerThreshold, gain, offset));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
         }
         // transmitPowersGetVoltage
         {
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, lowerPowerLevel));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
             EXPECT_CALL(*m_client, getTransmitVoltages(enabledTxAntennaMask, _)).WillOnce(Invoke([antenna](const dut::AntennaMask&, std::array<uint32_t, dut::maxNumTxAntennas>& voltages) {
                 voltages[antenna] = 9243;
             }));
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, upperPowerLevel));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
             EXPECT_CALL(*m_client, getTransmitVoltages(enabledTxAntennaMask, _)).WillOnce(Invoke([antenna](const dut::AntennaMask&, std::array<uint32_t, dut::maxNumTxAntennas>& voltages) {
                 voltages[antenna] = 16368;
             }));
@@ -915,10 +915,10 @@ TEST_F(DutWithClientMockTest, calibrateTssiS2dShouldSucceed)
         {
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setS2dParams(antenna, signalBandwidth, region, powerThreshold, _, _));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, lowerPowerLevel));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
             EXPECT_CALL(*m_client, getTransmitVoltages(enabledTxAntennaMask, _)).WillOnce(Invoke([antenna](const dut::AntennaMask&, std::array<uint32_t, dut::maxNumTxAntennas>& voltages) {
                 voltages[antenna] = 9435;
             }));
@@ -927,19 +927,19 @@ TEST_F(DutWithClientMockTest, calibrateTssiS2dShouldSucceed)
         {
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setS2dParams(antenna, signalBandwidth, region, powerThreshold, _, _));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
         }
         // transmitPowersGetVoltage
         {
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, lowerPowerLevel));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
             EXPECT_CALL(*m_client, getTransmitVoltages(enabledTxAntennaMask, _)).WillOnce(Invoke([antenna](const dut::AntennaMask&, std::array<uint32_t, dut::maxNumTxAntennas>& voltages) {
                 voltages[antenna] = 4731;
             }));
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, upperPowerLevel));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
             EXPECT_CALL(*m_client, getTransmitVoltages(enabledTxAntennaMask, _)).WillOnce(Invoke([antenna](const dut::AntennaMask&, std::array<uint32_t, dut::maxNumTxAntennas>& voltages) {
                 voltages[antenna] = 14449;
             }));
@@ -948,7 +948,7 @@ TEST_F(DutWithClientMockTest, calibrateTssiS2dShouldSucceed)
         {
             EXPECT_CALL(*m_client, stopTx());
             EXPECT_CALL(*m_client, setS2dParams(antenna, signalBandwidth, region, powerThreshold, _, _));
-            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+            EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
         }
         EXPECT_CALL(*m_client, stopTx());
     }
@@ -2072,7 +2072,7 @@ TEST_F(DutWithClientMockTest, setTransmitPowerVectorShouldFailIfTransmissionNotI
         EXPECT_CALL(*m_client, setEnabledRxAntennas(enabledRxAntennaMask));
         EXPECT_CALL(*m_client, setRate(phyMode, signalBandwidth, dut::Rates::getMcsIndex(phyMode, mcs, nss), nss, gi, ltf));
         EXPECT_CALL(*m_client, setTransmitPowerLevel(antenna, spectrumBandwidth, dut::defaultTransmitPowerLevel));
-        EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming));
+        EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, _));
         EXPECT_CALL(*m_client, stopTx());
     }
 
@@ -2491,6 +2491,357 @@ TEST_F(DutWithClientMockTest, startRxCalibrationShouldFailIfChannelNotSet)
     EXPECT_EQ(m_dut.getLastError(), "Channel not set");
 }
 
+TEST_F(DutWithClientMockTestGen7, startTxShouldFailForLdpcWith11bPhyMode)
+{
+    uint16_t repetitions = 100;
+    uint32_t packetLength = 100;
+    bool longData = false;
+    bool beamforming = false;
+
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_B, dut::Bandwidth::BANDWIDTH_TWENTY, dut::Bandwidth::BANDWIDTH_TWENTY,
+        6, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP,
+        dut::Mcs::MCS_80211b_1MBPS_LONG, 1, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT);
+
+    EXPECT_FALSE(m_dut.startTx(repetitions, packetLength, longData, beamforming, dut::CodingType::CODING_TYPE_LDPC));
+    EXPECT_EQ(m_dut.getLastError(), "LDPC is not supported for 11b PHY mode");
+}
+
+TEST_F(DutWithClientMockTestGen7, startTxShouldFailForLdpcWith11aPhyMode)
+{
+    uint16_t repetitions = 100;
+    uint32_t packetLength = 100;
+    bool longData = false;
+    bool beamforming = false;
+
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_A, dut::Bandwidth::BANDWIDTH_TWENTY, dut::Bandwidth::BANDWIDTH_TWENTY,
+        36, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP,
+        dut::Mcs::MCS_BPSK_12, 1, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT);
+
+    EXPECT_FALSE(m_dut.startTx(repetitions, packetLength, longData, beamforming, dut::CodingType::CODING_TYPE_LDPC));
+    EXPECT_EQ(m_dut.getLastError(), "LDPC is not supported for 11a/g PHY modes (only BCC is supported)");
+}
+
+TEST_F(DutWithClientMockTestGen7, startTxShouldFailForLdpcWith11gPhyMode)
+{
+    uint16_t repetitions = 100;
+    uint32_t packetLength = 100;
+    bool longData = false;
+    bool beamforming = false;
+
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_G, dut::Bandwidth::BANDWIDTH_TWENTY, dut::Bandwidth::BANDWIDTH_TWENTY,
+        6, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP,
+        dut::Mcs::MCS_BPSK_12, 1, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT);
+
+    EXPECT_FALSE(m_dut.startTx(repetitions, packetLength, longData, beamforming, dut::CodingType::CODING_TYPE_LDPC));
+    EXPECT_EQ(m_dut.getLastError(), "LDPC is not supported for 11a/g PHY modes (only BCC is supported)");
+}
+
+TEST_F(DutWithClientMockTestGen7, startTxShouldFailForBccWith11axAndHighBandwidth)
+{
+    uint16_t repetitions = 100;
+    uint32_t packetLength = 100;
+    bool longData = false;
+    bool beamforming = false;
+
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_FOURTY, dut::Bandwidth::BANDWIDTH_FOURTY,
+        36, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP,
+        dut::Mcs::MCS_QPSK_12, 1, dut::Gi::GI_0_8_US, dut::Ltf::LTF_MEDIUM);
+
+    EXPECT_FALSE(m_dut.startTx(repetitions, packetLength, longData, beamforming, dut::CodingType::CODING_TYPE_BCC));
+    EXPECT_EQ(m_dut.getLastError(), "BCC is not supported for 11ax/be with bandwidth greater than 20MHz");
+}
+
+TEST_F(DutWithClientMockTestGen7, startTxShouldFailForBccWith11axAndHighMcs)
+{
+    uint16_t repetitions = 100;
+    uint32_t packetLength = 100;
+    bool longData = false;
+    bool beamforming = false;
+
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_TWENTY, dut::Bandwidth::BANDWIDTH_TWENTY,
+        36, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP,
+        dut::Mcs::MCS_1024QAM_56, 1, dut::Gi::GI_0_8_US, dut::Ltf::LTF_MEDIUM);
+
+    EXPECT_FALSE(m_dut.startTx(repetitions, packetLength, longData, beamforming, dut::CodingType::CODING_TYPE_BCC));
+    EXPECT_EQ(m_dut.getLastError(), "BCC is not supported for 11ax/be with MCS greater than 9 (QAM256)");
+}
+
+TEST_F(DutWithClientMockTestGen7, startTxShouldFailForBccWith11beAndHighBandwidth)
+{
+    uint16_t repetitions = 100;
+    uint32_t packetLength = 100;
+    bool longData = false;
+    bool beamforming = false;
+
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY,
+        36, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP,
+        dut::Mcs::MCS_QPSK_12, 1, dut::Gi::GI_0_8_US, dut::Ltf::LTF_LONG);
+
+    EXPECT_FALSE(m_dut.startTx(repetitions, packetLength, longData, beamforming, dut::CodingType::CODING_TYPE_BCC));
+    EXPECT_EQ(m_dut.getLastError(), "BCC is not supported for 11ax/be with bandwidth greater than 20MHz");
+}
+
+TEST_F(DutWithClientMockTestGen7, startTxShouldSucceedWith11bBccCoding)
+{
+    uint16_t repetitions = 100;
+    uint32_t packetLength = 100;
+    bool longData = false;
+    bool beamforming = false;
+
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_B, dut::Bandwidth::BANDWIDTH_TWENTY, dut::Bandwidth::BANDWIDTH_TWENTY,
+        6, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP,
+        dut::Mcs::MCS_80211b_1MBPS_LONG, 1, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT);
+
+    EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, false)); // BCC = false for LDPC flag
+    EXPECT_CALL(*m_client, stopTx());
+
+    EXPECT_TRUE(m_dut.startTx(repetitions, packetLength, longData, beamforming, dut::CodingType::CODING_TYPE_BCC));
+    EXPECT_TRUE(m_dut.stopTx());
+}
+
+TEST_F(DutWithClientMockTestGen7, startTxShouldSucceedWith11nLdpcCoding)
+{
+    uint16_t repetitions = 100;
+    uint32_t packetLength = 100;
+    bool longData = false;
+    bool beamforming = false;
+
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_N_5, dut::Bandwidth::BANDWIDTH_TWENTY, dut::Bandwidth::BANDWIDTH_TWENTY,
+        36, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP,
+        dut::Mcs::MCS_QPSK_12, 1, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT);
+
+    EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, true)); // LDPC = true
+    EXPECT_CALL(*m_client, stopTx());
+
+    EXPECT_TRUE(m_dut.startTx(repetitions, packetLength, longData, beamforming, dut::CodingType::CODING_TYPE_LDPC));
+    EXPECT_TRUE(m_dut.stopTx());
+}
+
+TEST_F(DutWithClientMockTestGen7, startTxShouldSucceedWith11axDefaultCoding)
+{
+    uint16_t repetitions = 100;
+    uint32_t packetLength = 100;
+    bool longData = false;
+    bool beamforming = false;
+
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_TWENTY, dut::Bandwidth::BANDWIDTH_TWENTY,
+        36, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP,
+        dut::Mcs::MCS_QPSK_12, 1, dut::Gi::GI_0_8_US, dut::Ltf::LTF_MEDIUM);
+
+    EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, true)); // Default for 11ax is LDPC = true
+    EXPECT_CALL(*m_client, stopTx());
+
+    EXPECT_TRUE(m_dut.startTx(repetitions, packetLength, longData, beamforming, dut::CodingType::CODING_TYPE_AUTO));
+    EXPECT_TRUE(m_dut.stopTx());
+}
+
+TEST_F(DutWithClientMockTestGen7, startTxShouldSucceedWith11axBccCodingLowMcs)
+{
+    uint16_t repetitions = 100;
+    uint32_t packetLength = 100;
+    bool longData = false;
+    bool beamforming = false;
+
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_TWENTY, dut::Bandwidth::BANDWIDTH_TWENTY,
+        36, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP,
+        dut::Mcs::MCS_256QAM_56, 1, dut::Gi::GI_0_8_US, dut::Ltf::LTF_MEDIUM); // MCS 9 (valid for BCC)
+
+    EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, false)); // BCC = false for LDPC flag
+    EXPECT_CALL(*m_client, stopTx());
+
+    EXPECT_TRUE(m_dut.startTx(repetitions, packetLength, longData, beamforming, dut::CodingType::CODING_TYPE_BCC));
+    EXPECT_TRUE(m_dut.stopTx());
+}
+
+// PARAMETERIZED TEST FOR ALL VALID PHY MODE AND CODING TYPE COMBINATIONS
+
+struct PhyModeAndCodingTestParams {
+    dut::PhyMode phyMode;
+    dut::Bandwidth bandwidth;
+    uint8_t channel;
+    dut::Mcs mcs;
+    dut::Gi gi;
+    dut::Ltf ltf;
+    dut::CodingType codingType;
+    bool expectedLdpcFlag;
+    const char* description;
+};
+
+class DutStartTxPhyModeAndCodingTest : public DutWithClientMockTestGen7,
+                                       public ::testing::WithParamInterface<PhyModeAndCodingTestParams> {
+};
+
+TEST_P(DutStartTxPhyModeAndCodingTest, startTxShouldSucceedWithValidPhyModeAndCodingCombinations)
+{
+    uint16_t repetitions = 100;
+    uint32_t packetLength = 100;
+    bool longData = false;
+    bool beamforming = false;
+
+    auto params = GetParam();
+
+    setupChannelAndRate(params.phyMode, params.bandwidth, params.bandwidth,
+        params.channel, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP,
+        params.mcs, 1, params.gi, params.ltf);
+
+    EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, params.expectedLdpcFlag));
+    EXPECT_CALL(*m_client, stopTx());
+
+    EXPECT_TRUE(m_dut.startTx(repetitions, packetLength, longData, beamforming, params.codingType));
+    EXPECT_TRUE(m_dut.stopTx());
+}
+
+INSTANTIATE_TEST_SUITE_P(ValidPhyModeAndCodingCombinations, DutStartTxPhyModeAndCodingTest,
+    ::testing::Values(
+        // 11b - only BCC supported
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_B, dut::Bandwidth::BANDWIDTH_TWENTY, 6,
+            dut::Mcs::MCS_80211b_1MBPS_LONG, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_AUTO, false, "Mode11b_Default_BCC" },
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_B, dut::Bandwidth::BANDWIDTH_TWENTY, 6,
+            dut::Mcs::MCS_80211b_2MBPS_LONG, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_BCC, false, "Mode11b_Explicit_BCC" },
+
+        // 11a - only BCC supported
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_A, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_BPSK_12, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_AUTO, false, "Mode11a_Default_BCC" },
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_A, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_QPSK_12, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_BCC, false, "Mode11a_Explicit_BCC" },
+
+        // 11g - only BCC supported
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_G, dut::Bandwidth::BANDWIDTH_TWENTY, 6,
+            dut::Mcs::MCS_BPSK_12, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_AUTO, false, "Mode11g_Default_BCC" },
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_G, dut::Bandwidth::BANDWIDTH_TWENTY, 6,
+            dut::Mcs::MCS_QPSK_12, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_BCC, false, "Mode11g_Explicit_BCC" },
+
+        // 11n 5GHz - both BCC and LDPC supported, defaults to BCC
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_N_5, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_QPSK_12, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_AUTO, false, "Mode11n5GHz_Default_BCC" },
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_N_5, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_16QAM_12, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_BCC, false, "Mode11n5GHz_Explicit_BCC" },
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_N_5, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_64QAM_23, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_LDPC, true, "Mode11n5GHz_Explicit_LDPC" },
+
+        // 11n 2.4GHz - both BCC and LDPC supported, defaults to BCC
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_N_2_4, dut::Bandwidth::BANDWIDTH_TWENTY, 6,
+            dut::Mcs::MCS_QPSK_12, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_AUTO, false, "Mode11n24GHz_Default_BCC" },
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_N_2_4, dut::Bandwidth::BANDWIDTH_TWENTY, 6,
+            dut::Mcs::MCS_16QAM_12, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_BCC, false, "Mode11n24GHz_Explicit_BCC" },
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_N_2_4, dut::Bandwidth::BANDWIDTH_TWENTY, 6,
+            dut::Mcs::MCS_64QAM_23, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_LDPC, true, "Mode11n24GHz_Explicit_LDPC" },
+
+        // 11ac - both BCC and LDPC supported, defaults to BCC
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_QPSK_12, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_AUTO, false, "Mode11ac_Default_BCC" },
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_16QAM_12, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_BCC, false, "Mode11ac_Explicit_BCC" },
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_64QAM_23, dut::Gi::GI_0_8_US, dut::Ltf::LTF_SHORT,
+            dut::CodingType::CODING_TYPE_LDPC, true, "Mode11ac_Explicit_LDPC" },
+
+        // 11ax - defaults to LDPC, BCC only for 20MHz and MCS <= 9
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_QPSK_12, dut::Gi::GI_0_8_US, dut::Ltf::LTF_MEDIUM,
+            dut::CodingType::CODING_TYPE_AUTO, true, "Mode11ax_Default_LDPC" },
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_256QAM_56, dut::Gi::GI_0_8_US, dut::Ltf::LTF_MEDIUM,
+            dut::CodingType::CODING_TYPE_BCC, false, "Mode11ax_Explicit_BCC_MCS9" },
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_1024QAM_56, dut::Gi::GI_0_8_US, dut::Ltf::LTF_MEDIUM,
+            dut::CodingType::CODING_TYPE_LDPC, true, "Mode11ax_Explicit_LDPC" },
+
+        // 11be - defaults to LDPC, BCC only for 20MHz and MCS <= 9
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_QPSK_12, dut::Gi::GI_0_8_US, dut::Ltf::LTF_LONG,
+            dut::CodingType::CODING_TYPE_AUTO, true, "Mode11be_Default_LDPC" },
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_256QAM_56, dut::Gi::GI_0_8_US, dut::Ltf::LTF_LONG,
+            dut::CodingType::CODING_TYPE_BCC, false, "Mode11be_Explicit_BCC_MCS9" },
+        PhyModeAndCodingTestParams { dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_TWENTY, 36,
+            dut::Mcs::MCS_1024QAM_56, dut::Gi::GI_0_8_US, dut::Ltf::LTF_LONG,
+            dut::CodingType::CODING_TYPE_LDPC, true, "Mode11be_Explicit_LDPC" }),
+    [](const ::testing::TestParamInfo<PhyModeAndCodingTestParams>& info) {
+        return info.param.description;
+    });
+
+TEST_F(DutWithClientMockTestGen7, startTxShouldSucceedWithValidBeamformingHeader)
+{
+    uint16_t repetitions = 100;
+    uint32_t packetLength = 100;
+    bool longData = false;
+    bool beamforming = true;
+
+    // Configure DUT for HE 80MHz
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY,
+        36, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP,
+        dut::Mcs::MCS_QPSK_12, 1, dut::Gi::GI_0_8_US, dut::Ltf::LTF_MEDIUM);
+
+    // Extract valid 80MHz beamforming header from resource
+    EmbeddedResource headerResource(IDR_BEAMFORMINGMATRIX_WAVE700_HE_SU_80MHZ_HEADER, BEAMFORMINGMATRIX);
+    TemporaryFile tempHeaderFile(headerResource.getData(), headerResource.getSize());
+    auto headerValues = dut::beamforming_utils::readHexStringFile(tempHeaderFile.getFilename());
+    ASSERT_EQ(headerValues.size(), 2);
+    uint32_t validHeader = headerValues[0];
+
+    // Mock hardware to return matching 80MHz header
+    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave700::primaryBfHeaderAddress, _, sizeof(uint32_t)))
+        .WillOnce(Invoke([validHeader](dut::ChipModule, size_t, uint8_t* data, size_t) {
+            *reinterpret_cast<uint32_t*>(data) = validHeader;
+        }));
+
+    // Expect startTx to succeed with valid header
+    EXPECT_CALL(*m_client, startTx(repetitions, packetLength, longData, beamforming, true));
+    EXPECT_CALL(*m_client, stopTx());
+
+    EXPECT_TRUE(m_dut.startTx(repetitions, packetLength, longData, beamforming));
+    EXPECT_TRUE(m_dut.stopTx());
+}
+
+TEST_F(DutWithClientMockTestGen7, startTxShouldFailWithInvalidBeamformingHeader)
+{
+    uint16_t repetitions = 100;
+    uint32_t packetLength = 100;
+    bool longData = false;
+    bool beamforming = true;
+
+    // Configure DUT for HE 80MHz
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY,
+        36, 0, dut::RegulationType::REGULATION_TYPE_FCC_SP,
+        dut::Mcs::MCS_QPSK_12, 1, dut::Gi::GI_0_8_US, dut::Ltf::LTF_MEDIUM);
+
+    // Extract 20MHz beamforming header from resource (invalid for 80MHz rate)
+    EmbeddedResource invalidHeaderResource(IDR_BEAMFORMINGMATRIX_WAVE700_HE_SU_20MHZ_HEADER, BEAMFORMINGMATRIX);
+    TemporaryFile tempInvalidHeaderFile(invalidHeaderResource.getData(), invalidHeaderResource.getSize());
+    auto invalidHeaderValues = dut::beamforming_utils::readHexStringFile(tempInvalidHeaderFile.getFilename());
+    ASSERT_EQ(invalidHeaderValues.size(), 2);
+    uint32_t invalidHeader = invalidHeaderValues[0];
+
+    // Mock hardware to return mismatched 20MHz header
+    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave700::primaryBfHeaderAddress, _, sizeof(uint32_t)))
+        .WillOnce(Invoke([invalidHeader](dut::ChipModule, size_t, uint8_t* data, size_t) {
+            *reinterpret_cast<uint32_t*>(data) = invalidHeader;
+        }));
+
+    // Expect startTx to fail due to beamforming header validation
+    EXPECT_FALSE(m_dut.startTx(repetitions, packetLength, longData, beamforming));
+
+    // Verify the error message contains beamforming validation details
+    std::string errorMsg = m_dut.getLastError();
+    EXPECT_TRUE(
+        (errorMsg.find("Bandwidth mismatch") != std::string::npos) || (errorMsg.find("PHY mode mismatch") != std::string::npos) || (errorMsg.find("validation failed") != std::string::npos));
+}
+
 TEST_F(DutWithClientMockTest, startRxCalibrationShouldFailIfNoRxAntennaIsSet)
 {
     dut::AntennaMask enabledTxAntennaMask = 0x00;
@@ -2887,18 +3238,18 @@ TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailWithCorr
     EXPECT_THAT(m_dut.getLastError(), ::testing::HasSubstr("Line contains non-hex character"));
 }
 
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfTransmitting)
+TEST_F(DutWithClientMockTestGen7, loadBeamformingMatrixFromFileSetShouldFailIfTransmitting)
 {
     // Setup valid beamforming files
     std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
     auto fileSetWithSizes = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
-        IDR_BEAMFORMINGMATRIX_WAVE600_VHT_HEADER, IDR_BEAMFORMINGMATRIX_WAVE600_VHT_PHASES);
+        IDR_BEAMFORMINGMATRIX_WAVE700_HE_SU_80MHZ_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_HE_SU_80MHZ_PHASES);
 
     // Setup channel and rate
-    setupChannelAndRate(dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY);
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY);
 
     // Start transmission
-    EXPECT_CALL(*m_client, startTx(1, 1000, false, false));
+    EXPECT_CALL(*m_client, startTx(1, 1000, false, false, _));
     ASSERT_TRUE(m_dut.startTx(1, 1000, false, false));
 
     // Now try to load beamforming matrix while transmitting - should fail
@@ -2909,7 +3260,7 @@ TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfTransm
     EXPECT_CALL(*m_client, stopTx());
     ASSERT_TRUE(m_dut.stopTx());
 
-    beamforming_test_helpers::setupWave600BeamformingExpectations(m_client, fileSetWithSizes.valuesLineCount);
+    beamforming_test_helpers::setupWave700BeamformingExpectations(m_client, fileSetWithSizes.valuesLineCount);
     ASSERT_TRUE(m_dut.loadBeamformingMatrixFromFileSet(fileSetWithSizes.fileSet));
 }
 
@@ -2980,8 +3331,9 @@ TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfEmptyH
     EXPECT_THAT(m_dut.getLastError(), ::testing::HasSubstr("must contain exactly 2 32-bit values, got 0 values"));
 }
 
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldSucceedWithWave600VhtResource)
+TEST_F(DutWithClientMockTest, DISABLED_loadBeamformingMatrixFromFileSetShouldSucceedWithWave600VhtResource)
 {
+    // DISABLED: Wave600 beamforming implementation hasn't been tested and throws an exception
     std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
     auto fileSetWithSizes = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
         IDR_BEAMFORMINGMATRIX_WAVE600_VHT_HEADER, IDR_BEAMFORMINGMATRIX_WAVE600_VHT_PHASES);
@@ -2996,8 +3348,9 @@ TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldSucceedWithW
     ASSERT_TRUE(m_dut.loadBeamformingMatrixFromFileSet(fileSetWithSizes.fileSet));
 }
 
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldSucceedWithWave600HeResource)
+TEST_F(DutWithClientMockTest, DISABLED_loadBeamformingMatrixFromFileSetShouldSucceedWithWave600HeResource)
 {
+    // DISABLED: Wave600 beamforming implementation hasn't been tested and throws an exception
     std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
     auto fileSetWithSizes = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
         IDR_BEAMFORMINGMATRIX_WAVE600_HE_HEADER, IDR_BEAMFORMINGMATRIX_WAVE600_HE_PHASES);
@@ -3086,8 +3439,9 @@ INSTANTIATE_TEST_SUITE_P(Wave700BeamformingTests, Wave700BeamformingTestSuite, :
                                                                                        "EhtSu320MHz", dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_THREE_HUNDRED_TWENTY, 1, 0, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_LOWER_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_LOWER_PHASES, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_LOWER_PHASES_EHT, true, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_UPPER_HEADER, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_UPPER_PHASES, IDR_BEAMFORMINGMATRIX_WAVE700_EHT_SU_320MHZ_UPPER_PHASES_EHT, false, true // Secondary expectations for EHT 320MHz
                                                                                    }));
 
-TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfWave600WithSecondarySet)
+TEST_F(DutWithClientMockTest, DISABLED_loadBeamformingMatrixFromFileSetShouldFailIfWave600WithSecondarySet)
 {
+    // DISABLED: Wave600 beamforming implementation hasn't been tested and throws an exception
     // Create valid file sets that have proper headers but we'll provide secondary sets
     // Use Wave600 VHT files which should be valid but don't support secondary sets
     std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
@@ -3102,6 +3456,21 @@ TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailIfWave60
     // Try to load beamforming matrix with secondary set on Wave600 - should fail
     EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(primaryFiles.fileSet, secondaryFiles.fileSet));
     EXPECT_EQ(m_dut.getLastError(), "Wave600 hardware does not support EHT 320MHz beamforming");
+}
+
+TEST_F(DutWithClientMockTest, loadBeamformingMatrixFromFileSetShouldFailOnWave600WithNotTestedError)
+{
+    // Test that Wave600 throws the expected "not tested" exception for beamforming
+    std::vector<std::unique_ptr<TemporaryFile>> tempFiles;
+    auto fileSetWithSizes = beamforming_test_helpers::createBeamformingFileSetWithSizes(tempFiles,
+        IDR_BEAMFORMINGMATRIX_WAVE600_VHT_HEADER, IDR_BEAMFORMINGMATRIX_WAVE600_VHT_PHASES);
+
+    // Setup channel and rate
+    setupChannelAndRate(dut::PhyMode::PHY_MODE_AC, dut::Bandwidth::BANDWIDTH_EIGHTY, dut::Bandwidth::BANDWIDTH_EIGHTY);
+
+    // Wave600 should throw an exception indicating the implementation hasn't been tested
+    EXPECT_FALSE(m_dut.loadBeamformingMatrixFromFileSet(fileSetWithSizes.fileSet));
+    EXPECT_EQ(m_dut.getLastError(), "The Wave600 loadBeamformingMatrixFromFileSet implementation hasn't been tested.");
 }
 
 // Test for invalid secondary header error path on Wave700
@@ -3310,6 +3679,50 @@ TEST_F(DutWithClientMockTestGen7, validateBeamformingHeaderRegisterShouldFailFor
     // Could be PHY mode or bandwidth mismatch in the secondary header
     EXPECT_TRUE(
         (errorMsg.find("PHY mode mismatch") != std::string::npos) || (errorMsg.find("Bandwidth mismatch") != std::string::npos));
+}
+
+TEST_F(DutWithClientMockTestGen7, validateBeamformingHeaderRegisterShouldFailForCorruptedHeader)
+{
+    // Create a corrupted header that will cause extractBeamformingHeaderInfo to return false
+    // Using PHY mode 1 which is reserved/invalid according to extractBeamformingHeaderInfo
+    uint32_t corruptedHeader = 0x00600001; // RU value 3 (20MHz), PHY mode 1 (reserved/invalid)
+
+    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave700::primaryBfHeaderAddress, _, sizeof(uint32_t)))
+        .WillOnce(Invoke([corruptedHeader](dut::ChipModule, size_t, uint8_t* data, size_t) {
+            *reinterpret_cast<uint32_t*>(data) = corruptedHeader;
+        }));
+
+    // Should return false with specific message about header corruption
+    EXPECT_FALSE(m_dut.validateBeamformingHeaderRegister(dut::PhyMode::PHY_MODE_AX, dut::Bandwidth::BANDWIDTH_EIGHTY));
+
+    std::string errorMsg = m_dut.getLastError();
+    EXPECT_TRUE(errorMsg.find("Failed to extract beamforming header info from header") != std::string::npos);
+    EXPECT_TRUE(errorMsg.find("Header may be corrupted") != std::string::npos);
+}
+
+TEST_F(DutWithClientMockTestGen7, validateBeamformingHeaderRegisterShouldFailForEht320CorruptedPrimaryHeader)
+{
+    // Test EHT 320MHz with corrupted primary header - this should trigger the errorMessage += primaryError; path
+    uint32_t corruptedPrimaryHeader = 0x00E00001; // RU value 7 (320MHz), PHY mode 1 (reserved/invalid)
+    uint32_t validSecondaryHeader = (7 << 21) | 4; // EHT 320MHz: RU value 7, PHY mode 4
+
+    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave700::primaryBfHeaderAddress, _, sizeof(uint32_t)))
+        .WillOnce(Invoke([corruptedPrimaryHeader](dut::ChipModule, size_t, uint8_t* data, size_t) {
+            *reinterpret_cast<uint32_t*>(data) = corruptedPrimaryHeader;
+        }));
+
+    EXPECT_CALL(*m_client, readMemory(dut::ChipModule::CHIP_MODULE_REGISTER, dut::beamforming_utils::beamforming::wave700::secondaryBfHeaderAddress, _, sizeof(uint32_t)))
+        .WillOnce(Invoke([validSecondaryHeader](dut::ChipModule, size_t, uint8_t* data, size_t) {
+            *reinterpret_cast<uint32_t*>(data) = validSecondaryHeader;
+        }));
+
+    // Should return false with EHT 320MHz validation failure mentioning primary header corruption
+    EXPECT_FALSE(m_dut.validateBeamformingHeaderRegister(dut::PhyMode::PHY_MODE_BE, dut::Bandwidth::BANDWIDTH_THREE_HUNDRED_TWENTY));
+
+    std::string errorMsg = m_dut.getLastError();
+    EXPECT_TRUE(errorMsg.find("EHT 320MHz validation failed") != std::string::npos);
+    EXPECT_TRUE(errorMsg.find("Failed to extract beamforming header info from primary header") != std::string::npos);
+    EXPECT_TRUE(errorMsg.find("Header may be corrupted") != std::string::npos);
 }
 
 }

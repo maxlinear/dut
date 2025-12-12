@@ -161,6 +161,12 @@ enum class ChipModule {
     CHIP_MODULE_REGISTER
 };
 
+enum class CodingType {
+    CODING_TYPE_AUTO = 0,
+    CODING_TYPE_BCC = 1,
+    CODING_TYPE_LDPC = 2
+};
+
 enum class FemType {
     FEM_TYPE_LINEAR = 0,
     FEM_TYPE_NON_LINEAR = 1,

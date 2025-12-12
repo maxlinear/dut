@@ -201,7 +201,7 @@ public:
     bool startCalibration(const StartCalibrationParams_t& params, uint8_t& status) override;
     bool startCw(int8_t amplitude, int16_t tone) override;
     bool startRxCalibration() override;
-    bool startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming) override;
+    bool startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, CodingType codingType = CodingType::CODING_TYPE_AUTO) override;
     bool startRxPer(uint32_t packetLimit) override;
     bool stopCw() override;
     bool stopRxCalibration() override;
@@ -269,6 +269,8 @@ private:
 
     void startRxCalibrationImpl() const;
     void stopRxCalibrationImpl() const;
+
+    void validateBeamformingHeaderRegisterImpl(PhyMode expectedPhyMode, Bandwidth expectedBandwidth) const;
 
     // Returns true if Wave700 and ZWDFS antenna mask is not 0x00
     bool isZwdfsAvailable() const;

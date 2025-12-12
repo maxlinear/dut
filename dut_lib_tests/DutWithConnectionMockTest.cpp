@@ -1210,8 +1210,8 @@ TEST_F(DutWithConnectionMockTest, getTransmitVoltagesShouldSucceed)
     constexpr auto setTransmitPowerLevelAntenna4Request = "4d 54 01 23 0c 00 00 00 04 00 00 00 02 00 32 00 03 00 22 44";
     constexpr auto setTransmitPowerLevelAntenna4Response = "4d 54 01 83 0c 00 00 00 04 00 01 00 02 00 33 00 03 00 22 44";
 
-    constexpr auto startTxRequest = "4d 54 01 23 14 00 00 00 0c 00 00 00 02 00 00 02 a0 0f 00 00 ff ff 01 00 00 00 00 00";
-    constexpr auto startTxResponse = "4d 54 01 83 14 00 00 00 0c 00 01 00 02 00 01 02 a0 0f 00 00 ff ff 01 00 00 00 00 00";
+    constexpr auto startTxRequest = "4d 54 01 23 14 00 00 00 0c 00 00 00 02 00 00 02 a0 0f 00 00 ff ff 01 00 00 01 00 00";
+    constexpr auto startTxResponse = "4d 54 01 83 14 00 00 00 0c 00 01 00 02 00 01 02 a0 0f 00 00 ff ff 01 00 00 01 00 00";
 
     constexpr auto getTransmitVoltagesRequest = "4d 54 01 23 24 00 00 00 1c 00 00 00 02 00 3e 00 05 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
     constexpr auto getTransmitVoltagesResponse = "4d 54 01 83 24 00 00 00 1c 00 01 00 02 00 3f 00 05 00 00 00 05 00 00 00 00 00 00 00 4b 18 01 00 a6 16 01 00 5e 17 01 00 71 13 01 00";
@@ -2381,8 +2381,8 @@ TEST_F(DutWithConnectionMockTest, startTxShouldSucceed)
     constexpr auto setTransmitPowerLevelAntenna4Request = "4d 54 01 23 0c 00 00 00 04 00 00 00 02 00 32 00 03 00 22 44";
     constexpr auto setTransmitPowerLevelAntenna4Response = "4d 54 01 83 0c 00 00 00 04 00 01 00 02 00 33 00 03 00 22 44";
 
-    constexpr auto startTxRequest = "4d 54 01 23 14 00 00 00 0c 00 00 00 02 00 00 02 a0 0f 00 00 ff ff 01 00 00 00 00 00";
-    constexpr auto startTxResponse = "4d 54 01 83 14 00 00 00 0c 00 01 00 02 00 01 02 a0 0f 00 00 ff ff 01 00 00 00 00 00";
+    constexpr auto startTxRequest = "4d 54 01 23 14 00 00 00 0c 00 00 00 02 00 00 02 a0 0f 00 00 ff ff 01 00 00 01 00 00";
+    constexpr auto startTxResponse = "4d 54 01 83 14 00 00 00 0c 00 01 00 02 00 01 02 a0 0f 00 00 ff ff 01 00 00 01 00 00";
 
     constexpr auto stopTxRequest = "4d 54 01 23 08 00 00 00 00 00 00 00 02 00 02 02";
     constexpr auto stopTxResponse = "4d 54 01 83 08 00 00 00 00 00 01 00 02 00 03 02";

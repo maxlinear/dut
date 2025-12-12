@@ -545,6 +545,7 @@ private:
     uint32_t m_packetLength { 1000 };
     bool m_longData { false };
     bool m_beamforming { false };
+    dut::CodingType m_codingType { dut::CodingType::CODING_TYPE_AUTO };
 };
 
 class StartRxPerFunction : public Function {

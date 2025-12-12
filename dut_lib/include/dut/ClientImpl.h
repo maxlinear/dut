@@ -113,7 +113,7 @@ public:
     void stopCw() override;
     void startRxCalibration() override;
     void stopRxCalibration() override;
-    void startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming) override;
+    void startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, bool ldpc) override;
     void startRxPer(uint32_t packetLimit, PhyMode phyMode) override;
     void stopTx() override;
     void stopRxPer(PhyMode phyMode, uint32_t& totalPacketsReceived, uint32_t& packetCounter) override;

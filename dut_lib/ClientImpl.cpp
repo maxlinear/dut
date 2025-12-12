@@ -1703,7 +1703,7 @@ void ClientImpl::stopRxCalibration()
         timeout);
 }
 
-void ClientImpl::startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming)
+void ClientImpl::startTx(uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, bool ldpc)
 {
     dutTxParams_t trafficParams {};
 
@@ -1711,6 +1711,7 @@ void ClientImpl::startTx(uint16_t repetitions, uint32_t packetLength, bool longD
     trafficParams.packetLength = packetLength;
     trafficParams.isDataLong = longData ? 1 : 0;
     trafficParams.isBeamforming = beamforming ? 1 : 0;
+    trafficParams.isLdpc = ldpc ? 1 : 0;
     trafficParams.isTxEndless = (repetitions == UINT16_MAX) ? 1 : 0;
 
     Payload payload(reinterpret_cast<uint8_t*>(&trafficParams), sizeof(trafficParams));

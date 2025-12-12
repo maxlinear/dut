@@ -101,7 +101,7 @@ public:
     MOCK_METHOD(void, stopCw, (), (override));
     MOCK_METHOD(void, startRxCalibration, (), (override));
     MOCK_METHOD(void, stopRxCalibration, (), (override));
-    MOCK_METHOD(void, startTx, (uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming), (override));
+    MOCK_METHOD(void, startTx, (uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, bool ldpc), (override));
     MOCK_METHOD(void, stopTx, (), (override));
     MOCK_METHOD(void, startRxPer, (uint32_t packetLimit, PhyMode phyMode), (override));
     MOCK_METHOD(void, stopRxPer, (PhyMode phyMode, uint32_t& totalPacketsReceived, uint32_t& packetCounter), (override));

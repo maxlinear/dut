@@ -449,6 +449,25 @@ namespace DUT_GUI
             return (Bandwidth)GUI_GetSelectedValue(combox_basicOp_spectrumBW);
         }
 
+        private CodingType GUI_GetSelectedCodingType()
+        {
+            CodingType codingType;
+            if (radio_basicOp_codingAuto.Checked)
+            {
+                codingType = CodingType.CODING_TYPE_AUTO;
+            }
+            else if (radio_basicOp_codingLDPC.Checked)
+            {
+                codingType = CodingType.CODING_TYPE_LDPC;
+            }
+            else
+            {
+                codingType = CodingType.CODING_TYPE_BCC;
+            }
+
+            return codingType;
+        }
+
         private void setChannel_Click(object sender, EventArgs e)
         {
             using (new WaitCursorBlock(this))
@@ -523,6 +542,7 @@ namespace DUT_GUI
                 bool _beamforming = check_basicOp_txBeamforming.Checked;
                 uint _length = (uint)ParseControl(txtBox_basicOp_packetLen);
                 ushort _repetitions = (ushort)ParseControl(txtBox_basicOp_repetitions);
+                CodingType _codingType = GUI_GetSelectedCodingType();
                 PhyMode _phyType = GUI_GetSelectedPhyMode();
 
                 if (0 == _length || 0 == _repetitions)
@@ -543,16 +563,7 @@ namespace DUT_GUI
                     }
                 }
 
-                if (_beamforming)
-                {
-                    if (!DUT.ValidateBeamformingHeaderRegister(_phyType, _signalBW))
-                    {
-                        MessageDialog.ShowWarning("Beamforming header validation failed - make sure to write the correct beamforming header/values. See Exception for more details.");
-                        return;
-                    }
-                }
-
-                if (DUT.StartTxPackets(_repetitions, _length, _isDataLong, _beamforming))
+                if (DUT.StartTxPackets(_repetitions, _length, _isDataLong, _beamforming, _codingType))
                 {
                     updateStopTXbutton();
                     updateStartTxButton();
@@ -2345,7 +2356,7 @@ namespace DUT_GUI
                     read_xtal_Click(null, null);
 
                     // Update bf_tabControl based on operation type
-                    Bandwidth bandwidth = GUI_GetSelectedSpectrumBandwidth();
+                    Bandwidth bandwidth = GUI_GetSelectedSignalBandwidth();
                     if (bandwidth == Bandwidth.BANDWIDTH_ONE_HUNDRED_SIXTY)
                     {
                         // EHT 160 operation
@@ -2857,18 +2868,17 @@ namespace DUT_GUI
 
             using (new WaitCursorBlock(this))
             {
-                check_basicOp_txBeamforming.Checked = false;
-
                 ushort repetitions;
                 uint packetLength = (uint)ParseControl(txtBox_basicOp_packetLen);
                 bool longData = check_basicOp_txLongData.Checked;
                 bool beamforming = check_basicOp_txBeamforming.Checked;
                 bool closedLoop = checkBox_basicOp_closedLoop.Checked;
+                CodingType codingType = GUI_GetSelectedCodingType();
 
                 // Transmit 3 packets with close loop, with the parameters in the GUI -to allow
                 // for power settling.
                 bool ok = DUT.SetTransmitPowerControl(true, 0xff);
-                ok = ok && DUT.StartTxPackets(3, packetLength, longData, beamforming);
+                ok = ok && DUT.StartTxPackets(3, packetLength, longData, beamforming, codingType);
                 ok = ok && DUT.StopTxPackets();
                 ok = ok && DUT.SetTransmitPowerControl(closedLoop, 0xff);
 
@@ -2888,7 +2898,7 @@ namespace DUT_GUI
                     }
                     repetitions = 0xffff;
                     packetLength = 4000;
-                    ok = ok && DUT.StartTxPackets(repetitions, packetLength, longData, beamforming);
+                    ok = ok && DUT.StartTxPackets(repetitions, packetLength, longData, beamforming, codingType);
                     if (ok)
                     {
                         txtBox_basicOp_repetitions.Text = "0x" + repetitions.ToString("x4");
@@ -2900,7 +2910,7 @@ namespace DUT_GUI
                     // For OFDM, transmit 1 spaceless packet, with the parameters from the GUI,
                     // including packet length.
                     repetitions = 1;
-                    ok = ok && DUT.StartTxPackets(repetitions, packetLength, longData, beamforming);
+                    ok = ok && DUT.StartTxPackets(repetitions, packetLength, longData, beamforming, codingType);
                     if (ok)
                     {
                         txtBox_basicOp_repetitions.Text = repetitions.ToString();
@@ -3158,6 +3168,12 @@ namespace DUT_GUI
                         check_basicOp_txBeamforming.Checked = false;
                         check_basicOp_txBeamforming.Enabled = false;
                         groupBox_WriteBeamformingMatrix.Enabled = false;
+
+                        // Coding Type
+                        radio_basicOp_codingAuto.Checked = true;
+                        //  radio_basicOp_codingBCC.Checked = false;
+                        radio_basicOp_codingLDPC.Enabled = false;
+
                         break;
                     }
                 case PhyMode.PHY_MODE_B: // 802.11b
@@ -3198,6 +3214,12 @@ namespace DUT_GUI
                         check_basicOp_txBeamforming.Checked = false;
                         check_basicOp_txBeamforming.Enabled = false;
                         groupBox_WriteBeamformingMatrix.Enabled = false;
+
+                        // Coding Type
+                        radio_basicOp_codingAuto.Checked = true;
+                        //  radio_basicOp_codingBCC.Checked = false;
+                        radio_basicOp_codingLDPC.Enabled = false;
+
                         break;
                     }
                 case PhyMode.PHY_MODE_G: // 802.11g
@@ -3242,6 +3264,12 @@ namespace DUT_GUI
                         check_basicOp_txBeamforming.Checked = false;
                         check_basicOp_txBeamforming.Enabled = false;
                         groupBox_WriteBeamformingMatrix.Enabled = false;
+
+                        // Coding Type
+                        radio_basicOp_codingAuto.Checked = true;
+                        // radio_basicOp_codingBCC.Checked = false;
+                        radio_basicOp_codingLDPC.Enabled = false;
+
                         break;
                     }
                 case PhyMode.PHY_MODE_N_5: // 802.11n 5GHz
@@ -3282,6 +3310,13 @@ namespace DUT_GUI
                         check_basicOp_txBeamforming.Checked = false;
                         check_basicOp_txBeamforming.Enabled = false;
                         groupBox_WriteBeamformingMatrix.Enabled = false;
+
+                        // Coding Type
+                        radio_basicOp_codingAuto.Checked = true;
+                        //  radio_basicOp_codingBCC.Checked = false;
+                        radio_basicOp_codingLDPC.Enabled = true;
+
+
                         break;
                     }
                 case PhyMode.PHY_MODE_N_2_4: // 802.11n 2.4GHz
@@ -3322,6 +3357,12 @@ namespace DUT_GUI
                         check_basicOp_txBeamforming.Checked = false;
                         check_basicOp_txBeamforming.Enabled = false;
                         groupBox_WriteBeamformingMatrix.Enabled = false;
+
+                        // Coding Type
+                        radio_basicOp_codingAuto.Checked = true;
+                        //radio_basicOp_codingBCC.Checked = false;
+                        radio_basicOp_codingLDPC.Enabled = true;
+
                         break;
                     }
                 case PhyMode.PHY_MODE_AC: // 802.11ac
@@ -3360,6 +3401,12 @@ namespace DUT_GUI
                         check_basicOp_txLongData.Enabled = true;
                         check_basicOp_txBeamforming.Enabled = true;
                         groupBox_WriteBeamformingMatrix.Enabled = true;
+
+                        // Coding Type
+                        radio_basicOp_codingAuto.Checked = true;
+                        // radio_basicOp_codingBCC.Checked = false;
+                        radio_basicOp_codingLDPC.Enabled = true;
+
                         break;
                     }
                 case PhyMode.PHY_MODE_AX: // 802.11ax
@@ -3414,6 +3461,12 @@ namespace DUT_GUI
                         check_basicOp_txLongData.Enabled = true;
                         check_basicOp_txBeamforming.Enabled = true;
                         groupBox_WriteBeamformingMatrix.Enabled = true;
+
+                        // Coding Type
+                        radio_basicOp_codingAuto.Checked = true;
+                        radio_basicOp_codingBCC.Enabled = true;
+                        // radio_basicOp_codingLDPC.Checked = false;
+
                         break;
                     }
                 case PhyMode.PHY_MODE_BE: // 802.11be
@@ -3475,6 +3528,12 @@ namespace DUT_GUI
                         check_basicOp_txLongData.Enabled = true;
                         check_basicOp_txBeamforming.Enabled = true;
                         groupBox_WriteBeamformingMatrix.Enabled = true;
+
+                        // Coding Type
+                        radio_basicOp_codingAuto.Checked = true;
+                        radio_basicOp_codingBCC.Enabled = true;
+                        //radio_basicOp_codingLDPC.Checked = false;
+
                         break;
                     }
             }
