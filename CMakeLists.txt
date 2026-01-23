@@ -15,7 +15,7 @@ set(CMAKE_SYSTEM_VERSION 1)
 
 message("${BoldWhite}Setting TOOLCHAIN for ${BoldGreen}'${TARGET_PLATFORM}'${BoldWhite} platform...${ColourReset}")
 
-set(PLATFORM_TOOLCHAIN_PREFIX "${TOOLCHAIN_DIR}/bin/x86_64-openwrt-linux-")
+set(PLATFORM_TOOLCHAIN_PREFIX "${TOOLCHAIN_DIR}/bin/x86_64-openwrt-linux-musl-")
 
 set(CMAKE_C_COMPILER ${PLATFORM_TOOLCHAIN_PREFIX}gcc)
 set(CMAKE_CXX_COMPILER ${PLATFORM_TOOLCHAIN_PREFIX}g++)
