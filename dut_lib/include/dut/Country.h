@@ -34,6 +34,7 @@
 
 #include "dut/API.h"
 
+#include <cstdint>
 #include <string>
 
 namespace dut {
