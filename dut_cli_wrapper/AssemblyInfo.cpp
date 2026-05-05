@@ -4,7 +4,7 @@ using namespace System::Runtime::CompilerServices;
 using namespace System::Runtime::InteropServices;
 using namespace System::Security::Permissions;
 
-[assembly:AssemblyTitleAttribute(L"dut_cli_wrapper (WLANRTSYS-94460-Allow-spaceless-beamforming)")];
+[assembly:AssemblyTitleAttribute(L"dut_cli_wrapper (feature/WLANRTSYS-100713)")];
 [assembly:AssemblyDescriptionAttribute(L"")];
 [assembly:AssemblyConfigurationAttribute(L"")];
 [assembly:AssemblyCompanyAttribute(L"MaxLinear")];
@@ -13,6 +13,6 @@ using namespace System::Security::Permissions;
 [assembly:AssemblyTrademarkAttribute(L"")];
 [assembly:AssemblyCultureAttribute(L"")];
 
-[assembly:AssemblyVersionAttribute("2.27.1")];
+[assembly:AssemblyVersionAttribute("2.27.2")];
 
 [assembly:ComVisible(false)];

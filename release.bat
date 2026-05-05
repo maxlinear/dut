@@ -50,6 +50,9 @@ IF NOT EXIST %REPORTS_DIR%\NUL MKDIR %REPORTS_DIR%
 IF NOT DEFINED DUT_BUILD_LOG (
   SET DUT_BUILD_LOG=%OUTPUT_DIR%\build.log
 )
+IF NOT DEFINED DUT_DEVENV_ERR (
+  SET DUT_DEVENV_ERR=%OUTPUT_DIR%\devenv_err.log
+)
 IF EXIST %DUT_BUILD_LOG% DEL %DUT_BUILD_LOG%
 ECHO Build log: %DUT_BUILD_LOG%
 
@@ -61,9 +64,14 @@ IF NOT DEFINED DUT_DEVICE_WLAN_INDEX (
 )
 
 SET BUILDER="%MICROSOFT_VISUAL_STUDIO_HOME%\2019\Professional\MSBuild\Current\Bin\MSBuild.exe" 
-SET DEVENV="%MICROSOFT_VISUAL_STUDIO_HOME%\2019\Professional\Common7\IDE\devenv.exe" 
 SET CPPCHECK="%CPPCHECK_HOME%\cppcheck.exe"
 SET OPENCPPCOVERAGE="%OPENCPPCOVERAGE_HOME%\OpenCppCoverage.exe"
+
+IF DEFINED DEVENV_USE_COM (
+  SET DEVENV="%MICROSOFT_VISUAL_STUDIO_HOME%\2019\Professional\Common7\IDE\devenv.com"
+) ELSE (
+  SET DEVENV="%MICROSOFT_VISUAL_STUDIO_HOME%\2019\Professional\Common7\IDE\devenv.exe"
+)
 
 git -C ../shared_header rev-parse HEAD > shared_header_hash.txt
 SET /P SHARED_HEADER_HASH=<shared_header_hash.txt
@@ -323,10 +331,17 @@ ECHO.
 ECHO.
 ECHO Creating installer (MSI) ...
 
-%DEVENV% dut.sln /Build "Release|x64" /Project dut_gui_setup /Out %DUT_BUILD_LOG%
+REM Kill any stale devenv.exe processes that may block the build
+taskkill /f /im devenv.exe >NUL 2>&1
+
+REM Remove any previously created MSI to ensure we detect a fresh build
+DEL /Q dut_gui_setup\Release\*.msi >NUL 2>&1
+
+REM IMPORTANT: /Out and 2> must NOT point to the same file (causes file sharing violation)
+%DEVENV% dut.sln /Build "Release|x64" /Project dut_gui_setup /Out %DUT_BUILD_LOG% 2>%DUT_DEVENV_ERR%
 
 IF NOT ["%errorlevel%"]==["0"] (
-  ECHO Error: Unable to create installer >> %DUT_BUILD_LOG%
+  ECHO Error: Unable to create installer, devenv exit code: %errorlevel% >> %DUT_BUILD_LOG%
   GOTO ERROR
 )
 

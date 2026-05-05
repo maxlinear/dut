@@ -1459,11 +1459,19 @@ void ClientImpl::setTransmitPowerControl(CalibrationType calibrationType, bool c
     for (auto i = 0; i < _countof(tpcConfig.regulationLimitBE); i++) {
         tpcConfig.regulationLimitBE[i] = powerLimit;
     }
+    for (auto i = 0; i < _countof(tpcConfig.regulationLimitMRU); i++) {
+        tpcConfig.regulationLimitMRU[i] = powerLimit;
+    }
     for (auto i = 0; i < _countof(tpcConfig.regulationLimitN); i++) {
         tpcConfig.regulationLimitN[i] = powerLimit;
     }
     tpcConfig.regulationLimitAG = powerLimit;
     tpcConfig.powerLimit11b = powerLimit;
+    tpcConfig.getSetOperation = 0; // API_SET_OPERATION
+    tpcConfig.Status = 0;
+    tpcConfig.Reserved[0] = 0;
+    tpcConfig.Reserved[1] = 0;
+    tpcConfig.Reserved[2] = 0;
 
     Payload payload(reinterpret_cast<uint8_t*>(&tpcConfig), sizeof(tpcConfig));
     DutDriverFwGeneralMsg message(payload);

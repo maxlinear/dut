@@ -1,3 +1,16 @@
+Version 2.27.2 (feature/WLANRTSYS-100713), Thu 04/23/2026
+
+Content/Fixes:
+- Updated test expectations to match 200-byte message size (was 180 bytes) due to new regulationLimitMRU[] field and control fields added to the tpcConfig_t structure.
+- Fix MSI installer failure caused by a file name containing the '/' symbol.
+
+Shared headers hash:
+34677d10812bc5498c7e8a8232ea364a0ca47047
+
+Verified CV by DUT Automation:
+
+----------------------------------------------------------------
+
 Version 2.27.1 (WLANRTSYS-94460-Allow-spaceless-beamforming), Wed 09/10/2025
 
 Content/Fixes:

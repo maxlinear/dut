@@ -76,6 +76,18 @@ std::string toUpper(const std::string& s)
     return result;
 }
 
+std::string sanitizeForInstaller(const std::string& s)
+{
+    std::string result = s;
+    const std::string invalidChars = "\\/:*?\"<>|";
+
+    std::replace_if(result.begin(), result.end(), [&invalidChars](char c) {
+        return invalidChars.find(c) != std::string::npos;
+    }, '_');
+
+    return result;
+}
+
 void insertString(const std::string& str, const std::string& prefix, const std::string& suffix, const std::string& separator, std::string& text)
 {
     size_t startPosition = text.find(prefix);
@@ -171,13 +183,14 @@ void setVersionIntoDutGuiSetupProject(const std::string& version, const std::str
 {
     // Create copy of existing value to later check if version has changed
     std::string oldContents = contents;
+    std::string installerTag = sanitizeForInstaller(tag);
 
     // Append version to product name so it is used as part of the suggested installation folder
-    insertString(version + "_" + tag, "\"ProductName\" = \"8:DUT_GUI", "\"", "_", contents);
+    insertString(version + "_" + installerTag, "\"ProductName\" = \"8:DUT_GUI", "\"", "_", contents);
 
     // Append version to setup file name so two different setups can be distinguished from each other.
-    insertString(version + "_" + tag, "Debug\\\\dut_gui_setup", ".msi\"", "_", contents);
-    insertString(version + "_" + tag, "Release\\\\dut_gui_setup", ".msi\"", "_", contents);
+    insertString(version + "_" + installerTag, "Debug\\\\dut_gui_setup", ".msi\"", "_", contents);
+    insertString(version + "_" + installerTag, "Release\\\\dut_gui_setup", ".msi\"", "_", contents);
 
     // Cannot set product version because it must be of format '##.##.####'
     //insertString(version, "\"ProductVersion\" = \"8:", "\"", "", contents);
