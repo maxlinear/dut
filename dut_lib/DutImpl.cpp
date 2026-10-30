@@ -337,102 +337,116 @@ bool DutImpl::execute(const std::string& functionName, const std::function<void(
     return true;
 }
 
+void DutImpl::initializeDevice(bool snifferMode, NvMemoryType memoryType, NvMemorySize memorySize, Band band)
+{
+    m_transmitter = std::make_shared<Transmitter>(m_client);
+
+    // TODO: memorySize might change after resetting MAC if memoryType is flash (see WLANRTSYS-37328)
+    m_client->resetMac(memoryType, memorySize, true);
+
+    // Reset status
+    m_status->reset();
+    m_status->snifferMode.setValue(snifferMode);
+    m_status->regulationType.setValue(defaultRegulationType);
+    m_status->closedLoop.setValue(defaultClosedLoopEnabled);
+    m_status->transmitPowerLevel.setValue(defaultTransmitPowerLevel);
+    m_status->zwdfsChannel.setValue(defaultZwdfsChannel);
+    m_status->zwdfsBandwidth.setValue(defaultZwdfsBandwidth);
+    m_status->radarDetectionBandwidth.setValue(defaultRadarDetectionBandwidth);
+
+    dutGetFwInfo_t fwInfo {};
+    m_client->getFwInfo(fwInfo);
+
+    auto currentBand = static_cast<Band>(fwInfo.currentRfBandPsd);
+    auto supportedBands = fwInfo.supportedBandsPsd;
+    if ((band != Band::BAND_INVALID) && (band != currentBand)) {
+        if (!isBandSupported(band, supportedBands)) {
+            throw std::invalid_argument("Band " + dut::toString(band) + " not supported");
+        }
+
+        m_client->setBand(band);
+        m_client->getFwInfo(fwInfo);
+    }
+
+    m_status->spectrumBandwidth.setValue(static_cast<Bandwidth>(fwInfo.spectrumMode));
+    m_status->enabledRxAntennaMask.setValue(fwInfo.operationalRxAntMask);
+    m_status->enabledTxAntennaMask.setValue(fwInfo.operationalTxAntMask);
+    m_status->enabledZwdfsAntennaMask.setValue(0x0);
+    m_status->availableRxAntennaMask.setValue(fwInfo.psdMaxRxAntMask);
+    m_status->availableTxAntennaMask.setValue(fwInfo.psdMaxTxAntMask);
+    m_status->availableZwdfsAntennaMask.setValue(fwInfo.zwdfsAntMask);
+    m_status->band.setValue(static_cast<Band>(fwInfo.currentRfBandPsd));
+    m_status->supportedBands.setValue(dut::getSupportedBands(fwInfo.supportedBandsPsd));
+
+    addVap(snifferMode, fwInfo.operationMode);
+
+    m_nvm = std::make_shared<DeviceNvm>(m_client, m_logger);
+    if (!m_nvm->setType(memoryType)) {
+        throw std::invalid_argument("Invalid NVM type (" + toString(memoryType) + ")");
+    }
+    if (!m_nvm->setSize(memorySize)) {
+        throw std::invalid_argument("Invalid NVM size (" + toString(memorySize) + ")");
+    }
+    m_nvm->load();
+
+    m_calibrationFile = createCalibrationFile(m_nvm->getVersion(), m_nvm->getData(), m_nvm->getSize());
+
+    ChipID chipId {};
+    m_client->readChipId(chipId);
+    if (chipId < ChipID::CHIP_ID_GEN6) {
+        throw std::runtime_error("Chip ID " + dut::toHexString(static_cast<uint16_t>(chipId)) + " not supported");
+    }
+    m_status->chipId.setValue(chipId);
+
+    std::array<uint8_t, Client::combinedVersionSize> combinedVersion {};
+    m_client->getCombinedVersion(combinedVersion);
+    parseCombinedVersion(reinterpret_cast<char*>(combinedVersion.data()), m_componentVersions);
+
+    m_client->setHdkConfig(defaultOfflineCalMask, defaultOnlineCalMask, m_status->band.getValue());
+    m_status->offlineCalMask.setValue(defaultOfflineCalMask);
+    m_status->onlineCalMask.setValue(defaultOnlineCalMask);
+
+    m_client->setRxAggregationEnabled(defaultRxAggregationEnabled);
+    m_status->rxAggregationEnabled.setValue(defaultRxAggregationEnabled);
+    m_status->setClipper.setValue(defaultClipperEnabled);
+
+    // Make sure device is not transmitting anything (transmitter status is initially idle)
+    m_client->stopTx();
+    m_client->stopCw();
+    m_client->setSpacelessTxEnabled(defaultSpacelessTxEnabled);
+    m_status->spacelessTxEnabled.setValue(defaultSpacelessTxEnabled);
+
+    // Make sure RX calibration is not running
+    m_status->rxCalibrationRunning.setValue(true);
+    stopRxCalibrationImpl();
+
+    m_client->setIfs(defaultIfs);
+    m_status->ifs.setValue(defaultIfs);
+
+    setEnabledRxAntennas(m_status->enabledRxAntennaMask.getValue());
+    setEnabledTxAntennas(m_status->enabledTxAntennaMask.getValue());
+    if (isZwdfsAvailable()) {
+        setEnabledZwdfsAntenna(m_status->zwdfsChannel.getValue(), m_status->zwdfsBandwidth.getValue(), m_status->radarDetectionBandwidth.getValue(), m_status->enabledZwdfsAntennaMask.getValue());
+    }
+
+    if (m_status->chipId.getValue() >= ChipID::CHIP_ID_GEN7)
+    {
+        std::array<int8_t, dut::maxNumTxAntennas> PaDetMode{};
+        m_client->getPaDetMode(m_status->availableTxAntennaMask.getValue(), PaDetMode);
+        for (uint8_t antenna = 0; antenna < maxNumTxAntennas; antenna++) {
+			m_status->PaDetMode[antenna].setValue(PaDetMode[antenna]);
+        }
+    }
+	
+    m_initialized = true;
+}
+
 bool DutImpl::driverInit(bool snifferMode, NvMemoryType memoryType, NvMemorySize memorySize, Band band)
 {
     return execute("driverInit", [this, snifferMode, memoryType, memorySize, band]() {
         logInput({ { "snifferMode", toString(snifferMode) }, { "memoryType", toString(memoryType) }, { "memorySize", toString(memorySize) }, { "band", toString(band) } });
 
-        m_transmitter = std::make_shared<Transmitter>(m_client);
-
-        // TODO: memorySize might change after resetting MAC if memoryType is flash (see WLANRTSYS-37328)
-        m_client->resetMac(memoryType, memorySize, true);
-
-        // Reset status
-        m_status->reset();
-        m_status->snifferMode.setValue(snifferMode);
-        m_status->regulationType.setValue(defaultRegulationType);
-        m_status->closedLoop.setValue(defaultClosedLoopEnabled);
-        m_status->transmitPowerLevel.setValue(defaultTransmitPowerLevel);
-        m_status->zwdfsChannel.setValue(defaultZwdfsChannel);
-        m_status->zwdfsBandwidth.setValue(defaultZwdfsBandwidth);
-        m_status->radarDetectionBandwidth.setValue(defaultRadarDetectionBandwidth);
-
-        dutGetFwInfo_t fwInfo {};
-        m_client->getFwInfo(fwInfo);
-
-        auto currentBand = static_cast<Band>(fwInfo.currentRfBandPsd);
-        auto supportedBands = fwInfo.supportedBandsPsd;
-        if ((band != Band::BAND_INVALID) && (band != currentBand)) {
-            if (!isBandSupported(band, supportedBands)) {
-                throw std::invalid_argument("Band " + dut::toString(band) + " not supported");
-            }
-
-            m_client->setBand(band);
-            m_client->getFwInfo(fwInfo);
-        }
-
-        m_status->spectrumBandwidth.setValue(static_cast<Bandwidth>(fwInfo.spectrumMode));
-        m_status->enabledRxAntennaMask.setValue(fwInfo.operationalRxAntMask);
-        m_status->enabledTxAntennaMask.setValue(fwInfo.operationalTxAntMask);
-        m_status->enabledZwdfsAntennaMask.setValue(0x0);
-        m_status->availableRxAntennaMask.setValue(fwInfo.psdMaxRxAntMask);
-        m_status->availableTxAntennaMask.setValue(fwInfo.psdMaxTxAntMask);
-        m_status->availableZwdfsAntennaMask.setValue(fwInfo.zwdfsAntMask);
-        m_status->band.setValue(static_cast<Band>(fwInfo.currentRfBandPsd));
-        m_status->supportedBands.setValue(dut::getSupportedBands(fwInfo.supportedBandsPsd));
-
-        addVap(snifferMode, fwInfo.operationMode);
-
-        m_nvm = std::make_shared<DeviceNvm>(m_client, m_logger);
-        if (!m_nvm->setType(memoryType)) {
-            throw std::invalid_argument("Invalid NVM type (" + toString(memoryType) + ")");
-        }
-        if (!m_nvm->setSize(memorySize)) {
-            throw std::invalid_argument("Invalid NVM size (" + toString(memorySize) + ")");
-        }
-        m_nvm->load();
-
-        m_calibrationFile = createCalibrationFile(m_nvm->getVersion(), m_nvm->getData(), m_nvm->getSize());
-
-        ChipID chipId {};
-        m_client->readChipId(chipId);
-        if (chipId < ChipID::CHIP_ID_GEN6) {
-            throw std::runtime_error("Chip ID " + dut::toHexString(static_cast<uint16_t>(chipId)) + " not supported");
-        }
-        m_status->chipId.setValue(chipId);
-
-        std::array<uint8_t, Client::combinedVersionSize> combinedVersion {};
-        m_client->getCombinedVersion(combinedVersion);
-        parseCombinedVersion(reinterpret_cast<char*>(combinedVersion.data()), m_componentVersions);
-
-        m_client->setHdkConfig(defaultOfflineCalMask, defaultOnlineCalMask, m_status->band.getValue());
-        m_status->offlineCalMask.setValue(defaultOfflineCalMask);
-        m_status->onlineCalMask.setValue(defaultOnlineCalMask);
-
-        m_client->setRxAggregationEnabled(defaultRxAggregationEnabled);
-        m_status->rxAggregationEnabled.setValue(defaultRxAggregationEnabled);
-        m_status->setClipper.setValue(defaultClipperEnabled);
-
-        // Make sure device is not transmitting anything (transmitter status is initially idle)
-        m_client->stopTx();
-        m_client->stopCw();
-        m_client->setSpacelessTxEnabled(defaultSpacelessTxEnabled);
-        m_status->spacelessTxEnabled.setValue(defaultSpacelessTxEnabled);
-
-        // Make sure RX calibration is not running
-        m_status->rxCalibrationRunning.setValue(true);
-        stopRxCalibrationImpl();
-
-        m_client->setIfs(defaultIfs);
-        m_status->ifs.setValue(defaultIfs);
-
-        setEnabledRxAntennas(m_status->enabledRxAntennaMask.getValue());
-        setEnabledTxAntennas(m_status->enabledTxAntennaMask.getValue());
-        if (isZwdfsAvailable()) {
-            setEnabledZwdfsAntenna(m_status->zwdfsChannel.getValue(), m_status->zwdfsBandwidth.getValue(), m_status->radarDetectionBandwidth.getValue(), m_status->enabledZwdfsAntennaMask.getValue());
-        }
-
-        m_initialized = true;
+        initializeDevice(snifferMode, memoryType, memorySize, band);
     });
 }
 
@@ -456,10 +470,13 @@ bool DutImpl::flushNvm()
 
         m_client->flushNvMemory(m_status->chipId.getValue(), m_nvm->getType(), FileType::FILE_TYPE_CALIBRATION);
 
-        m_status->vapAdded.setValue(false);
-        m_status->lowestChannel.reset();
-        m_status->offlineCalMask.reset();
-        m_status->onlineCalMask.reset();
+        auto snifferMode = m_status->snifferMode.getValue();
+        auto memoryType = m_nvm->getType();
+        auto memorySize = static_cast<NvMemorySize>(m_nvm->getSize());
+        auto band = m_status->band.getValue();
+
+        m_initialized = false;
+        initializeDevice(snifferMode, memoryType, memorySize, band);
     });
 }
 
@@ -788,6 +805,20 @@ bool DutImpl::getXtalRegValue(uint16_t& xtalValue)
 
         logOutput({ { "xtalValue", toString(xtalValue) } });
     });
+}
+
+bool DutImpl::getPaDetMode(const AntennaMask antennaMask, std::array<int8_t, maxNumTxAntennas>& PaDetMode)
+
+{
+    return execute("getPaDetMode", [this, &antennaMask, &PaDetMode]() {
+
+        m_client->getPaDetMode(antennaMask, PaDetMode);
+
+        for (uint8_t i = 0; i < maxNumTxAntennas; i++) {
+            logOutput({ { "PaDetMode[" + toString(i) + "]", toString(PaDetMode[i]) } });
+        }
+
+        });
 }
 
 bool DutImpl::getZwdfsStatus(AntennaMask& antennaMask, bool& enabled)

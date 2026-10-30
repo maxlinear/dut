@@ -62,6 +62,7 @@ public:
     void getMacPacketCounters(uint32_t& receivedPackets) override;
     void getMpduPacketCounters(uint32_t& receivedPackets, uint32_t& errorPackets) override;
     void getNmseValues(std::array<std::array<int32_t, dut::dpdTotalCalibrationPoints>, dut::maxNumTxAntennas>& values) override;
+    void getPaDetMode(const AntennaMask antennaMask, std::array<int8_t, maxNumTxAntennas>& PaDetMode) override;
     void getPhyPacketCounters(uint32_t& receivedPackets, uint32_t& crcErrors, uint32_t& forwardedPackets) override;
     void getRfRssiPower(const AntennaMask& antennaMask, std::array<int8_t, maxNumRxAntennas>& power) override;
     void getRssi(uint8_t method, uint16_t numSamples, const AntennaMask& antennaMask, std::array<uint16_t, maxNumRxAntennas>& rssi) override;

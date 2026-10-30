@@ -114,6 +114,7 @@ public:
     CachedValue<uint32_t> rxPacketLimit;
     CachedValue<bool> rxMeasureRunning;
     CachedValue<bool> setClipper;
+    CachedValue<int8_t> PaDetMode[maxNumTxAntennas];
 
     void reset();
 };

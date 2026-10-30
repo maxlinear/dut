@@ -1,3 +1,44 @@
+Version 2.30.0 (feature/WLANRTSYS-96079), Sun 07/19/2026
+
+Content/Fixes:
+Fixes IQDVT compatibility by adding 'DUT_getMpduPacketCounters' API and updating DUT_startTx coding type handling.
+
+Shared headers hash:
+966de735adaabdb11aa710f8843d4590885707aa
+
+Verified CV by DUT Automation:
+
+----------------------------------------------------------------
+
+Version 2.29.0 (WLANRTSYS-102132-wave700-tssi-log-estimation), Wed 07/08/2026
+
+Content/Fixes:
+Add option to calibrate PA detector without log, Wave Tssi hardware do the log estimation.
+adding an API to get the wave HW mode, DUT_GET_PADET_MODE getPaDetMode
+
+Shared headers hash:
+946cb188ae6312c882b9434de220ab651a519673
+
+Verified CV by DUT Automation:
+
+----------------------------------------------------------------
+
+Version 2.28.0 (feature/WLANRTSYS-102387-dut-auto-connection), Mon 06/15/2026
+
+Content/Fixes:
+flushNvm() now performs a deterministic end-to-end recovery flow:
+Flush NVM data.
+Trigger recovery and wait for an explicit recovery completion confirmation.
+Re-initialize DUT automatically using the same init context.
+On success, DUT is immediately usable after flushNvm() without manual delay/reconnect handling.
+
+Shared headers hash:
+857237b8f227fb36c9b1446e0015df8bba3dea1a
+
+Verified CV by DUT Automation:
+
+----------------------------------------------------------------
+
 Version 2.27.2 (feature/WLANRTSYS-100713), Thu 04/23/2026
 
 Content/Fixes:

@@ -686,6 +686,24 @@ bool DUT_C_API_ENTRY DUT_getNvmVersion(const DutHandle handle, uint8_t* version)
     return handle->getNvmVersion(*version);
 }
 
+bool DUT_C_API_ENTRY DUT_getPaDetMode(const DutHandle handle, dut::AntennaMask antennaMask, int8_t PaDetMode[dut::maxNumTxAntennas])
+{
+    if (PaDetMode == nullptr) {
+        return false;
+    }
+
+    std::array<int8_t, dut::maxNumTxAntennas> _PaDetMode{};
+
+    bool ok = handle->getPaDetMode(antennaMask, _PaDetMode);
+    if (ok) {
+        for (size_t i = 0; i < dut::maxNumTxAntennas; i++) {
+            PaDetMode[i] = _PaDetMode.at(i);
+        }
+    }
+
+    return ok;
+}
+
 bool DUT_C_API_ENTRY DUT_getPhyMode(const DutHandle handle, dut::PhyMode* phyMode)
 {
     if (phyMode == nullptr) {
@@ -1213,9 +1231,9 @@ bool DUT_C_API_ENTRY DUT_startRxPer(const DutHandle handle, uint32_t packetLimit
     return handle->startRxPer(packetLimit);
 }
 
-bool DUT_C_API_ENTRY DUT_startTx(const DutHandle handle, uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, dut::CodingType codingType)
+bool DUT_C_API_ENTRY DUT_startTx(const DutHandle handle, uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, CodingType codingType)
 {
-    return handle->startTx(repetitions, packetLength, longData, beamforming, codingType);
+    return handle->startTx(repetitions, packetLength, longData, beamforming, static_cast<dut::CodingType>(codingType));
 }
 
 bool DUT_C_API_ENTRY DUT_stopCw(const DutHandle handle)

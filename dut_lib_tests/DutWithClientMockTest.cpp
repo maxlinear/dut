@@ -148,6 +148,9 @@ public:
             EXPECT_CALL(*m_client, setTransmitPowerLevel(3, dut::Bandwidth::BANDWIDTH_TWENTY, dut::defaultTransmitPowerLevel));
             if (m_chipId >= dut::ChipID::CHIP_ID_GEN7) {
                 EXPECT_CALL(*m_client, setZwdfsEnabled(false, dut::defaultZwdfsChannel, dut::defaultZwdfsBandwidth, dut::defaultRadarDetectionBandwidth, dut::defaultRegulationType));
+				EXPECT_CALL(*m_client, getPaDetMode(txAntennaMask, _)).WillOnce(Invoke([](const dut::AntennaMask, std::array<int8_t, dut::maxNumTxAntennas>& paDetMode) {
+                paDetMode.fill(0);
+                }));
             }
         }
 

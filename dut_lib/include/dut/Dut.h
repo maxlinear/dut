@@ -343,10 +343,8 @@ public:
     /**
      * @brief Flushes the calibration data to the non-volatile memory.
      * 
-     * This function returns immediately but the driver runs a recovery process in the DUT to 
-     * start the firmware with the new calibration data. So, after calling this function, 
-     * allow at least 10s for the recovery process to complete, release the driver and make a 
-     * new connection to the DUT to start afresh.
+        * This function waits until the DUT recovery completes and restores the DUT connection to a
+        * usable operational state using the current NVM configuration.
      * 
      * @return true on success and false otherwise.
      */
@@ -553,6 +551,21 @@ public:
      * @return true on success and false otherwise.
      */
     virtual bool getNvmVersion(uint8_t& version) = 0;
+
+    /**
+    * @brief Gets the PA detector mode per antenna (log or linear).
+    *
+    * Reads the HW log select bit from the FW for each antenna in the mask.
+    * A non-zero value indicates the PA detector is linear and log estimation
+    * must be applied during TSSI calibration.
+    *
+    * @param[in] antennaMask Bitmask of TX antennas to query.
+    * @param[out] PaDetMode Per-antenna detector mode; 0 = log, non-zero = linear.
+    *
+    * @return true on success and false otherwise.
+    */
+
+    virtual bool getPaDetMode(const AntennaMask antennaMask, std::array<int8_t, maxNumTxAntennas>& PaDetMode) = 0;
 
     /**
      * @brief Gets the currently selected PHY mode.

@@ -77,6 +77,7 @@ public:
     bool getNvmSize([System::Runtime::InteropServices::OutAttribute] size_t % size);
     bool getNvmType([System::Runtime::InteropServices::OutAttribute] NvMemoryType % type);
     bool getNvmVersion([System::Runtime::InteropServices::OutAttribute] uint8_t % version);
+    bool getPaDetMode(AntennaMask^ antennaMask, [System::Runtime::InteropServices::OutAttribute] cli::array<int8_t>^% PaDetMode);
     bool getPhyMode([System::Runtime::InteropServices::OutAttribute] PhyMode % phyMode);
     bool getPhyPacketCounters([System::Runtime::InteropServices::OutAttribute] uint32_t % receivedPackets, [System::Runtime::InteropServices::OutAttribute] uint32_t % crcErrors, [System::Runtime::InteropServices::OutAttribute] uint32_t % forwardedPackets);
     bool getProductionFlag([System::Runtime::InteropServices::OutAttribute] bool % productionFlag);

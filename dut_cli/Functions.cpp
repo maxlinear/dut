@@ -248,6 +248,7 @@ const std::map<std::string, FunctionFactory, std::less<>> g_functions {
     { "getNvmSize", createFunctionFactory<GetNvmSizeFunction>() },
     { "getNvmType", createFunctionFactory<GetNvmTypeFunction>() },
     { "getNvmVersion", createFunctionFactory<GetNvmVersionFunction>() },
+    { "getPaDetMode", createFunctionFactory<GetPaDetModeFunction>() },
     { "getPhyMode", createFunctionFactory<GetPhyModeFunction>() },
     { "getPhyPacketCounters", createFunctionFactory<GetPhyPacketCountersFunction>() },
     { "getProductionFlag", createFunctionFactory<GetProductionFlagFunction>() },
@@ -963,6 +964,21 @@ bool GetNvmVersionFunction::execute(std::shared_ptr<dut::Dut> dut, Context& cont
     bool ok = dut->getNvmVersion(version);
     if (ok) {
         context.getConsole().cout("NVM version: " + dut::toString(version) + "\n");
+    }
+
+    return ok;
+}
+
+bool GetPaDetModeFunction::execute(std::shared_ptr<dut::Dut> dut, Context& context)
+{
+
+	dut::AntennaMask antennaMask=0xf;
+    std::array<int8_t, dut::maxNumTxAntennas> _PaDetMode{};
+
+    //bool ok1 = dut->getEnabledTxAntennaMask(antennaMask);
+    bool ok = dut->getPaDetMode(antennaMask, _PaDetMode);
+    if (ok ) {
+		context.getConsole().cout("PaDetMode: " + dut::toString(_PaDetMode.begin(), _PaDetMode.end()) + "\n");
     }
 
     return ok;

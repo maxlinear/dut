@@ -77,31 +77,58 @@ static void calculateLinearRegression(CalibrationFileVersion version, std::vecto
     float sumXsqr = 0;
     float sumXY = 0;
 
-    float div_val_A = (nLog > 0) ? static_cast<float>(std::pow(2, 19)) : static_cast<float>(std::pow(2, 18)); //%2^14 - fix point of coef, 2^4 - as we get tssi after average, 2 - as we work with 0.5 db resolution.
+
+    float div_val_A; //=(nLog > 0) ? static_cast<float>(std::pow(2, 19)) : static_cast<float>(std::pow(2, 18)); //%2^14 - fix point of coef, 2^4 - as we get tssi after average, 2 - as we work with 0.5 db resolution.
     float div_val_B; //%1/1024 - we multiple in implementation, 2^11 - fix point of coef, 2 - as we work with 0.5 db resolution.
     if (version == CalibrationFileVersion::CALIBRATION_FILE_VERSION_6) {
+        div_val_A = (nLog > 0) ? static_cast<float>(std::pow(2, 19)) : static_cast<float>(std::pow(2, 18)); //%2^14 - fix point of coef, 2^4 - as we get tssi after average, 2 - as we work with 0.5 db resolution.
         div_val_B = (nLog > 0) ? static_cast<float>(std::pow(2, 2)) : static_cast<float>(std::pow(2, 1));
-    } else if (version == CalibrationFileVersion::CALIBRATION_FILE_VERSION_7) {
-        div_val_B = (nLog > 0) ? static_cast<float>(std::pow(2, 10)) : static_cast<float>(std::pow(2, 9));
-    } else {
+    }
+    else if (version == CalibrationFileVersion::CALIBRATION_FILE_VERSION_7) {
+        div_val_A = (nLog > 0) ? static_cast<float>(std::pow(2, 13)) : static_cast<float>(std::pow(2, 18)); //%2^14 - fix point of coef, 2^4 - as we get tssi after average, 2 - as we work with 0.5 db resolution.
+        div_val_B = (nLog > 0) ? static_cast<float>(std::pow(2, 0)) : static_cast<float>(std::pow(2, 9));
+    }
+    else {
         throw std::invalid_argument("Invalid version " + toString(static_cast<int>(version)));
     }
 
     size_t n = points.size();
     for (size_t i = 0; i < n; ++i) {
-        //transform power vector from logarithmic to linear domain
-        float ylin = (nLog > 0) ? static_cast<float>(std::pow(10, (points[i].y / std::round(nLog)))) : points[i].y;
-        sumX += points[i].x;
+        float ylin = 0;
+        float xlin = 0;
+        if (version == CalibrationFileVersion::CALIBRATION_FILE_VERSION_6) {
+        	//transform power vector from logarithmic to linear domain
+            ylin = (nLog > 0) ? static_cast<float>(std::pow(10, (points[i].y / std::round(nLog)))) : points[i].y;
+            xlin = points[i].x;
+        }
+        else { // CALIBRATION_FILE_VERSION_7
+        	// incase of nLog (PAdetect is not doing log), transform voltage to log.
+            xlin = (nLog > 0) ? 10.0f * static_cast<float>(std::log10(1 * (points[i].x - 0))) : points[i].x;
+            ylin = points[i].y;
+        }
+        sumX += xlin;
         sumY += ylin;
-        sumXsqr += points[i].x * points[i].x;
-        sumXY += points[i].x * ylin;
+        sumXsqr += xlin * xlin;
+        sumXY += xlin * ylin;
     }
-    float a = (static_cast<float>(n) * sumXY - sumX * sumY) / (static_cast<float>(n) * sumXsqr - sumX * sumX);
+    float a = 0;
+    if (static_cast<float>(n) * sumXsqr == sumX * sumX)
+        throw std::invalid_argument("Degenerate calibration points: all x values are equal");
+    else
+        a = (static_cast<float>(n) * sumXY - sumX * sumY) / (static_cast<float>(n) * sumXsqr - sumX * sumX);
     float b = (sumY - a * sumX) / static_cast<float>(n);
 
     //use fixed points
     auto tempA = static_cast<int>(std::round(a * div_val_A));
     auto tempB = static_cast<int>(std::round(b * div_val_B));
+    if ((version == CalibrationFileVersion::CALIBRATION_FILE_VERSION_7) && (nLog > 0))
+    {
+        if (a == 0.0f) {
+            // degenerate input: cannot compute valid coefficients
+            throw std::invalid_argument("Degenerate calibration points: all x values are equal");
+        }
+        tempB = (static_cast<int>(std::round(((b / a) - 10 * std::log10(std::pow(2, 23) / 1024.0f / 16.0f)) * 256)));
+    }
     // Now we have a line ax+b
     if (tempB > 32767) //protected overflow of 15bits
         tempB = 32767;
@@ -118,11 +145,17 @@ static void calculateLinearRegression(CalibrationFileVersion version, std::vecto
     //Calc error with fixed points
     a = static_cast<float>(coefficients.a) / div_val_A;
     b = static_cast<float>(coefficients.b) / div_val_B;
+    if ((version == CalibrationFileVersion::CALIBRATION_FILE_VERSION_7) && (nLog > 0))
+        b = (static_cast<float>(a * (coefficients.b / 256.0f + 27.1f /*27.1=round(10 * std::log10(std::pow(2, 23) / 1024.0f / 16.0f)) */)));
     for (size_t i = 0; i < n; ++i) {
         float err;
-        if (nLog > 0) {
-            err = std::abs(nLog * std::log10(a * points[i].x + b) - points[i].y);
-        } else {
+        if (nLog > 0) { // log estimation
+            if (version == CalibrationFileVersion::CALIBRATION_FILE_VERSION_6)
+                err = std::abs(nLog * std::log10(a * points[i].x + b) - points[i].y);
+            else // wave700
+                err = std::abs((a * 10 * std::log10(points[i].x) + b) - points[i].y);
+        }
+        else { // nlog=0, linear estimation
             err = std::abs((a * points[i].x + b) - points[i].y);
         }
         error = std::max(err, error);
@@ -158,13 +191,16 @@ bool DutImpl::calculateTxABCoefficients(const AntennaMask& antennaMask, uint8_t 
         logInput({ { "antennaMask", toString(antennaMask) }, { "numRegions", toString(numRegions) }, { "nLog", toString(nLog) } });
 
         CalibrationFileVersion version = m_calibrationFile->getVersion();
+        float nlog_fromchip;
 
+        bool isGen7 = (m_status->chipId.getValue() >= ChipID::CHIP_ID_GEN7);
         for (uint8_t antenna = 0; antenna < maxNumTxAntennas; antenna++) {
             if (!antennaMask.isBitSet(antenna)) {
                 continue;
             }
+            nlog_fromchip = isGen7 ? float(m_status->PaDetMode[antenna].getValue()) : nLog;
 
-            dut::calculateTxABCoefficients(version, numRegions, pointsPerAntennaAndRegion[antenna], nLog, coefficientsPerAntennaAndRegion[antenna], errorsPerAntennaAndRegion[antenna]);
+            dut::calculateTxABCoefficients(version, numRegions, pointsPerAntennaAndRegion[antenna], nlog_fromchip, coefficientsPerAntennaAndRegion[antenna], errorsPerAntennaAndRegion[antenna]);
         }
     });
 }

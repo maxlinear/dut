@@ -117,6 +117,7 @@ public:
     virtual void setTransmitPowerLevel(uint8_t antenna, Bandwidth bandwidth, uint8_t powerLevel) = 0;
     virtual void setTransmitPowerTableOffset(uint8_t antenna, Bandwidth bandwidth, int16_t offset) = 0;
     virtual void setTransmitPowerVector(const AntennaMask& antennaMask, TransmitPowerVector_t& transmitPowerVector) = 0;
+    virtual void getPaDetMode(const AntennaMask antennaMask, std::array<int8_t, maxNumTxAntennas>& PaDetMode) = 0;
 
     // Calibration - RSSI
     virtual void getInbandRssi(const AntennaMask& antennaMask, std::array<int16_t, maxNumRxAntennas>& rssi, uint16_t& numSamples) = 0;

@@ -51,6 +51,7 @@ public:
     MOCK_METHOD(void, getMacPacketCounters, (uint32_t & receivedPackets), (override));
     MOCK_METHOD(void, getMpduPacketCounters, (uint32_t & receivedPackets, uint32_t& errorPackets), (override));
     MOCK_METHOD(void, getNmseValues, ((std::array<std::array<int32_t, dpdTotalCalibrationPoints>, maxNumTxAntennas> & values)), (override));
+    MOCK_METHOD(void, getPaDetMode, (const AntennaMask antennaMask, (std::array<int8_t, maxNumTxAntennas>&)PaDetMode), (override));
     MOCK_METHOD(void, getPhyPacketCounters, (uint32_t & receivedPackets, uint32_t& crcErrors, uint32_t& forwardedPackets), (override));
     MOCK_METHOD(void, getRfRssiPower, (const AntennaMask& antennaMask, (std::array<int8_t, maxNumRxAntennas> & power)), (override));
     MOCK_METHOD(void, getRssi, (uint8_t method, uint16_t numSamples, const AntennaMask& antennaMask, (std::array<uint16_t, maxNumRxAntennas> & rssi)), (override));

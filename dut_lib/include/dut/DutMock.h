@@ -85,6 +85,7 @@ public:
     MOCK_METHOD(bool, getNvmSize, (size_t & size), (override));
     MOCK_METHOD(bool, getNvmType, (NvMemoryType & type), (override));
     MOCK_METHOD(bool, getNvmVersion, (uint8_t & version), (override));
+    MOCK_METHOD(bool, getPaDetMode, (const AntennaMask antennaMask, (std::array<int8_t, maxNumTxAntennas>&)PaDetMode), (override));
     MOCK_METHOD(bool, getPhyMode, (PhyMode & phyMode), (override));
     MOCK_METHOD(bool, getPhyPacketCounters, (uint32_t & receivedPackets, uint32_t& crcErrors, uint32_t& forwardedPackets), (override));
     MOCK_METHOD(bool, getProductionFlag, (bool& productionFlag), (override));

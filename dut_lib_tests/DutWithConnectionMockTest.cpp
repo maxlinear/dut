@@ -92,6 +92,59 @@ size_t toByteArray(const std::string& data, uint8_t* buffer, size_t size, const 
         }));                                                                                                                                \
     }
 
+// initializeDevice message sequence — shared across SetUp and flushNvm reconnect expectations.
+namespace initSeq {
+        constexpr auto resetMacRequest = "4d 54 01 21 0c 00 00 00 02 00 00 00 00 04 00 00 01 00 00 00";
+        constexpr auto resetMacResponse = "4d 54 01 81 00 00 00 00";
+
+        constexpr auto getFwInfoRequest = "4d 54 01 23 18 00 00 00 10 00 00 00 02 00 68 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+        constexpr auto getFwInfoResponse = "4d 54 01 83 18 00 00 00 10 00 01 00 02 00 69 00 1f 01 00 00 00 00 00 0f 0f 01 03 00 00 00 0f 0f";
+
+        constexpr auto readNvm1Request = "4d 54 01 25 00 02 00 00 f8 01 00 00 02 00 02 00 02 00 00 00 00 00 00 00 00 04 00 00 e4 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+        constexpr auto readNvm1Response = "4d 54 01 85 00 02 00 00 f8 01 01 00 02 00 03 00 02 00 00 00 00 00 00 00 00 08 00 00 e4 01 00 00 00 00 00 00 fc 1b 00 00 00 00 00 00 30 1a 80 09 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff ff ff ff ff ff ff ff ff ff 06 60 10 00 61 56 41 00 43 ac 9a 96 f1 bb 20 db 07 00 29 0f 64 02 00 3c 00 ff 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+
+        constexpr auto readNvm2Request = "4d 54 01 25 00 02 00 00 f8 01 00 00 02 00 02 00 02 00 00 00 e4 01 00 00 00 04 00 00 e4 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+        constexpr auto readNvm2Response = "4d 54 01 85 00 02 00 00 f8 01 01 00 02 00 03 00 02 00 00 00 e4 01 00 00 00 08 00 00 e4 01 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+
+        constexpr auto readNvm3Request = "4d 54 01 25 54 00 00 00 4c 00 00 00 02 00 02 00 02 00 00 00 c8 03 00 00 00 04 00 00 38 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+        constexpr auto readNvm3Response = "4d 54 01 85 54 00 00 00 4c 00 01 00 02 00 03 00 02 00 00 00 c8 03 00 00 00 08 00 00 38 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff";
+
+        constexpr auto readChipVersionRequest = "4d 54 01 23 10 00 00 00 08 00 00 00 02 00 20 00 00 00 00 00 00 00 00 00";
+        constexpr auto readChipVersionResponse = "4d 54 01 83 10 00 00 00 08 00 01 00 02 00 21 00 80 09 00 00 00 00 00 00";
+
+        constexpr auto getCombinedVersionRequest = "4d 54 01 2d 00 02 00 00 f8 01 00 00 02 00 02 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+        constexpr auto getCombinedVersionResponse = "4d 54 01 8d 00 02 00 00 f8 01 01 00 02 00 03 00 77 61 76 65 5f 72 65 6c 65 61 73 65 5f 6d 69 6e 6f 72 3d 22 30 36 2e 30 31 2e 30 30 2e 31 31 30 34 22 0a 77 61 76 65 5f 70 73 64 5f 76 65 72 3d 22 32 30 32 31 2d 30 38 2d 32 33 5f 31 35 2d 33 30 2d 30 36 5f 52 45 56 5f 33 35 37 38 63 30 37 66 38 37 31 63 22 0a 77 61 76 65 5f 72 65 67 75 6c 61 74 6f 72 79 5f 76 65 72 3d 22 32 30 31 38 2e 30 34 2e 31 37 5f 57 41 56 45 31 39 2d 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+
+        constexpr auto setHdkConfigRequest = "4d 54 01 2b 2c 00 00 00 36 04 00 00 1c 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff 00 00 00 00 00 00 00 00 00 00";
+        constexpr auto setHdkConfigResponse = "4d 54 01 8b 2c 00 00 00 36 04 00 00 1c 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 ff ff 00 00 00 00 00 00 00 00 00 00";
+        constexpr auto setRxAggregationEnabledRequest = "4d 54 01 23 0c 00 00 00 04 00 00 00 02 00 8e 00 00 00 00 00";
+        constexpr auto setRxAggregationEnabledResponse = "4d 54 01 83 0c 00 00 00 04 00 01 00 02 00 8f 00 00 00 00 00";
+        constexpr auto stopTxRequest = "4d 54 01 23 08 00 00 00 00 00 00 00 02 00 02 02";
+        constexpr auto stopTxResponse = "4d 54 01 83 08 00 00 00 00 00 01 00 02 00 03 02";
+        constexpr auto stopCwRequest = "4d 54 01 23 0c 00 00 00 04 00 00 00 02 00 2a 00 00 00 00 00";
+        constexpr auto stopCwResponse = "4d 54 01 83 0c 00 00 00 04 00 01 00 02 00 2b 00 00 00 00 00";
+        constexpr auto setSpacelessTxDisabledRequest = "4d 54 01 23 09 00 00 00 01 00 00 00 02 00 2c 00 00";
+        constexpr auto setSpacelessTxDisabledResponse = "4d 54 01 83 09 00 00 00 01 00 01 00 02 00 2d 00 00";
+        constexpr auto stopRxCalibrationRequest = "4d 54 01 23 08 00 00 00 00 00 00 00 02 00 82 00";
+        constexpr auto stopRxCalibrationResponse = "4d 54 01 83 08 00 00 00 00 00 01 00 02 00 83 00";
+        constexpr auto setRiscModeEnabledRequest = "4d 54 01 23 0c 00 00 00 04 00 00 00 02 00 3a 00 01 00 00 00";
+        constexpr auto setRiscModeEnabledResponse = "4d 54 01 83 0c 00 00 00 04 00 01 00 02 00 3b 00 01 00 00 00";
+        constexpr auto setIfsRequest = "4d 54 01 23 0C 00 00 00 04 00 00 00 02 00 30 00 10 00 00 00";
+        constexpr auto setIfsResponse = "4d 54 01 83 0C 00 00 00 04 00 01 00 02 00 31 00 10 00 00 00";
+        constexpr auto setEnabledRxAntennaMaskRequest = "4d 54 01 23 09 00 00 00 01 00 00 00 02 00 26 00 0f";
+        constexpr auto setEnabledRxAntennaMaskResponse = "4d 54 01 83 09 00 00 00 01 00 01 00 02 00 27 00 0f";
+        constexpr auto setEnabledTxAntennaMaskRequest = "4d 54 01 23 09 00 00 00 01 00 00 00 02 00 24 00 0f";
+        constexpr auto setEnabledTxAntennaMaskResponse = "4d 54 01 83 09 00 00 00 01 00 01 00 02 00 25 00 0f";
+        constexpr auto setTransmitPowerLevelAntenna1Request = "4d 54 01 23 0c 00 00 00 04 00 00 00 02 00 32 00 00 00 22 44";
+        constexpr auto setTransmitPowerLevelAntenna1Response = "4d 54 01 83 0c 00 00 00 04 00 01 00 02 00 33 00 00 00 22 44";
+        constexpr auto setTransmitPowerLevelAntenna2Request = "4d 54 01 23 0c 00 00 00 04 00 00 00 02 00 32 00 01 00 22 44";
+        constexpr auto setTransmitPowerLevelAntenna2Response = "4d 54 01 83 0c 00 00 00 04 00 01 00 02 00 33 00 01 00 22 44";
+        constexpr auto setTransmitPowerLevelAntenna3Request = "4d 54 01 23 0c 00 00 00 04 00 00 00 02 00 32 00 02 00 22 44";
+        constexpr auto setTransmitPowerLevelAntenna3Response = "4d 54 01 83 0c 00 00 00 04 00 01 00 02 00 33 00 02 00 22 44";
+        constexpr auto setTransmitPowerLevelAntenna4Request = "4d 54 01 23 0c 00 00 00 04 00 00 00 02 00 32 00 03 00 22 44";
+        constexpr auto setTransmitPowerLevelAntenna4Response = "4d 54 01 83 0c 00 00 00 04 00 01 00 02 00 33 00 03 00 22 44";
+} // namespace initSeq
+
 class DutWithConnectionMockTest : public ::testing::Test {
 public:
     DutWithConnectionMockTest()
@@ -193,6 +246,31 @@ public:
         ASSERT_TRUE(m_dut.driverInit(false, memoryType, memorySize, dut::Band::BAND_INVALID));
     }
 
+    void expectInitializeDeviceSequence()
+    {
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::resetMacRequest, initSeq::resetMacResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::getFwInfoRequest, initSeq::getFwInfoResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::readNvm1Request, initSeq::readNvm1Response)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::readNvm2Request, initSeq::readNvm2Response)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::readNvm3Request, initSeq::readNvm3Response)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::readChipVersionRequest, initSeq::readChipVersionResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::getCombinedVersionRequest, initSeq::getCombinedVersionResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::setHdkConfigRequest, initSeq::setHdkConfigResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::setRxAggregationEnabledRequest, initSeq::setRxAggregationEnabledResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::stopTxRequest, initSeq::stopTxResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::stopCwRequest, initSeq::stopCwResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::setSpacelessTxDisabledRequest, initSeq::setSpacelessTxDisabledResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::stopRxCalibrationRequest, initSeq::stopRxCalibrationResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::setRiscModeEnabledRequest, initSeq::setRiscModeEnabledResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::setIfsRequest, initSeq::setIfsResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::setEnabledRxAntennaMaskRequest, initSeq::setEnabledRxAntennaMaskResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::setEnabledTxAntennaMaskRequest, initSeq::setEnabledTxAntennaMaskResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::setTransmitPowerLevelAntenna1Request, initSeq::setTransmitPowerLevelAntenna1Response)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::setTransmitPowerLevelAntenna2Request, initSeq::setTransmitPowerLevelAntenna2Response)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::setTransmitPowerLevelAntenna3Request, initSeq::setTransmitPowerLevelAntenna3Response)
+        SET_REQUEST_RESPONSE_EXPECTATION(initSeq::setTransmitPowerLevelAntenna4Request, initSeq::setTransmitPowerLevelAntenna4Response)
+    }
+
     void TearDown() override
     {
         m_logger->setLogLevel(dut::LogLevel::LOG_LEVEL_NONE);
@@ -258,34 +336,33 @@ TEST_F(DutWithConnectionMockTest, calculateLinearRegressionShouldSucceed)
 
     const std::array<std::array<uint16_t, dut::numPowerPoints>, dut::maxNumRxAntennas> voltages {
         {
-            //
-            { 143, 157, 172, 184, 197, 214 },
-            { 138, 153, 167, 178, 192, 208 },
-            { 260, 272, 281, 286, 295, 307 },
-            { 130, 140, 151, 158, 169, 181 },
-            { 0, 0, 0, 0, 0, 0 } //
+            { 4, 5, 9, 17, 20, 32 },
+            { 4, 6, 9, 17, 20, 33 },
+            { 4, 5, 10, 17, 21, 34 },
+            { 4, 6, 10, 18, 21, 33 },
+            { 0, 0, 0, 0, 0, 0 }
         }
     };
-    const std::array<uint16_t, dut::maxNumRxAntennas> offsets { 131, 126, 254, 122, 0 };
+    const std::array<uint16_t, dut::maxNumRxAntennas> offsets { 1, 1, 1, 1, 0 };
+
     std::array<dut::RssiAB_t, dut::maxNumRxAntennas> result {};
     std::array<float, dut::maxNumRxAntennas> maxErrors {};
 
     ASSERT_TRUE(m_dut.calculateLinearRegression(powerVector, voltages, offsets, lnaGains, result, maxErrors));
 
     const std::array<dut::RssiAB_t, dut::maxNumRxAntennas> expectedResult { {
-        //
-        { 0.28665f / 2, -113.8824f },
-        { 0.29375f / 2, -109.4515f },
-        { 0.24943f / 2, -130.8720f },
-        { 0.28053f / 2, -122.7129f },
-        { 0.0f, 0.0f } //
+        { 0.124245219f, -121.493675f },
+        { 0.127730995f, -114.100342f },
+        { 0.119251862f, -128.755234f },
+        { 0.125352651f, -128.296478f },
+        { 0.0f, 0.0f }
     } };
     for (uint8_t i = 0; i < dut::maxNumRxAntennas; i++) {
         EXPECT_NEAR(expectedResult[i].a, result[i].a, 0.01f);
         EXPECT_NEAR(expectedResult[i].b, result[i].b, 0.01f);
     }
 
-    const std::array<float, dut::maxNumRxAntennas> expectedMaxErrors { 1.05128f / 2, 1.04999f / 2, 1.11351f / 2, 1.07098f / 2, -1.0f };
+    const std::array<float, dut::maxNumRxAntennas> expectedMaxErrors { 0.388599396f, 0.361909866f, 0.434085846f, 0.407760620f, -1.0f };
     for (uint8_t i = 0; i < dut::maxNumRxAntennas; i++) {
         EXPECT_NEAR(expectedMaxErrors[i], maxErrors[i], 0.00001f);
     }
@@ -711,15 +788,30 @@ TEST_F(DutWithConnectionMockTest, flushNvmShouldSucceed)
     constexpr auto flushNvmResponse = "4d 54 01 85 14 00 00 00 0c 00 01 00 02 00 07 00 02 00 00 00 00 00 00 00 01 00 00 00";
 
     constexpr auto recoveryRequest = "4d 54 01 25 14 00 00 00 0c 00 00 00 02 00 0c 00 02 00 00 00 00 00 00 00 01 00 00 00";
+    constexpr auto recoveryResponse = "4d 54 01 85 14 00 00 00 0c 00 01 00 02 00 0d 00 02 00 00 00 00 00 00 00 01 00 00 00";
+
+    constexpr auto stopVapTrafficRequest = "4d 54 01 2b 14 00 00 00 0f 04 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+    constexpr auto stopVapTrafficResponse = "4d 54 01 8b 14 00 00 00 0f 04 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+
+    constexpr auto removeVapRequest = "4d 54 01 2b 14 00 00 00 11 04 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
+    constexpr auto removeVapResponse = "4d 54 01 8b 14 00 00 00 11 04 00 00 04 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00";
 
     {
         InSequence sequence;
 
         SET_REQUEST_RESPONSE_EXPECTATION(flushNvmRequest, flushNvmResponse)
-        SET_REQUEST_RESPONSE_EXPECTATION(recoveryRequest, "")
+        SET_REQUEST_RESPONSE_EXPECTATION(recoveryRequest, recoveryResponse)
+
+        expectInitializeDeviceSequence();
+
+        SET_REQUEST_RESPONSE_EXPECTATION(stopVapTrafficRequest, stopVapTrafficResponse)
+        SET_REQUEST_RESPONSE_EXPECTATION(removeVapRequest, removeVapResponse)
     }
 
     ASSERT_TRUE(m_dut.flushNvm());
+
+    dut::AntennaMask antennaMask {};
+    ASSERT_TRUE(m_dut.getAvailableRxAntennaMask(antennaMask));
 
     ASSERT_TRUE(m_dut.driverRelease());
 
@@ -956,6 +1048,28 @@ TEST_F(DutWithConnectionMockTest, getNmseValuesShouldSucceed)
             EXPECT_EQ(values[i][j], j + 1)
                 << "with antenna " << i << " and calibration point " << j;
         }
+    }
+}
+
+TEST_F(DutWithConnectionMockTest, getPaDetModeShouldSucceed)
+{
+    constexpr auto getPaDetModeRequest  = "4d 54 01 23 0d 00 00 00 05 00 00 00 02 00 ae 00 0f 00 00 00 00";
+    constexpr auto getPaDetModeResponse = "4d 54 01 83 0d 00 00 00 05 00 01 00 00 02 af 00 0f 00 00 00 00";
+
+    {
+        InSequence sequence;
+
+        SET_REQUEST_RESPONSE_EXPECTATION(getPaDetModeRequest, getPaDetModeResponse)
+    }
+
+    std::array<int8_t, dut::maxNumTxAntennas> PaDetMode {};
+    dut::AntennaMask antennaMask=0xf;
+
+    ASSERT_TRUE(m_dut.getPaDetMode(antennaMask, PaDetMode));
+
+    const std::array<int8_t, dut::maxNumTxAntennas> expectedPaDetMode { 0, 0, 0, 0 };
+    for (size_t i = 0; i < dut::maxNumTxAntennas; i++) {
+        EXPECT_EQ(PaDetMode[i], expectedPaDetMode[i]);
     }
 }
 

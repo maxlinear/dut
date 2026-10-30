@@ -287,14 +287,13 @@ void ClientImpl::flushNvMemory(ChipID chipId, NvMemoryType memoryType, FileType 
         Payload payload(reinterpret_cast<uint8_t*>(&nvMemoryFlushParams), sizeof(nvMemoryFlushParams));
         DutMessage message(m_wlanIndex, payload);
 
-        // TODO: firmware should respond to this request. Otherwise the library cannot be sure if the command succeeded (see WLANRTSYS-37327).
         exchangeMessage(
             m_wlanIndex,
             dutDriverMessagesId_e::DUT_SERVER_MSG_DRIVER_GENERAL,
             dutDriverGeneralMsgId_e::DUT_DGM_RECOVERY_REQ,
-            0,
+            dutDriverGeneralMsgId_e::DUT_DGM_RECOVERY_CFM,
             message,
-            std::chrono::milliseconds::zero());
+            timeout);
     }
 }
 
@@ -1861,5 +1860,31 @@ void ClientImpl::writeNvMemory(size_t address, const uint8_t* data, size_t lengt
         message,
         timeout);
 }
+
+ void ClientImpl::getPaDetMode(const AntennaMask antennaMask, std::array<int8_t, maxNumTxAntennas>& PaDetMode)
+ {
+     dutTxPaDetMode_t dutTxPaDetMode{};
+     dutTxPaDetMode.antMask = antennaMask;
+
+     // Payload is updated in the destructor of the message (i.e.: when the variable 'message' goes out of scope)
+     {
+         Payload payload(reinterpret_cast<uint8_t*>(&dutTxPaDetMode), sizeof(dutTxPaDetMode));
+         DutMessage message(m_wlanIndex, payload);
+
+         exchangeMessage(
+             m_wlanIndex,
+             dutDriverMessagesId_e::DUT_SERVER_MSG_MAC_C100,
+             dutMessagesId_e::DUT_GET_PADET_MODE_REQ,
+             dutMessagesId_e::DUT_GET_PADET_MODE_CFM,
+             message,
+             timeout);
+     }
+
+     for (uint8_t antenna = 0; antenna < maxNumTxAntennas; antenna++) {
+         if (antennaMask & (1 << antenna)) {
+             PaDetMode[antenna] = dutTxPaDetMode.PaDetMode[antenna];
+         };
+     }
+ }
 
 }

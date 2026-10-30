@@ -516,6 +516,24 @@ TEST_F(FunctionsTest, getNvmVersionShouldSucceed)
     ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 getNvmVersion", m_context));
 }
 
+TEST_F(FunctionsTest, getPaDetModeShouldSucceed)
+{
+    {
+        InSequence sequence;
+
+        EXPECT_CALL(m_dutFactory, createInstanceProxy(0, m_connection, m_logger, true)).WillOnce(Return(m_dut0));
+ 		EXPECT_CALL(*m_dut0,     getPaDetMode(_, _)).WillOnce(Invoke([](dut::AntennaMask antennaMask, std::array<int8_t, dut::maxNumTxAntennas>& paDetMode) {
+           for (size_t i = 0; i < dut::maxNumTxAntennas; i++) {
+                paDetMode[i] = static_cast<uint8_t>(i);
+            }
+            return true;
+        }));
+        EXPECT_CALL(m_console, cout("PaDetMode: [0,1,2,3]\n")).Times(1);
+    }
+
+    ASSERT_TRUE(dut_cli::CommandLine::run("exec 0 getPaDetMode", m_context));
+}
+
 TEST_F(FunctionsTest, getPhyModeShouldSucceed)
 {
     {

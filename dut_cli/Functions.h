@@ -191,6 +191,11 @@ public:
     bool execute(std::shared_ptr<dut::Dut> dut, Context& context) override;
 };
 
+class GetPaDetModeFunction : public Function {
+public:
+    bool execute(std::shared_ptr<dut::Dut> dut, Context& context) override;
+};
+
 class GetPhyModeFunction : public Function {
 public:
     bool execute(std::shared_ptr<dut::Dut> dut, Context& context) override;

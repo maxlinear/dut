@@ -158,6 +158,7 @@ public:
     bool getTssiCalibrationData(CalibrationFileVersion& version, std::vector<TssiCalibrationData_t>& data) override;
     bool getXtalCalValue(uint16_t& xtalValue) override;
     bool getXtalRegValue(uint16_t& xtalValue) override;
+    bool getPaDetMode(const AntennaMask antennaMask, std::array<int8_t, maxNumTxAntennas>& PaDetMode) override;
     bool getZwdfsStatus(AntennaMask& antennaMask, bool& enabled) override;
     bool loadBeamformingMatrixFromFileSet(const BeamformingFilePathSet_t& primarySet, const BeamformingFilePathSet_t& secondarySet = BeamformingFilePathSet_t {}) override;
     bool loadNvmFromFile(const std::string& fileName) override;
@@ -253,6 +254,8 @@ private:
     void logOutput(const std::vector<std::pair<std::string, std::string>>& results) const;
 
     bool execute(const std::string& functionName, const std::function<void()>& functionCode);
+
+    void initializeDevice(bool snifferMode, NvMemoryType memoryType, NvMemorySize memorySize, Band band);
 
     void addVap(bool snifferMode, uint8_t fwInfoOperationMode) const;
     void removeVap() const;

@@ -46,6 +46,12 @@ using DutHandle = dut::Dut*;
 typedef dut::Dut* DutHandle;
 #endif
 
+enum CodingType {
+	CODING_TYPE_AUTO = 0,
+	CODING_TYPE_BCC = 1,
+	CODING_TYPE_LDPC = 2
+};
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -89,10 +95,12 @@ DUT_C_API bool DUT_C_API_ENTRY DUT_getFemType(const DutHandle handle, dut::FemTy
 DUT_C_API bool DUT_C_API_ENTRY DUT_getHardwareType(const DutHandle handle, dut::HardwareType* hardwareType);
 DUT_C_API bool DUT_C_API_ENTRY DUT_getInbandRssi(const DutHandle handle, int16_t rssi[dut::maxNumRxAntennas]);
 DUT_C_API bool DUT_C_API_ENTRY DUT_getMacPacketCounters(const DutHandle handle, uint32_t* receivedPackets);
+DUT_C_API bool DUT_C_API_ENTRY DUT_getMpduPacketCounters(const DutHandle handle, uint32_t* receivedPackets, uint32_t* errorPackets);
 DUT_C_API bool DUT_C_API_ENTRY DUT_getNmseValues(const DutHandle handle, int32_t values[dut::maxNumTxAntennas][dut::dpdTotalCalibrationPoints]);
 DUT_C_API bool DUT_C_API_ENTRY DUT_getNvmSize(const DutHandle handle, size_t* size);
 DUT_C_API bool DUT_C_API_ENTRY DUT_getNvmType(const DutHandle handle, dut::NvMemoryType* type);
 DUT_C_API bool DUT_C_API_ENTRY DUT_getNvmVersion(const DutHandle handle, uint8_t* version);
+DUT_C_API bool DUT_C_API_ENTRY DUT_getPaDetMode(const DutHandle handle, dut::AntennaMask antennaMask, int8_t PaDetMode[dut::maxNumTxAntennas]);
 DUT_C_API bool DUT_C_API_ENTRY DUT_getPhyMode(const DutHandle handle, dut::PhyMode* phyMode);
 DUT_C_API bool DUT_C_API_ENTRY DUT_getPhyPacketCounters(const DutHandle handle, uint32_t* receivedPackets, uint32_t* crcErrors, uint32_t* forwardedPackets);
 DUT_C_API bool DUT_C_API_ENTRY DUT_getProductionFlag(const DutHandle handle, bool* productionFlag);
@@ -116,6 +124,7 @@ DUT_C_API bool DUT_C_API_ENTRY DUT_readMemory(const DutHandle handle, dut::ChipM
 DUT_C_API bool DUT_C_API_ENTRY DUT_readNvm(const DutHandle handle, size_t address, uint8_t* data, size_t length, bool useCache);
 DUT_C_API bool DUT_C_API_ENTRY DUT_readRegister(const DutHandle handle, dut::ChipModule chipModule, size_t address, uint32_t mask, uint32_t* value);
 DUT_C_API bool DUT_C_API_ENTRY DUT_resetMacPacketCounters(const DutHandle handle);
+DUT_C_API bool DUT_C_API_ENTRY DUT_resetMpduPacketCounters(const DutHandle handle);
 DUT_C_API bool DUT_C_API_ENTRY DUT_resetPhyPacketCounters(const DutHandle handle);
 DUT_C_API bool DUT_C_API_ENTRY DUT_rxMeasure(const DutHandle handle, uint32_t numCaptures, uint32_t captureInterval, bool disabled);
 DUT_C_API bool DUT_C_API_ENTRY DUT_saveNvmToFile(const DutHandle handle, const char* fileName);
@@ -150,7 +159,7 @@ DUT_C_API bool DUT_C_API_ENTRY DUT_startCalibration(const DutHandle handle, cons
 DUT_C_API bool DUT_C_API_ENTRY DUT_startCw(const DutHandle handle, int8_t amplitude, int16_t tone);
 DUT_C_API bool DUT_C_API_ENTRY DUT_startRxCalibration(const DutHandle handle);
 DUT_C_API bool DUT_C_API_ENTRY DUT_startRxPer(const DutHandle handle, uint32_t packetLimit);
-DUT_C_API bool DUT_C_API_ENTRY DUT_startTx(const DutHandle handle, uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, dut::CodingType codingType);
+DUT_C_API bool DUT_C_API_ENTRY DUT_startTx(const DutHandle handle, uint16_t repetitions, uint32_t packetLength, bool longData, bool beamforming, CodingType codingType);
 DUT_C_API bool DUT_C_API_ENTRY DUT_stopCw(const DutHandle handle);
 DUT_C_API bool DUT_C_API_ENTRY DUT_stopRxCalibration(const DutHandle handle);
 DUT_C_API bool DUT_C_API_ENTRY DUT_stopRxPer(const DutHandle handle, bool calcRxPer);

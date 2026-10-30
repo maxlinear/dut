@@ -378,6 +378,18 @@ bool Dut::getNvmVersion([Out] uint8_t % version)
     return result;
 }
 
+bool Dut::getPaDetMode(AntennaMask^ antennaMask, [Out] cli::array<int8_t>^% PaDetMode)
+{
+	std::array<int8_t, dut::maxNumTxAntennas> _PaDetMode{};
+
+    bool result = GetInstance()->getPaDetMode(antennaMask->Value, _PaDetMode);
+    if (result) {
+        PaDetMode = marshal_as_array<int8_t, dut::maxNumTxAntennas>(_PaDetMode);
+    }
+
+    return result;
+}
+
 bool Dut::getPhyMode([Out] PhyMode % phyMode)
 {
     dut::PhyMode _phyMode;
